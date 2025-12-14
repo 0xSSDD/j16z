@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./apps/j16z-frontend" },
+    { "path": "./apps/j16z-backend" },
+    { "path": "./packages/design-system" },
+    { "path": "./packages/utils" }
+  ],
+  "extends": "./tsconfig.base.json"
+}

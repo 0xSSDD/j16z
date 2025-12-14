@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "name": "j16z",
+  "type": "module",
+  "packageManager": "pnpm@10.18.3",
+  "scripts": {
+    "dev": "pnpm --recursive --parallel --filter \"./apps/*\" run dev",
+    "build": "pnpm --recursive --filter \"./packages/*\" run build && pnpm --recursive --parallel --filter \"./apps/*\" run build",
+    "test": "vitest",
+    "test:be": "vitest --project=j16z-backend",
+    "lint": "biome check",
+    "lint:fix": "biome check --write --unsafe",
+    "check": "tsc -b tsconfig.json"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^24.10.1",
+    "typescript": "^5.9.2",
+    "vitest": "^4.0.2"
+  }
+}

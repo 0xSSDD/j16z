@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "strictNullChecks": true,
+    "exactOptionalPropertyTypes": true,
+    "moduleDetection": "force",
+    "composite": true,
+    "downlevelIteration": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "declaration": true,
+    "skipLibCheck": true,
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "isolatedModules": true,
+    "sourceMap": true,
+    "declarationMap": true,
+    "noUnusedLocals": true,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "incremental": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@j16z/design-system": ["./packages/design-system/src/index.ts"],
+      "@j16z/design-system/*": ["./packages/design-system/src/*.ts"],
+      "@j16z/utils": ["./packages/utils/src/index.ts"],
+      "@j16z/utils/*": ["./packages/utils/src/*.ts"]
+    }
+  }
+}
