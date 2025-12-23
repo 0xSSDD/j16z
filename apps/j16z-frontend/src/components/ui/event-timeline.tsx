@@ -1,8 +1,28 @@
 import { Event } from "@/lib/types";
+import { FileText, Scale, Building2, TrendingUp, Newspaper } from "lucide-react";
 
 interface EventTimelineProps {
   events: Event[];
 }
+
+const EventIcon = ({ type }: { type: Event["type"] }) => {
+  const iconProps = { className: "h-4 w-4" };
+
+  switch (type) {
+    case "FILING":
+      return <FileText {...iconProps} />;
+    case "COURT":
+      return <Scale {...iconProps} />;
+    case "AGENCY":
+      return <Building2 {...iconProps} />;
+    case "SPREAD_MOVE":
+      return <TrendingUp {...iconProps} />;
+    case "NEWS":
+      return <Newspaper {...iconProps} />;
+    default:
+      return <FileText {...iconProps} />;
+  }
+};
 
 export function EventTimeline({ events }: EventTimelineProps) {
   const materialityColors = {
@@ -11,33 +31,25 @@ export function EventTimeline({ events }: EventTimelineProps) {
     LOW: "border-zinc-500 bg-zinc-500/10",
   };
 
-  const typeIcons = {
-    FILING: "📄",
-    COURT: "⚖️",
-    AGENCY: "🏛️",
-    SPREAD_MOVE: "📈",
-    NEWS: "📰",
-  };
-
   return (
     <div className="space-y-4">
       {events.map((event, index) => (
         <div key={event.id} className="flex gap-4">
           <div className="flex flex-col items-center">
             <div
-              className={`w-10 h-10 rounded-full border-2 flex items-center justify-center text-lg ${materialityColors[event.materiality]}`}
+              className={`w-10 h-10 rounded-full border-2 flex items-center justify-center ${materialityColors[event.materiality]}`}
             >
-              {typeIcons[event.type]}
+              <EventIcon type={event.type} />
             </div>
             {index < events.length - 1 && (
-              <div className="w-0.5 h-full bg-zinc-800 mt-2" />
+              <div className="w-0.5 h-full bg-border mt-2" />
             )}
           </div>
           <div className="flex-1 pb-8">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-mono text-xs text-zinc-500">
+                  <span className="font-mono text-xs text-muted-foreground">
                     {new Date(event.timestamp).toLocaleString("en-US", {
                       month: "short",
                       day: "numeric",
@@ -51,14 +63,14 @@ export function EventTimeline({ events }: EventTimelineProps) {
                   >
                     {event.materiality}
                   </span>
-                  <span className="px-2 py-0.5 rounded text-xs font-mono bg-zinc-800 text-zinc-400">
+                  <span className="px-2 py-0.5 rounded text-xs font-mono bg-secondary text-muted-foreground">
                     {event.subtype}
                   </span>
                 </div>
-                <h4 className="font-mono text-sm font-medium text-zinc-100 mb-2">
+                <h4 className="font-mono text-sm font-medium text-foreground mb-2">
                   {event.title}
                 </h4>
-                <p className="text-sm text-zinc-400 leading-relaxed">
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   {event.summary}
                 </p>
                 {event.sourceUrl && (

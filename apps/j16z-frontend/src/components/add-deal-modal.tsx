@@ -71,14 +71,14 @@ export function AddDealModal({ isOpen, onClose, onAdd }: AddDealModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-zinc-950 border-zinc-800 max-w-md">
+      <DialogContent className="bg-background border-border max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-mono text-zinc-100">+ Add Deal</DialogTitle>
+          <DialogTitle className="font-mono text-foreground">+ Add Deal</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-mono text-zinc-400 mb-2">
+            <label className="block text-sm font-mono text-muted-foreground mb-2">
               Acquirer Ticker <span className="text-red-500">*</span>
             </label>
             <Input
@@ -88,7 +88,7 @@ export function AddDealModal({ isOpen, onClose, onAdd }: AddDealModalProps) {
                 setAcquirerTicker(e.target.value.toUpperCase());
                 setErrors((prev) => ({ ...prev, acquirer: "" }));
               }}
-              className="bg-zinc-900 border-zinc-800 text-zinc-100 font-mono uppercase"
+              className="bg-secondary border-border text-foreground font-mono uppercase"
             />
             {errors.acquirer && (
               <p className="text-xs text-red-500 font-mono mt-1">{errors.acquirer}</p>
@@ -96,7 +96,7 @@ export function AddDealModal({ isOpen, onClose, onAdd }: AddDealModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-mono text-zinc-400 mb-2">
+            <label className="block text-sm font-mono text-muted-foreground mb-2">
               Target Ticker <span className="text-red-500">*</span>
             </label>
             <Input
@@ -106,7 +106,7 @@ export function AddDealModal({ isOpen, onClose, onAdd }: AddDealModalProps) {
                 setTargetTicker(e.target.value.toUpperCase());
                 setErrors((prev) => ({ ...prev, target: "" }));
               }}
-              className="bg-zinc-900 border-zinc-800 text-zinc-100 font-mono uppercase"
+              className="bg-secondary border-border text-foreground font-mono uppercase"
             />
             {errors.target && (
               <p className="text-xs text-red-500 font-mono mt-1">{errors.target}</p>
@@ -114,27 +114,27 @@ export function AddDealModal({ isOpen, onClose, onAdd }: AddDealModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-mono text-zinc-400 mb-2">
+            <label className="block text-sm font-mono text-muted-foreground mb-2">
               Deal Name (optional)
             </label>
             <Input
               placeholder="Microsoft / Activision Blizzard"
               value={dealName}
               onChange={(e) => setDealName(e.target.value)}
-              className="bg-zinc-900 border-zinc-800 text-zinc-100 font-mono"
+              className="bg-secondary border-border text-foreground font-mono"
             />
           </div>
 
           <div className="flex gap-2 pt-4">
             <button
               onClick={onClose}
-              className="flex-1 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 rounded-md font-mono text-sm transition-colors"
+              className="flex-1 px-4 py-2 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-md font-mono text-sm transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmit}
-              className="flex-1 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 rounded-md font-mono text-sm transition-colors"
+              className="flex-1 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 dark:text-zinc-950 rounded-md font-mono text-sm transition-colors"
             >
               Add Deal
             </button>

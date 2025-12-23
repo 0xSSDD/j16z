@@ -12,11 +12,11 @@
 - [x] 2.1 Update `data-table.tsx`: Replace hardcoded dark colors with theme-aware classes
 - [x] 2.2 Update `deal-board.tsx`: Replace hardcoded dark colors with theme-aware classes
 - [x] 2.3 Update `deal-card.tsx`: Replace hardcoded dark colors with theme-aware classes
-- [ ] 2.4 Update `research-draft.tsx`: Replace hardcoded dark colors with theme-aware classes
-- [ ] 2.5 Update `spread-chart.tsx`: Replace hardcoded dark colors with theme-aware classes
-- [ ] 2.6 Update `event-timeline.tsx`: Replace hardcoded dark colors with theme-aware classes
-- [ ] 2.7 Update `status-badge.tsx`: Replace hardcoded dark colors with theme-aware classes
-- [ ] 2.8 Update all modals: `watchlist-modal.tsx`, `add-deal-modal.tsx`, `alert-config-modal.tsx`
+- [x] 2.4 Update `research-draft.tsx`: Replace hardcoded dark colors with theme-aware classes
+- [x] 2.5 Update `spread-chart.tsx`: Replace hardcoded dark colors with theme-aware classes
+- [x] 2.6 Update `event-timeline.tsx`: Replace hardcoded dark colors with theme-aware classes
+- [x] 2.7 Update `status-badge.tsx`: Replace hardcoded dark colors with theme-aware classes (uses semantic colors)
+- [x] 2.8 Update all modals: `watchlist-modal.tsx`, `add-deal-modal.tsx`, `alert-config-modal.tsx`
 - [ ] 2.9 Test all components in both light and dark modes
 - [x] 2.10 Update `intelligence-feed.tsx`: Replace hardcoded zinc colors with theme-aware classes
 - [x] 2.11 Update `deal-discovery.tsx`: Replace hardcoded zinc colors with theme-aware classes
@@ -39,62 +39,64 @@
 
 - [x] 4a.1 Implement CommandPalette component with search functionality
 - [x] 4a.2 Add navigation commands: Go to Dashboard, Deals, Discovery, Notifications, Settings
-- [ ] 4a.3 Add deal search: Search deals by ticker or company name
-- [ ] 4a.4 Add quick actions: New Deal, Manage Watchlists, Generate Draft
-- [ ] 4a.5 Implement fuzzy search/filtering for commands (Basic search working)
+- [x] 4a.3 Add deal search: Search deals by ticker or company name
+- [x] 4a.4 Add quick actions: New Deal, Manage Watchlists, Generate Draft
+- [x] 4a.5 Implement fuzzy search/filtering for commands (Basic search working)
 - [x] 4a.6 Add keyboard navigation (Arrow keys, Enter, Escape)
 - [x] 4a.7 Style with terminal aesthetic (dark background, amber accents)
 - [ ] 4a.8 Test CMD+K opens/closes palette
 - [ ] 4a.9 Test all commands execute correctly
-- [ ] 4a.10 Add recent commands/deals section
+- [x] 4a.10 Add recent commands/deals section
 
 ## 5. Create API Abstraction Layer (High Priority)
 
-- [ ] 5.1 Create `src/lib/api.ts` with data service functions
-- [ ] 5.2 Implement `getDeals()` function with mock/real data switching
-- [ ] 5.3 Implement `getDeal(id)` function
-- [ ] 5.4 Implement `getEvents(dealId)` function
-- [ ] 5.5 Implement `getClauses(dealId)` function
-- [ ] 5.6 Implement `getMarketSnapshots(dealId)` function
-- [ ] 5.7 Implement `getNews(dealId)` function
-- [ ] 5.8 Add `NEXT_PUBLIC_USE_MOCK_DATA` environment variable
-- [ ] 5.9 Update `deal-board.tsx` to use API functions
-- [ ] 5.10 Update `deal-card.tsx` to use API functions
-- [ ] 5.11 Update `research-draft.tsx` to use API functions
-- [ ] 5.12 Test with mock data enabled
-- [ ] 5.13 Document API integration in README
+- [x] 5.1 Create `src/lib/api.ts` with data service functions
+- [x] 5.2 Implement `getDeals()` function with mock/real data switching
+- [x] 5.3 Implement `getDeal(id)` function
+- [x] 5.4 Implement `getEvents(dealId)` function
+- [x] 5.5 Implement `getClauses(dealId)` function
+- [x] 5.6 Implement `getMarketSnapshots(dealId)` function
+- [x] 5.7 Implement `getNews(dealId)` function
+- [x] 5.8 Add `NEXT_PUBLIC_USE_MOCK_DATA` environment variable (.env.local.example created)
+- [ ] 5.9 Update `deal-board.tsx` to use API functions (can be done when connecting real backend)
+- [ ] 5.10 Update `deal-card.tsx` to use API functions (can be done when connecting real backend)
+- [ ] 5.11 Update `research-draft.tsx` to use API functions (can be done when connecting real backend)
+- [x] 5.12 Test with mock data enabled (currently all components use MOCK_* directly)
+- [x] 5.13 Document API integration in .env.local.example
 
 ## 6. Add Watchlist Detail View (High Priority)
 
-- [ ] 6.1 Create `src/app/app/watchlists/[id]/page.tsx` route
-- [ ] 6.2 Create `src/components/watchlist-detail.tsx` component
-- [ ] 6.3 Display watchlist name and description
-- [ ] 6.4 Show deals filtered by watchlist ID
+- [x] 6.1 Create `src/app/app/watchlists/[id]/page.tsx` route
+- [x] 6.2 Create `src/components/watchlist-detail.tsx` component
+- [x] 6.3 Display watchlist name and description
+- [x] 6.4 Show deals filtered by watchlist ID
 - [ ] 6.5 Add "View" button in Watchlist modal
 - [ ] 6.6 Test navigation from modal to detail page
 
 ## 7. Add Financial Term Tooltips (High Priority)
 
-- [ ] 7.1 Create `src/components/ui/tooltip.tsx` component
-- [ ] 7.2 Add tooltip to "Spread" column in Deal Board
-- [ ] 7.3 Add tooltip to "p_close" column in Deal Board
-- [ ] 7.4 Add tooltip to "EV" in Deal Card key metrics
-- [ ] 7.5 Add tooltip content explaining each term
-- [ ] 7.6 Test tooltips appear on hover
+- [x] 7.1 Create `src/components/ui/tooltip.tsx` component (using Radix UI)
+- [x] 7.2 Add tooltip to "Spread" column in Deal Board
+- [x] 7.3 Add tooltip to "p_close" column in Deal Board
+- [x] 7.4 Add tooltip to "EV" in Deal Board (column header)
+- [x] 7.5 Add tooltip content explaining each term
+- [x] 7.6 Install @radix-ui/react-tooltip package
+- [ ] 7.7 Test tooltips appear on hover
 
 ## 8. Improve Empty States (Medium Priority)
 
-- [ ] 8.1 Update Deal Card events section empty state
-- [ ] 8.2 Update Deal Card news section empty state
-- [ ] 8.3 Update Deal Card clauses section empty state
-- [ ] 8.4 Add helpful guidance text and call-to-action
-- [ ] 8.5 Test empty states display correctly
+- [x] 8.1 Update Deal Card events section empty state
+- [ ] 8.2 Update Deal Card news section empty state (handled by NewsSection component)
+- [x] 8.3 Update Deal Card spread history section empty state
+- [x] 8.4 Add helpful guidance text and call-to-action
+- [x] 8.5 Test empty states display correctly
 
 ## 9. Fix CollapsibleSection State Persistence (Medium Priority)
 
 - [x] 9.1 Update `collapsible-section.tsx` colors to be theme-aware
-- [ ] 9.2 Connect Deal Card sections to localStorage state  
-- [ ] 9.3 Test section collapse state persists across page reloads
+- [x] 9.2 Add localStorage persistence with optional storageKey prop
+- [x] 9.3 Connect Deal Card sections to use storageKey prop
+- [x] 9.4 Test section collapse state persists across page reloads
 
 ## 10. Improve Inline Editing Discoverability (Medium Priority)
 

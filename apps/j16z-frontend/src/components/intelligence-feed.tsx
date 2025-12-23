@@ -15,9 +15,9 @@ const PriorityBadge = ({ priority }: { priority: Priority }) => {
 
   return (
     <span
-      className={`border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${styles[priority]}`}
+      className={`border px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${styles[priority]}`}
     >
-      {priority.substring(0, 1)}
+      {priority}
     </span>
   );
 };
@@ -54,7 +54,7 @@ export const IntelligenceFeed: React.FC = () => {
                   onClick={() => setFilter(String(f))}
                   className={`border-r border-border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider last:border-r-0 transition-colors ${filter === f ? "bg-surfaceHighlight text-text-main" : "text-text-muted hover:bg-surface hover:text-text-main"}`}
                 >
-                  {f === "ALL" ? "ALL" : String(f).split("_")[0]}
+                  {f === "ALL" ? "ALL" : String(f).replace(/_/g, " ")}
                 </button>
               ),
             )}
@@ -67,7 +67,7 @@ export const IntelligenceFeed: React.FC = () => {
 
       <div className="flex flex-1 flex-col border border-border bg-background">
         <div className="grid grid-cols-12 gap-4 border-b border-border bg-surfaceHighlight px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-text-dim">
-          <div className="col-span-1">Pri</div>
+          <div className="col-span-1">Priority</div>
           <div className="col-span-1">Type</div>
           <div className="col-span-5">Subject</div>
           <div className="col-span-2">Source</div>
@@ -86,7 +86,7 @@ export const IntelligenceFeed: React.FC = () => {
                 <PriorityBadge priority={item.priority} />
               </div>
               <div className="col-span-1 text-text-muted group-hover:text-text-main">
-                {item.type.split("_")[0]}
+                {item.type.replace(/_/g, " ")}
               </div>
               <div className="col-span-5">
                 <div className="flex flex-col">

@@ -289,7 +289,16 @@ export function DealCard({ dealId }: DealCardProps) {
         {filteredEvents.length > 0 ? (
           <EventTimeline events={filteredEvents} />
         ) : (
-          <p className="text-sm text-text-muted font-mono">No events match the selected filters.</p>
+          <div className="text-center py-8">
+            <p className="text-sm text-text-muted font-mono mb-2">
+              {eventTypeFilter.length > 0 ? "No events match the selected filters." : "No events recorded yet."}
+            </p>
+            {eventTypeFilter.length === 0 && (
+              <p className="text-xs text-text-dim font-mono">
+                Events will appear here as the deal progresses through regulatory reviews, filings, and court proceedings.
+              </p>
+            )}
+          </div>
         )}
       </CollapsibleSection>
       </div>
@@ -300,7 +309,12 @@ export function DealCard({ dealId }: DealCardProps) {
         {marketSnapshots.length > 0 ? (
           <SpreadChart data={marketSnapshots} events={events} />
         ) : (
-          <p className="text-sm text-text-muted font-mono">No spread history available.</p>
+          <div className="text-center py-8">
+            <p className="text-sm text-text-muted font-mono mb-2">No spread history available.</p>
+            <p className="text-xs text-text-dim font-mono">
+              Historical spread data will be displayed here once market snapshots are recorded.
+            </p>
+          </div>
         )}
       </CollapsibleSection>
       </div>
@@ -330,7 +344,12 @@ export function DealCard({ dealId }: DealCardProps) {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-text-muted font-mono">No regulatory issues.</p>
+              <div>
+                <p className="text-sm text-text-muted font-mono mb-1">No regulatory issues identified.</p>
+                <p className="text-xs text-text-dim font-mono">
+                  This deal has no active regulatory reviews or concerns flagged.
+                </p>
+              </div>
             )}
           </div>
           <div>
@@ -340,7 +359,12 @@ export function DealCard({ dealId }: DealCardProps) {
                 {deal.litigationCount} active {deal.litigationCount === 1 ? "case" : "cases"}
               </p>
             ) : (
-              <p className="text-sm text-text-muted font-mono">No active litigation.</p>
+              <div>
+                <p className="text-sm text-text-muted font-mono mb-1">No active litigation.</p>
+                <p className="text-xs text-text-dim font-mono">
+                  This deal currently has no pending legal challenges or shareholder lawsuits.
+                </p>
+              </div>
             )}
           </div>
         </div>

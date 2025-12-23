@@ -10,6 +10,8 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { FilterChips } from "@/components/ui/filter-chips";
 import { WatchlistModal } from "@/components/watchlist-modal";
 import { AddDealModal } from "@/components/add-deal-modal";
+import { Tooltip, TooltipProvider } from "@/components/ui/tooltip";
+import { AlertTriangle, Scale } from "lucide-react";
 
 export function DealBoard() {
   const router = useRouter();
@@ -43,7 +45,11 @@ export function DealBoard() {
     },
     {
       accessorKey: "currentSpread",
-      header: "Spread",
+      header: () => (
+        <Tooltip content="The difference between the deal price and current trading price. Higher spreads indicate greater uncertainty or risk.">
+          <span className="cursor-help border-b border-dotted border-text-muted">Spread</span>
+        </Tooltip>
+      ),
       cell: ({ row }) => (
         <div className="flex flex-col gap-0.5">
           <div className="font-medium text-primary-500">
@@ -57,14 +63,22 @@ export function DealBoard() {
     },
     {
       accessorKey: "p_close_base",
-      header: "p_close",
+      header: () => (
+        <Tooltip content="Probability of close: The estimated likelihood that the deal will successfully complete based on regulatory, financial, and market factors.">
+          <span className="cursor-help border-b border-dotted border-text-muted">p_close</span>
+        </Tooltip>
+      ),
       cell: ({ row }) => (
         <span className="font-medium">{row.original.p_close_base}%</span>
       ),
     },
     {
       accessorKey: "ev",
-      header: "EV",
+      header: () => (
+        <Tooltip content="Expected Value: The risk-adjusted return calculated as (Spread × p_close) - (Downside × (1 - p_close)). Represents the average expected return.">
+          <span className="cursor-help border-b border-dotted border-text-muted">EV</span>
+        </Tooltip>
+      ),
       cell: ({ row }) => (
         <span className="font-medium text-green-500">
           {row.original.ev.toFixed(2)}%
@@ -74,16 +88,35 @@ export function DealBoard() {
     {
       accessorKey: "regulatoryFlags",
       header: "Reg/Lit",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          {row.original.regulatoryFlags.length > 0 && (
-            <span className="text-red-500">🔴</span>
-          )}
-          {row.original.litigationCount > 0 && (
-            <span className="text-text-muted">⚖️ {row.original.litigationCount}</span>
-          )}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const hasRegulatory = row.original.regulatoryFlags.length > 0;
+        const hasLitigation = row.original.litigationCount > 0;
+
+        if (!hasRegulatory && !hasLitigation) {
+          return <span className="text-text-dim text-xs">—</span>;
+        }
+
+        return (
+          <div className="flex flex-col gap-1">
+            {hasRegulatory && (
+              <div className="flex items-center gap-1">
+                <AlertTriangle className="h-3 w-3 text-red-500" />
+                <span className="text-xs text-red-500 font-medium">
+                  {row.original.regulatoryFlags.length} Reg
+                </span>
+              </div>
+            )}
+            {hasLitigation && (
+              <div className="flex items-center gap-1">
+                <Scale className="h-3 w-3 text-amber-500" />
+                <span className="text-xs text-amber-500 font-medium">
+                  {row.original.litigationCount} Lit
+                </span>
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "outsideDate",
@@ -154,6 +187,7 @@ export function DealBoard() {
   };
 
   return (
+    <TooltipProvider>
     <div className="flex flex-col gap-6 p-6">
       <div className="flex items-center justify-between">
         <div>
@@ -280,5 +314,6 @@ export function DealBoard() {
         }}
       />
     </div>
+    </TooltipProvider>
   );
 }

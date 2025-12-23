@@ -55,31 +55,31 @@ export function WatchlistModal({ isOpen, onClose, onSave }: WatchlistModalProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-zinc-950 border-zinc-800 max-w-2xl">
+      <DialogContent className="bg-background border-border max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="font-mono text-zinc-100">Manage Watchlists</DialogTitle>
+          <DialogTitle className="font-mono text-foreground">Manage Watchlists</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
           <div className="space-y-3">
-            <h3 className="text-sm font-mono font-medium text-zinc-400">Create New Watchlist</h3>
+            <h3 className="text-sm font-mono font-medium text-muted-foreground">Create New Watchlist</h3>
             <div className="space-y-2">
               <Input
                 placeholder="Watchlist Name"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                className="bg-zinc-900 border-zinc-800 text-zinc-100 font-mono"
+                className="bg-secondary border-border text-foreground font-mono"
               />
               <Input
                 placeholder="Description (optional)"
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
-                className="bg-zinc-900 border-zinc-800 text-zinc-100 font-mono"
+                className="bg-secondary border-border text-foreground font-mono"
               />
               <button
                 onClick={handleAddWatchlist}
                 disabled={!newName.trim()}
-                className="px-4 py-2 bg-amber-500 hover:bg-amber-600 disabled:bg-zinc-800 disabled:text-zinc-600 text-zinc-950 rounded-md font-mono text-sm transition-colors"
+                className="px-4 py-2 bg-amber-500 hover:bg-amber-600 disabled:bg-secondary disabled:text-muted-foreground text-zinc-950 dark:text-zinc-950 rounded-md font-mono text-sm transition-colors"
               >
                 + Add Watchlist
               </button>
@@ -87,26 +87,26 @@ export function WatchlistModal({ isOpen, onClose, onSave }: WatchlistModalProps)
           </div>
 
           <div className="space-y-3">
-            <h3 className="text-sm font-mono font-medium text-zinc-400">Your Watchlists</h3>
+            <h3 className="text-sm font-mono font-medium text-muted-foreground">Your Watchlists</h3>
             {watchlists.length === 0 ? (
-              <p className="text-sm text-zinc-500 font-mono">No watchlists yet. Create one above.</p>
+              <p className="text-sm text-muted-foreground font-mono">No watchlists yet. Create one above.</p>
             ) : (
               <div className="space-y-2">
                 {watchlists.map((watchlist) => (
                   <div
                     key={watchlist.id}
-                    className="flex items-start justify-between p-3 bg-zinc-900 border border-zinc-800 rounded-md"
+                    className="flex items-start justify-between p-3 bg-secondary border border-border rounded-md"
                   >
                     <div className="flex-1">
-                      <div className="font-mono text-sm font-medium text-zinc-100">
+                      <div className="font-mono text-sm font-medium text-foreground">
                         {watchlist.name}
                       </div>
                       {watchlist.description && (
-                        <div className="text-xs text-zinc-500 font-mono mt-1">
+                        <div className="text-xs text-muted-foreground font-mono mt-1">
                           {watchlist.description}
                         </div>
                       )}
-                      <div className="text-xs text-zinc-600 font-mono mt-1">
+                      <div className="text-xs text-muted-foreground font-mono mt-1">
                         {watchlist.dealIds.length} deals
                       </div>
                     </div>

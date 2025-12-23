@@ -3,6 +3,7 @@
 import * as React from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { MarketSnapshot } from "@/lib/types";
+import { FileText, Scale, Building2 } from "lucide-react";
 
 interface SpreadChartProps {
   data: MarketSnapshot[];
@@ -73,8 +74,8 @@ export function SpreadChart({ data, events = [] }: SpreadChartProps) {
               onClick={() => setTimeRange(range)}
               className={`px-3 py-1 rounded-md font-mono text-xs transition-colors ${
                 timeRange === range
-                  ? "bg-amber-500 text-zinc-950"
-                  : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                  ? "bg-amber-500 text-zinc-950 dark:text-zinc-950"
+                  : "bg-secondary text-muted-foreground hover:bg-secondary/80"
               }`}
             >
               {range}
@@ -83,44 +84,48 @@ export function SpreadChart({ data, events = [] }: SpreadChartProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-5 gap-4 p-3 bg-zinc-900 rounded-md">
+      <div className="grid grid-cols-5 gap-4 p-3 bg-secondary rounded-md">
         <div>
-          <div className="text-xs text-zinc-500 font-mono">Current</div>
+          <div className="text-xs text-muted-foreground font-mono">Current</div>
           <div className="text-lg font-mono font-bold text-amber-500">{stats.current.toFixed(1)}%</div>
         </div>
         <div>
-          <div className="text-xs text-zinc-500 font-mono">24h Change</div>
+          <div className="text-xs text-muted-foreground font-mono">24h Change</div>
           <div className={`text-lg font-mono font-bold ${stats.change24h >= 0 ? "text-green-500" : "text-red-500"}`}>
             {stats.change24h >= 0 ? "+" : ""}{stats.change24h.toFixed(1)}%
           </div>
         </div>
         <div>
-          <div className="text-xs text-zinc-500 font-mono">Min</div>
-          <div className="text-lg font-mono font-bold text-zinc-100">{stats.min.toFixed(1)}%</div>
+          <div className="text-xs text-muted-foreground font-mono">Min</div>
+          <div className="text-lg font-mono font-bold text-foreground">{stats.min.toFixed(1)}%</div>
         </div>
         <div>
-          <div className="text-xs text-zinc-500 font-mono">Max</div>
-          <div className="text-lg font-mono font-bold text-zinc-100">{stats.max.toFixed(1)}%</div>
+          <div className="text-xs text-muted-foreground font-mono">Max</div>
+          <div className="text-lg font-mono font-bold text-foreground">{stats.max.toFixed(1)}%</div>
         </div>
         <div>
-          <div className="text-xs text-zinc-500 font-mono">Avg</div>
-          <div className="text-lg font-mono font-bold text-zinc-100">{stats.avg.toFixed(1)}%</div>
+          <div className="text-xs text-muted-foreground font-mono">Avg</div>
+          <div className="text-lg font-mono font-bold text-foreground">{stats.avg.toFixed(1)}%</div>
         </div>
       </div>
 
       {eventMarkers.length > 0 && (
         <div className="flex gap-2 flex-wrap">
-          <span className="text-xs text-zinc-500 font-mono">Event Markers:</span>
-          {eventMarkers.map((event, idx) => (
-            <span key={idx} className="text-xs font-mono text-amber-500">
-              {event.type === "COURT" ? "⚖️" : event.type === "AGENCY" ? "🏛️" : "📄"} {new Date(event.timestamp).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-            </span>
-          ))}
+          <span className="text-xs text-muted-foreground font-mono">Event Markers:</span>
+          {eventMarkers.map((event, idx) => {
+            const Icon = event.type === "COURT" ? Scale : event.type === "AGENCY" ? Building2 : FileText;
+            return (
+              <span key={idx} className="text-xs font-mono text-amber-500 flex items-center gap-1">
+                <Icon className="h-3 w-3" />
+                {new Date(event.timestamp).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+              </span>
+            );
+          })}
         </div>
       )}
 
       <ResponsiveContainer width="100%" height={300}>
-        <div className="w-full h-[300px] bg-zinc-950 rounded-lg p-4 border border-zinc-800">
+        <div className="w-full h-[300px] bg-background rounded-lg p-4 border border-border">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData}>
               <defs>
