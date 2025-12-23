@@ -43,7 +43,22 @@ Build a production‑grade MVP that tracks public M&A deals end‑to‑end and t
    As an analyst or PM, I want configurable alerts via email, Slack, and webhooks, plus daily/weekly email digests, so I can stay on top of material events without constantly checking dashboards.
 
 8. **Qualitative RSS / news**
-   As an analyst, I want to connect relevant RSS/news feeds (law‑firm alerts, blogs, specialist newsletters) so j16z can surface high‑signal qualitative “tidbits” next to each deal.
+   As an analyst, I want to connect relevant RSS/news feeds (law‑firm alerts, blogs, specialist newsletters) so j16z can surface high‑signal qualitative "tidbits" next to each deal.
+
+9. **Deal discovery & setup**
+   As an analyst, when I provide acquirer and target tickers, I want the system to automatically discover all relevant filings, court cases, and regulatory actions so I don't have to manually search multiple sources.
+
+10. **Event notifications & inbox**
+    As an analyst, I want to see all new events in a unified inbox with unread indicators so I can quickly triage what needs immediate attention versus what can wait.
+
+11. **Spread threshold monitoring**
+    As an analyst, I want to set spread thresholds per deal so I'm alerted when spreads widen or tighten beyond my entry/exit points.
+
+12. **Draft templates & customization**
+    As an analyst, I want to customize memo templates (sections, order, formatting) so drafts match my firm's house style and client preferences.
+
+13. **Watchlist‑based RSS feeds**
+    As an analyst, I want to attach RSS feeds to watchlists (not just individual deals) so all deals in my "Tech M&A" watchlist automatically get law firm alerts and specialist newsletters.
 
 All MVP functionality should satisfy one or more of these stories.
 
