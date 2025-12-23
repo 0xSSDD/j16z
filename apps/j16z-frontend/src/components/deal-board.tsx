@@ -1,0 +1,284 @@
+"use client";
+
+import * as React from "react";
+import { ColumnDef } from "@tanstack/react-table";
+import { useRouter } from "next/navigation";
+import { Deal } from "@/lib/types";
+import { MOCK_DEALS } from "@/lib/constants";
+import { DataTable } from "@/components/ui/data-table";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { FilterChips } from "@/components/ui/filter-chips";
+import { WatchlistModal } from "@/components/watchlist-modal";
+import { AddDealModal } from "@/components/add-deal-modal";
+
+export function DealBoard() {
+  const router = useRouter();
+  const [deals, setDeals] = React.useState<Deal[]>(MOCK_DEALS);
+  const [isWatchlistModalOpen, setIsWatchlistModalOpen] = React.useState(false);
+  const [isAddDealModalOpen, setIsAddDealModalOpen] = React.useState(false);
+  const [spreadFilter, setSpreadFilter] = React.useState<string>("");
+  const [pCloseFilter, setPCloseFilter] = React.useState<string>("");
+  const [sectorFilter, setSectorFilter] = React.useState<string>("");
+  const [watchlistOnly, setWatchlistOnly] = React.useState(false);
+
+  const columns: ColumnDef<Deal>[] = [
+    {
+      accessorKey: "companyName",
+      header: "Deal",
+      cell: ({ row }) => (
+        <div className="flex flex-col gap-1">
+          <div className="font-medium text-zinc-100">
+            {row.original.acquirerSymbol} → {row.original.symbol}
+          </div>
+          <div className="text-xs text-zinc-500">
+            {row.original.acquirerName} / {row.original.companyName}
+          </div>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+    },
+    {
+      accessorKey: "currentSpread",
+      header: "Spread",
+      cell: ({ row }) => (
+        <div className="flex flex-col gap-0.5">
+          <div className="font-medium text-amber-500">
+            {row.original.currentSpread.toFixed(1)}%
+          </div>
+          <div className="text-xs text-zinc-500">
+            {row.original.currentSpread > 3 ? "↑" : "↓"} 0.3%
+          </div>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "p_close_base",
+      header: "p_close",
+      cell: ({ row }) => (
+        <span className="font-medium">{row.original.p_close_base}%</span>
+      ),
+    },
+    {
+      accessorKey: "ev",
+      header: "EV",
+      cell: ({ row }) => (
+        <span className="font-medium text-green-500">
+          {row.original.ev.toFixed(2)}%
+        </span>
+      ),
+    },
+    {
+      accessorKey: "regulatoryFlags",
+      header: "Reg/Lit",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          {row.original.regulatoryFlags.length > 0 && (
+            <span className="text-red-500">🔴</span>
+          )}
+          {row.original.litigationCount > 0 && (
+            <span className="text-zinc-400">⚖️ {row.original.litigationCount}</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "outsideDate",
+      header: "Outside Date",
+      cell: ({ row }) => {
+        const daysUntil = Math.ceil(
+          (new Date(row.original.outsideDate).getTime() - Date.now()) /
+            (1000 * 60 * 60 * 24)
+        );
+        if (daysUntil < 0) return <span className="text-zinc-500">CLOSED</span>;
+        return (
+          <span className="text-amber-500">
+            ⏱ {daysUntil}d
+          </span>
+        );
+      },
+    },
+  ];
+
+  const filteredDeals = React.useMemo(() => {
+    return deals.filter((deal) => {
+      if (spreadFilter && deal.currentSpread < parseFloat(spreadFilter)) return false;
+      if (pCloseFilter && deal.p_close_base < parseFloat(pCloseFilter)) return false;
+      return true;
+    });
+  }, [deals, spreadFilter, pCloseFilter]);
+
+  const activeFilters = React.useMemo(() => {
+    const filters = [];
+    if (spreadFilter) filters.push({ label: "Spread", value: `>${spreadFilter}%`, onRemove: () => setSpreadFilter("") });
+    if (pCloseFilter) filters.push({ label: "p_close", value: `>${pCloseFilter}%`, onRemove: () => setPCloseFilter("") });
+    if (sectorFilter) filters.push({ label: "Sector", value: sectorFilter, onRemove: () => setSectorFilter("") });
+    if (watchlistOnly) filters.push({ label: "Watchlist", value: "Only", onRemove: () => setWatchlistOnly(false) });
+    return filters;
+  }, [spreadFilter, pCloseFilter, sectorFilter, watchlistOnly]);
+
+  const handleRowClick = (deal: Deal) => {
+    router.push(`/app/deals/${deal.id}`);
+  };
+
+  const exportCSV = () => {
+    const headers = ["Deal", "Status", "Spread", "p_close", "EV", "Outside Date"];
+    const rows = filteredDeals.map((deal) => [
+      `${deal.acquirerSymbol}/${deal.symbol}`,
+      deal.status,
+      `${deal.currentSpread.toFixed(1)}%`,
+      `${deal.p_close_base}%`,
+      `${deal.ev.toFixed(2)}%`,
+      deal.outsideDate,
+    ]);
+    const csv = [headers, ...rows].map((row) => row.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `deals-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+  };
+
+  const exportJSON = () => {
+    const json = JSON.stringify(filteredDeals, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `deals-${new Date().toISOString().split("T")[0]}.json`;
+    a.click();
+  };
+
+  return (
+    <div className="flex flex-col gap-6 p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-mono font-bold text-zinc-100">Deals</h1>
+          <p className="text-sm text-zinc-500 font-mono mt-1">
+            {filteredDeals.length} of {deals.length} deals
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsAddDealModalOpen(true)}
+            className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 rounded-md font-mono text-sm transition-colors"
+          >
+            + Add Deal
+          </button>
+          <button
+            onClick={() => setIsWatchlistModalOpen(true)}
+            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 rounded-md font-mono text-sm transition-colors"
+          >
+            Watchlists
+          </button>
+          <button
+            onClick={exportCSV}
+            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 rounded-md font-mono text-sm transition-colors"
+          >
+            Export CSV
+          </button>
+          <button
+            onClick={exportJSON}
+            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 rounded-md font-mono text-sm transition-colors"
+          >
+            Export JSON
+          </button>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-4 flex-wrap">
+        <select
+          value={spreadFilter}
+          onChange={(e) => setSpreadFilter(e.target.value)}
+          className="px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-zinc-100 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+        >
+          <option value="">All Spreads</option>
+          <option value="2">Spread &gt; 2%</option>
+          <option value="3">Spread &gt; 3%</option>
+          <option value="5">Spread &gt; 5%</option>
+        </select>
+
+        <select
+          value={pCloseFilter}
+          onChange={(e) => setPCloseFilter(e.target.value)}
+          className="px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-zinc-100 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+        >
+          <option value="">All p_close</option>
+          <option value="40">p_close &gt; 40%</option>
+          <option value="50">p_close &gt; 50%</option>
+          <option value="60">p_close &gt; 60%</option>
+        </select>
+
+        <select
+          value={sectorFilter}
+          onChange={(e) => setSectorFilter(e.target.value)}
+          className="px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-zinc-100 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+        >
+          <option value="">All Sectors</option>
+          <option value="Technology">Technology</option>
+          <option value="Healthcare">Healthcare</option>
+          <option value="Retail">Retail</option>
+        </select>
+
+        <label className="flex items-center gap-2 px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-zinc-100 font-mono text-sm cursor-pointer hover:bg-zinc-800 transition-colors">
+          <input
+            type="checkbox"
+            checked={watchlistOnly}
+            onChange={(e) => setWatchlistOnly(e.target.checked)}
+            className="w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-amber-500 focus:ring-amber-500"
+          />
+          <span>Watchlist Only</span>
+        </label>
+      </div>
+
+      {activeFilters.length > 0 && (
+        <FilterChips
+          filters={activeFilters}
+          onClearAll={() => {
+            setSpreadFilter("");
+            setPCloseFilter("");
+            setSectorFilter("");
+            setWatchlistOnly(false);
+          }}
+        />
+      )}
+
+      <div
+        onClick={(e) => {
+          const target = e.target as HTMLElement;
+          const row = target.closest("tr");
+          if (row && row.dataset.state !== undefined) {
+            const index = Array.from(row.parentElement?.children || []).indexOf(row);
+            if (index > 0) {
+              handleRowClick(filteredDeals[index - 1]);
+            }
+          }
+        }}
+      >
+        <DataTable columns={columns} data={filteredDeals} />
+      </div>
+
+      <div className="text-center text-sm text-zinc-500 font-mono">
+        Sort: Spread ▾ • CMD+K for actions • Space for peek
+      </div>
+
+      <WatchlistModal
+        isOpen={isWatchlistModalOpen}
+        onClose={() => setIsWatchlistModalOpen(false)}
+        onSave={() => {}}
+      />
+
+      <AddDealModal
+        isOpen={isAddDealModalOpen}
+        onClose={() => setIsAddDealModalOpen(false)}
+        onAdd={(newDeal) => {
+          setDeals([newDeal, ...deals]);
+        }}
+      />
+    </div>
+  );
+}

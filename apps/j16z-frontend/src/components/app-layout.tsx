@@ -99,7 +99,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
         setIsCmdKOpen((open) => !open);
       }
     };
-    
+
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
   }, [isDarkMode]);
@@ -123,7 +123,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <>
       <CommandPalette isOpen={isCmdKOpen} onClose={() => setIsCmdKOpen(false)} />
-      
+
       <div className="flex h-screen overflow-hidden bg-background font-sans text-text-muted transition-colors duration-300">
       <aside className="flex w-64 flex-col border-r border-border bg-background pt-2">
         <div className="mb-2 flex items-center justify-between px-6 py-4">
@@ -149,6 +149,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
           </div>
           <SidebarItem href="/app" icon={LayoutDashboard} label="Dashboard" />
           <SidebarItem href="/app/feed" icon={Radio} label="Live Monitor" />
+          <SidebarItem href="/app/deals" icon={TrendingUp} label="Deals" />
           <SidebarItem
             href="/app/intelligence"
             icon={FileText}
@@ -165,7 +166,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
           />
           <SidebarItem
             href="/app/markets"
-            icon={TrendingUp}
+            icon={Zap}
             label="Prediction Mkts"
           />
           <SidebarItem
