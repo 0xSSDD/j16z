@@ -4,7 +4,7 @@ import Papa from "papaparse";
 /**
  * Export data as CSV file
  */
-export function exportToCSV<T extends Record<string, any>>(
+export function exportToCSV<T extends Record<string, unknown>>(
   data: T[],
   filename: string,
   headers?: string[]

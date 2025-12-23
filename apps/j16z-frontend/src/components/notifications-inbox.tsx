@@ -3,11 +3,10 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { MOCK_EVENTS } from "@/lib/constants";
-import type { Event } from "@/lib/types";
 
 export function NotificationsInbox() {
   const router = useRouter();
-  const [events, setEvents] = React.useState<Event[]>(MOCK_EVENTS);
+  const [events] = React.useState(MOCK_EVENTS);
   const [filter, setFilter] = React.useState<string>("all");
   const [readEvents, setReadEvents] = React.useState<Set<string>>(new Set());
 

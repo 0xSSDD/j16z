@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import type { Deal, Event, Clause } from "@/lib/types";
 import { MOCK_DEALS, MOCK_EVENTS, MOCK_CLAUSES, MOCK_MARKET_SNAPSHOTS } from "@/lib/constants";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { SpreadChart } from "@/components/ui/spread-chart";
@@ -10,6 +9,7 @@ import { EventTimeline } from "@/components/ui/event-timeline";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { NewsSection } from "@/components/news-section";
 import { AlertConfigModal } from "@/components/alert-config-modal";
+import { formatDate } from "@/lib/date-utils";
 
 interface DealCardProps {
   dealId: string;
@@ -27,19 +27,6 @@ export function DealCard({ dealId }: DealCardProps) {
   const [eventTypeFilter, setEventTypeFilter] = React.useState<string[]>([]);
   const [isAlertModalOpen, setIsAlertModalOpen] = React.useState(false);
   const [isExportOpen, setIsExportOpen] = React.useState(false);
-  const [sectionStates, setSectionStates] = React.useState<{ [key: string]: boolean }>(() => {
-    if (typeof window === "undefined") return {};
-    const stored = localStorage.getItem(`section-states-${dealId}`);
-    return stored ? JSON.parse(stored) : {};
-  });
-
-  const toggleSection = (sectionId: string) => {
-    setSectionStates((prev) => {
-      const updated = { ...prev, [sectionId]: !prev[sectionId] };
-      localStorage.setItem(`section-states-${dealId}`, JSON.stringify(updated));
-      return updated;
-    });
-  };
 
   const exportDealCSV = () => {
     if (!deal) return;
@@ -99,11 +86,11 @@ export function DealCard({ dealId }: DealCardProps) {
 
   const daysUntilOutside = React.useMemo(() => {
     if (!deal) return 0;
-    const now = Date.now();
     return Math.ceil(
-      (new Date(deal.outsideDate).getTime() - now) / (1000 * 60 * 60 * 24)
+      (new Date(deal.outsideDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
     );
-  }, [deal]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deal?.outsideDate]);
 
   if (!deal) {
     return (
@@ -169,7 +156,7 @@ export function DealCard({ dealId }: DealCardProps) {
           <div className="flex items-center gap-4 flex-wrap">
             <StatusBadge status={deal.status} />
             <span className="text-sm text-text-muted font-mono">
-              Announced: {new Date(deal.announcementDate).toLocaleDateString()}
+              Announced: {formatDate(deal.announcementDate)}
             </span>
             <span className="text-sm text-primary-500 font-mono">
               Outside: {daysUntilOutside > 0 ? `⏱ ${daysUntilOutside}d` : "CLOSED"}
@@ -187,13 +174,17 @@ export function DealCard({ dealId }: DealCardProps) {
           </div>
           <div className="text-xs text-text-muted font-mono">↑ 0.3% (24h)</div>
         </div>
-        <div>
-          <div className="text-xs text-text-muted font-mono uppercase mb-1">p_close_base</div>
+        <div className="group relative">
+          <div className="text-xs text-text-muted font-mono uppercase mb-1 flex items-center gap-1">
+            p_close_base
+            <span className="text-text-dim opacity-0 group-hover:opacity-100 transition-opacity">✏️</span>
+          </div>
           <input
             type="number"
             value={pCloseBase}
             onChange={(e) => setPCloseBase(Number(e.target.value))}
-            className="text-2xl font-mono font-bold text-text-main bg-transparent border-b border-border focus:border-primary-500 outline-none w-20"
+            placeholder="Click to edit"
+            className="text-2xl font-mono font-bold text-text-main bg-transparent border-b border-transparent hover:border-border focus:border-primary-500 outline-none w-20 transition-colors cursor-text"
           />
           <span className="text-2xl font-mono font-bold text-text-main">%</span>
         </div>
@@ -209,13 +200,17 @@ export function DealCard({ dealId }: DealCardProps) {
             ${(deal.reportedEquityTakeoverValue / 1e9).toFixed(1)}B
           </div>
         </div>
-        <div>
-          <div className="text-xs text-text-muted font-mono uppercase mb-1">Entry Threshold</div>
+        <div className="group relative">
+          <div className="text-xs text-text-muted font-mono uppercase mb-1 flex items-center gap-1">
+            Entry Threshold
+            <span className="text-text-dim opacity-0 group-hover:opacity-100 transition-opacity">✏️</span>
+          </div>
           <input
             type="number"
             value={spreadThreshold}
             onChange={(e) => setSpreadThreshold(Number(e.target.value))}
-            className="text-2xl font-mono font-bold text-text-main bg-transparent border-b border-border focus:border-primary-500 outline-none w-16"
+            placeholder="Click to edit"
+            className="text-2xl font-mono font-bold text-text-main bg-transparent border-b border-transparent hover:border-border focus:border-primary-500 outline-none w-16 transition-colors cursor-text"
           />
           <span className="text-2xl font-mono font-bold text-text-main">%</span>
         </div>

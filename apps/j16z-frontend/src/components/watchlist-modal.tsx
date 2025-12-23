@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
@@ -19,6 +20,7 @@ interface WatchlistModalProps {
 }
 
 export function WatchlistModal({ isOpen, onClose, onSave }: WatchlistModalProps) {
+  const router = useRouter();
   const [watchlists, setWatchlists] = React.useState<Watchlist[]>(() => {
     if (typeof window === "undefined") return [];
     const stored = localStorage.getItem("watchlists");
@@ -110,12 +112,23 @@ export function WatchlistModal({ isOpen, onClose, onSave }: WatchlistModalProps)
                         {watchlist.dealIds.length} deals
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleDeleteWatchlist(watchlist.id)}
-                      className="text-red-500 hover:text-red-400 text-sm font-mono"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          router.push(`/app/watchlists/${watchlist.id}`);
+                          onClose();
+                        }}
+                        className="text-primary-500 hover:text-primary-400 text-sm font-mono"
+                      >
+                        View
+                      </button>
+                      <button
+                        onClick={() => handleDeleteWatchlist(watchlist.id)}
+                        className="text-red-500 hover:text-red-400 text-sm font-mono"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

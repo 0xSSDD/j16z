@@ -44,14 +44,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [recentCommands, setRecentCommands] = useState<string[]>([]);
-
-  useEffect(() => {
+  const [recentCommands, setRecentCommands] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("recentCommands");
-      if (stored) setRecentCommands(JSON.parse(stored));
+      return stored ? JSON.parse(stored) : [];
     }
-  }, []);
+    return [];
+  });
 
   const saveRecentCommand = (commandId: string) => {
     const updated = [commandId, ...recentCommands.filter(id => id !== commandId)].slice(0, 5);

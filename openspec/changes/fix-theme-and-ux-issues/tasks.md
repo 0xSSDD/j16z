@@ -70,7 +70,7 @@
 - [x] 6.2 Create `src/components/watchlist-detail.tsx` component
 - [x] 6.3 Display watchlist name and description
 - [x] 6.4 Show deals filtered by watchlist ID
-- [ ] 6.5 Add "View" button in Watchlist modal
+- [x] 6.5 Add "View" button in Watchlist modal
 - [ ] 6.6 Test navigation from modal to detail page
 
 ## 7. Add Financial Term Tooltips (High Priority)
@@ -100,14 +100,14 @@
 
 ## 10. Improve Inline Editing Discoverability (Medium Priority)
 
-- [ ] 10.1 Add hover border to editable fields in Deal Card
-- [ ] 10.2 Add placeholder text "Click to edit"
-- [ ] 10.3 Show pencil icon more prominently
+- [x] 10.1 Add hover border to editable fields in Deal Card
+- [x] 10.2 Add placeholder text "Click to edit"
+- [x] 10.3 Show pencil icon more prominently
 - [ ] 10.4 Test inline editing is discoverable
 
 ## 11. Validation & Testing
 
-- [ ] 11.1 Run `pnpm run lint` and fix all errors
+- [x] 11.1 Run `pnpm run lint` and fix all errors
 - [ ] 11.2 Test all pages in light mode
 - [ ] 11.3 Test all pages in dark mode
 - [ ] 11.4 Test theme toggle works on all pages

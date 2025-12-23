@@ -32,6 +32,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={`${jakarta.variable} ${inter.variable} ${jetbrains.variable} scroll-smooth`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const savedTheme = localStorage.getItem('theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const shouldBeDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
+                if (!shouldBeDark) {
+                  document.documentElement.classList.add('light');
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-svh bg-background text-text-main antialiased selection:bg-primary-500/30 selection:text-primary-600">
         <div className="flex min-h-svh flex-col">
           {children}
