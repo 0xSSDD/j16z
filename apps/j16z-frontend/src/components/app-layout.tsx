@@ -76,22 +76,42 @@ const Logo = () => (
 );
 
 export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    if (typeof window === "undefined") return true;
-    const savedTheme = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    return savedTheme === "dark" || (!savedTheme && prefersDark);
-  });
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const [isCmdKOpen, setIsCmdKOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const shouldBeDark = savedTheme === "dark" || (!savedTheme && prefersDark);
+    
+    if (shouldBeDark) {
+      document.documentElement.classList.remove("light");
+    } else {
+      document.documentElement.classList.add("light");
+    }
+    
+    // Use setTimeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => {
+      setIsDarkMode(shouldBeDark);
+      setMounted(true);
+    }, 0);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    
     if (isDarkMode) {
       document.documentElement.classList.remove("light");
     } else {
       document.documentElement.classList.add("light");
     }
+  }, [isDarkMode, mounted]);
 
+  useEffect(() => {
     // Command Palette keyboard shortcut
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -102,7 +122,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
 
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
-  }, [isDarkMode]);
+  }, []);
 
   const toggleTheme = () => {
     const newMode = !isDarkMode;
@@ -150,6 +170,8 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
           <SidebarItem href="/app" icon={LayoutDashboard} label="Dashboard" />
           <SidebarItem href="/app/feed" icon={Radio} label="Live Monitor" />
           <SidebarItem href="/app/deals" icon={TrendingUp} label="Deals" />
+          <SidebarItem href="/app/discovery" icon={Search} label="Discovery" />
+          <SidebarItem href="/app/notifications" icon={Bell} label="Notifications" />
           <SidebarItem
             href="/app/intelligence"
             icon={FileText}

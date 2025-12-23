@@ -44,21 +44,21 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="w-full">
-      <div className="rounded-md border border-zinc-800 bg-zinc-950">
+      <div className="rounded-md border border-border bg-background">
         <table className="w-full">
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="border-b border-zinc-800">
+              <tr key={headerGroup.id} className="border-b border-border">
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="h-12 px-4 text-left align-middle font-mono text-xs font-medium text-zinc-400 uppercase tracking-wider"
+                    className="h-12 px-4 text-left align-middle font-mono text-xs font-medium text-text-muted uppercase tracking-wider"
                   >
                     {header.isPlaceholder ? null : (
                       <div
                         className={
                           header.column.getCanSort()
-                            ? "cursor-pointer select-none flex items-center gap-2 hover:text-amber-500"
+                            ? "cursor-pointer select-none flex items-center gap-2 hover:text-primary-500"
                             : ""
                         }
                         onClick={header.column.getToggleSortingHandler()}
@@ -81,13 +81,13 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
-                  className="border-b border-zinc-800 hover:bg-zinc-900 transition-colors cursor-pointer"
+                  className="border-b border-border hover:bg-surfaceHighlight transition-colors cursor-pointer"
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
-                      className="p-4 align-middle font-mono text-sm text-zinc-300"
+                      className="p-4 align-middle font-mono text-sm text-text-main"
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
@@ -98,7 +98,7 @@ export function DataTable<TData, TValue>({
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="h-24 text-center text-zinc-500 font-mono text-sm"
+                  className="h-24 text-center text-text-muted font-mono text-sm"
                 >
                   No results.
                 </td>

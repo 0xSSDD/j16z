@@ -9,8 +9,8 @@ const PriorityBadge = ({ priority }: { priority: Priority }) => {
   const styles: Record<Priority, string> = {
     [Priority.CRITICAL]: "text-rose-500 bg-rose-950/30 border-rose-900",
     [Priority.HIGH]: "text-primary-500 bg-primary-950/30 border-primary-900",
-    [Priority.MEDIUM]: "text-zinc-400 bg-zinc-900 border-zinc-700",
-    [Priority.LOW]: "text-zinc-600 bg-zinc-950 border-zinc-800",
+    [Priority.MEDIUM]: "text-text-muted bg-surface border-border",
+    [Priority.LOW]: "text-text-dim bg-background border-border",
   };
 
   return (
@@ -35,38 +35,38 @@ export const IntelligenceFeed: React.FC = () => {
 
   return (
     <div className="flex h-full flex-col font-mono">
-      <div className="mb-6 flex items-center justify-between border-b border-zinc-800 pb-4">
+      <div className="mb-6 flex items-center justify-between border-b border-border pb-4">
         <div>
-          <h1 className="font-narrative text-xl font-bold uppercase text-zinc-100">
+          <h1 className="font-narrative text-xl font-bold uppercase text-text-main">
             Raw Intelligence Feed
           </h1>
-          <p className="mt-1 text-xs uppercase tracking-widest text-zinc-600">
+          <p className="mt-1 text-xs uppercase tracking-widest text-text-dim">
             Unfiltered Signal Stream
           </p>
         </div>
 
         <div className="flex gap-2">
-          <div className="flex border border-zinc-800 bg-zinc-950">
+          <div className="flex border border-border bg-background">
             {["ALL", ItemType.LITIGATION, ItemType.SEC_FILING, ItemType.NEWS].map(
               (f) => (
                 <button
                   key={f}
                   onClick={() => setFilter(String(f))}
-                  className={`border-r border-zinc-800 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider last:border-r-0 transition-colors ${filter === f ? "bg-zinc-800 text-zinc-100" : "text-zinc-600 hover:bg-zinc-900 hover:text-zinc-300"}`}
+                  className={`border-r border-border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider last:border-r-0 transition-colors ${filter === f ? "bg-surfaceHighlight text-text-main" : "text-text-muted hover:bg-surface hover:text-text-main"}`}
                 >
                   {f === "ALL" ? "ALL" : String(f).split("_")[0]}
                 </button>
               ),
             )}
           </div>
-          <button className="border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500 transition-colors hover:border-zinc-600 hover:text-zinc-100">
+          <button className="border border-border bg-background px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-text-muted transition-colors hover:border-primary-500/50 hover:text-text-main">
             Filter Params
           </button>
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col border border-zinc-800 bg-zinc-950">
-        <div className="grid grid-cols-12 gap-4 border-b border-zinc-800 bg-zinc-900 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+      <div className="flex flex-1 flex-col border border-border bg-background">
+        <div className="grid grid-cols-12 gap-4 border-b border-border bg-surfaceHighlight px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-text-dim">
           <div className="col-span-1">Pri</div>
           <div className="col-span-1">Type</div>
           <div className="col-span-5">Subject</div>
@@ -75,22 +75,22 @@ export const IntelligenceFeed: React.FC = () => {
           <div className="col-span-1 text-right">Time</div>
         </div>
 
-        <div className="flex-1 divide-y divide-zinc-800/50 overflow-auto">
+        <div className="flex-1 divide-y divide-border/50 overflow-auto">
           {filteredItems.map((item) => (
             <div
               key={item.id}
               onClick={() => setSelectedItem(item)}
-              className="group grid cursor-pointer grid-cols-12 items-center gap-4 px-4 py-3 text-xs transition-colors hover:bg-zinc-900"
+              className="group grid cursor-pointer grid-cols-12 items-center gap-4 px-4 py-3 text-xs transition-colors hover:bg-surfaceHighlight"
             >
               <div className="col-span-1">
                 <PriorityBadge priority={item.priority} />
               </div>
-              <div className="col-span-1 text-zinc-500 group-hover:text-zinc-300">
+              <div className="col-span-1 text-text-muted group-hover:text-text-main">
                 {item.type.split("_")[0]}
               </div>
               <div className="col-span-5">
                 <div className="flex flex-col">
-                  <div className="truncate font-bold text-zinc-300 transition-colors group-hover:text-primary-500">
+                  <div className="truncate font-bold text-text-main transition-colors group-hover:text-primary-500">
                     {item.title}
                   </div>
                   <div className="mt-0.5 flex gap-2">
@@ -99,13 +99,13 @@ export const IntelligenceFeed: React.FC = () => {
                         {item.ticker}
                       </span>
                     )}
-                    <span className="max-w-[200px] truncate text-[10px] text-zinc-600">
+                    <span className="max-w-[200px] truncate text-[10px] text-text-dim">
                       {item.content.substring(0, 50)}...
                     </span>
                   </div>
                 </div>
               </div>
-              <div className="col-span-2 text-[10px] font-mono uppercase text-zinc-500">
+              <div className="col-span-2 text-[10px] font-mono uppercase text-text-muted">
                 {item.source}
               </div>
               <div className="col-span-2">
@@ -113,14 +113,13 @@ export const IntelligenceFeed: React.FC = () => {
                   {item.tags.slice(0, 2).map((tag) => (
                     <span
                       key={tag}
-                      className="border border-zinc-800 px-1 py-0.5 text-[9px] uppercase text-zinc-600"
-                    >
+                      className="border border-border px-1 py-0.5 text-[9px] uppercase text-text-dim">
                       {tag}
                     </span>
                   ))}
                 </div>
               </div>
-              <div className="col-span-1 text-right text-[10px] font-mono text-zinc-600">
+              <div className="col-span-1 text-right text-[10px] font-mono text-text-dim">
                 {new Date(item.timestamp).toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -131,11 +130,11 @@ export const IntelligenceFeed: React.FC = () => {
           ))}
         </div>
 
-        <div className="flex items-center justify-between border-t border-zinc-800 bg-zinc-900 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+        <div className="flex items-center justify-between border-t border-border bg-surfaceHighlight px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-text-dim">
           <span>Total Items: {filteredItems.length}</span>
           <div className="flex gap-4">
-            <button className="hover:text-zinc-300">Prev</button>
-            <button className="hover:text-zinc-300">Next</button>
+            <button className="hover:text-text-main">Prev</button>
+            <button className="hover:text-text-main">Next</button>
           </div>
         </div>
       </div>

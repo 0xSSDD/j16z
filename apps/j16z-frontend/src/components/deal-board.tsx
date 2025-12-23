@@ -27,10 +27,10 @@ export function DealBoard() {
       header: "Deal",
       cell: ({ row }) => (
         <div className="flex flex-col gap-1">
-          <div className="font-medium text-zinc-100">
+          <div className="font-medium text-text-main">
             {row.original.acquirerSymbol} → {row.original.symbol}
           </div>
-          <div className="text-xs text-zinc-500">
+          <div className="text-xs text-text-muted">
             {row.original.acquirerName} / {row.original.companyName}
           </div>
         </div>
@@ -46,10 +46,10 @@ export function DealBoard() {
       header: "Spread",
       cell: ({ row }) => (
         <div className="flex flex-col gap-0.5">
-          <div className="font-medium text-amber-500">
+          <div className="font-medium text-primary-500">
             {row.original.currentSpread.toFixed(1)}%
           </div>
-          <div className="text-xs text-zinc-500">
+          <div className="text-xs text-text-muted">
             {row.original.currentSpread > 3 ? "↑" : "↓"} 0.3%
           </div>
         </div>
@@ -80,7 +80,7 @@ export function DealBoard() {
             <span className="text-red-500">🔴</span>
           )}
           {row.original.litigationCount > 0 && (
-            <span className="text-zinc-400">⚖️ {row.original.litigationCount}</span>
+            <span className="text-text-muted">⚖️ {row.original.litigationCount}</span>
           )}
         </div>
       ),
@@ -93,9 +93,9 @@ export function DealBoard() {
           (new Date(row.original.outsideDate).getTime() - Date.now()) /
             (1000 * 60 * 60 * 24)
         );
-        if (daysUntil < 0) return <span className="text-zinc-500">CLOSED</span>;
+        if (daysUntil < 0) return <span className="text-text-muted">CLOSED</span>;
         return (
-          <span className="text-amber-500">
+          <span className="text-primary-500">
             ⏱ {daysUntil}d
           </span>
         );
@@ -157,33 +157,33 @@ export function DealBoard() {
     <div className="flex flex-col gap-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-mono font-bold text-zinc-100">Deals</h1>
-          <p className="text-sm text-zinc-500 font-mono mt-1">
+          <h1 className="text-2xl font-mono font-bold text-text-main">Deals</h1>
+          <p className="text-sm text-text-muted font-mono mt-1">
             {filteredDeals.length} of {deals.length} deals
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsAddDealModalOpen(true)}
-            className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 rounded-md font-mono text-sm transition-colors"
+            className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-md font-mono text-sm transition-colors"
           >
             + Add Deal
           </button>
           <button
             onClick={() => setIsWatchlistModalOpen(true)}
-            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 rounded-md font-mono text-sm transition-colors"
+            className="px-4 py-2 border border-border bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
           >
             Watchlists
           </button>
           <button
             onClick={exportCSV}
-            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 rounded-md font-mono text-sm transition-colors"
+            className="px-4 py-2 border border-border bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
           >
             Export CSV
           </button>
           <button
             onClick={exportJSON}
-            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 rounded-md font-mono text-sm transition-colors"
+            className="px-4 py-2 border border-border bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
           >
             Export JSON
           </button>
@@ -194,7 +194,7 @@ export function DealBoard() {
         <select
           value={spreadFilter}
           onChange={(e) => setSpreadFilter(e.target.value)}
-          className="px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-zinc-100 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+          className="px-3 py-2 bg-surface border border-border rounded-md text-text-main font-mono text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
           <option value="">All Spreads</option>
           <option value="2">Spread &gt; 2%</option>
@@ -205,7 +205,7 @@ export function DealBoard() {
         <select
           value={pCloseFilter}
           onChange={(e) => setPCloseFilter(e.target.value)}
-          className="px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-zinc-100 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+          className="px-3 py-2 bg-surface border border-border rounded-md text-text-main font-mono text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
           <option value="">All p_close</option>
           <option value="40">p_close &gt; 40%</option>
@@ -216,7 +216,7 @@ export function DealBoard() {
         <select
           value={sectorFilter}
           onChange={(e) => setSectorFilter(e.target.value)}
-          className="px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-zinc-100 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+          className="px-3 py-2 bg-surface border border-border rounded-md text-text-main font-mono text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
           <option value="">All Sectors</option>
           <option value="Technology">Technology</option>
@@ -224,12 +224,12 @@ export function DealBoard() {
           <option value="Retail">Retail</option>
         </select>
 
-        <label className="flex items-center gap-2 px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-zinc-100 font-mono text-sm cursor-pointer hover:bg-zinc-800 transition-colors">
+        <label className="flex items-center gap-2 px-3 py-2 bg-surface border border-border rounded-md text-text-main font-mono text-sm cursor-pointer hover:bg-surfaceHighlight transition-colors">
           <input
             type="checkbox"
             checked={watchlistOnly}
             onChange={(e) => setWatchlistOnly(e.target.checked)}
-            className="w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-amber-500 focus:ring-amber-500"
+            className="w-4 h-4 rounded border-border bg-background text-primary-500 focus:ring-primary-500"
           />
           <span>Watchlist Only</span>
         </label>
@@ -262,7 +262,7 @@ export function DealBoard() {
         <DataTable columns={columns} data={filteredDeals} />
       </div>
 
-      <div className="text-center text-sm text-zinc-500 font-mono">
+      <div className="text-center text-sm text-text-muted font-mono">
         Sort: Spread ▾ • CMD+K for actions • Space for peek
       </div>
 

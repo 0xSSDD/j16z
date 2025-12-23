@@ -16,20 +16,20 @@ export function CollapsibleSection({
   const [isOpen, setIsOpen] = React.useState(defaultOpen);
 
   return (
-    <div className="border border-zinc-800 rounded-lg bg-zinc-950">
+    <div className="border border-border rounded-lg bg-background">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-4 hover:bg-zinc-900 transition-colors"
+        className="w-full flex items-center justify-between p-4 hover:bg-surfaceHighlight transition-colors"
       >
-        <h3 className="font-mono text-sm font-medium text-zinc-100 uppercase tracking-wider">
+        <h3 className="font-mono text-sm font-medium text-text-main uppercase tracking-wider">
           {title}
         </h3>
-        <span className="text-amber-500 font-mono text-lg">
+        <span className="text-primary-500 font-mono text-lg">
           {isOpen ? "▼" : "▶"}
         </span>
       </button>
       {isOpen && (
-        <div className="p-4 border-t border-zinc-800">
+        <div className="p-4 border-t border-border">
           {children}
         </div>
       )}

@@ -36,14 +36,14 @@ export function NotificationsInbox() {
     <div className="flex flex-col gap-6 p-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-mono font-bold text-zinc-100">Notifications</h1>
-          <p className="text-sm text-zinc-500 font-mono mt-1">
+          <h1 className="text-2xl font-mono font-bold text-text-main">Notifications</h1>
+          <p className="text-sm text-text-muted font-mono mt-1">
             {filteredEvents.length} events • {events.length - readEvents.size} unread
           </p>
         </div>
         <button
           onClick={markAllRead}
-          className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 rounded-md font-mono text-sm transition-colors"
+          className="px-4 py-2 border border-border bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
         >
           Mark All Read
         </button>
@@ -56,8 +56,8 @@ export function NotificationsInbox() {
             onClick={() => setFilter(type)}
             className={`px-3 py-1.5 rounded-md font-mono text-xs transition-colors ${
               filter === type
-                ? "bg-amber-500 text-zinc-950"
-                : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                ? "bg-primary-500 text-white"
+                : "bg-surface text-text-muted hover:bg-surfaceHighlight"
             }`}
           >
             {type === "all" ? "All" : type}
@@ -71,14 +71,14 @@ export function NotificationsInbox() {
           return (
             <div
               key={event.id}
-              className={`border border-zinc-800 rounded-lg p-4 transition-colors ${
-                isRead ? "bg-zinc-950/50" : "bg-zinc-950"
+              className={`border border-border rounded-lg p-4 transition-colors ${
+                isRead ? "bg-surface/50" : "bg-surface"
               }`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs font-mono text-zinc-500">
+                    <span className="text-xs font-mono text-text-muted">
                       {new Date(event.timestamp).toLocaleString()}
                     </span>
                     <span
@@ -87,27 +87,27 @@ export function NotificationsInbox() {
                           ? "bg-red-500/10 text-red-500"
                           : event.materiality === "MEDIUM"
                           ? "bg-yellow-500/10 text-yellow-500"
-                          : "bg-zinc-500/10 text-zinc-500"
+                          : "bg-surface text-text-muted"
                       }`}
                     >
                       {event.materiality}
                     </span>
-                    <span className="px-2 py-0.5 rounded text-xs font-mono bg-zinc-800 text-zinc-400">
+                    <span className="px-2 py-0.5 rounded text-xs font-mono bg-surfaceHighlight text-text-muted">
                       {event.type}
                     </span>
                   </div>
                   <h3
                     className={`font-mono text-sm mb-2 ${
-                      isRead ? "text-zinc-500" : "text-zinc-100 font-medium"
+                      isRead ? "text-text-muted" : "text-text-main font-medium"
                     }`}
                   >
                     {event.title}
                   </h3>
-                  <p className="text-sm text-zinc-400 leading-relaxed">{event.summary}</p>
+                  <p className="text-sm text-text-muted leading-relaxed">{event.summary}</p>
                   <div className="flex gap-3 mt-3">
                     <button
                       onClick={() => router.push(`/app/deals/${event.dealId}`)}
-                      className="text-xs text-amber-500 hover:text-amber-400 font-mono"
+                      className="text-xs text-primary-500 hover:text-primary-600 font-mono"
                     >
                       View Deal →
                     </button>
@@ -116,7 +116,7 @@ export function NotificationsInbox() {
                         href={event.sourceUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs text-amber-500 hover:text-amber-400 font-mono"
+                        className="text-xs text-primary-500 hover:text-primary-600 font-mono"
                       >
                         Source →
                       </a>
@@ -125,7 +125,7 @@ export function NotificationsInbox() {
                 </div>
                 <button
                   onClick={() => toggleRead(event.id)}
-                  className="text-xs font-mono text-zinc-500 hover:text-zinc-300"
+                  className="text-xs font-mono text-text-muted hover:text-text-main"
                 >
                   {isRead ? "Mark Unread" : "Mark Read"}
                 </button>

@@ -11,6 +11,7 @@ import {
   MessageSquareText,
   TrendingUp,
   ShieldAlert,
+  Bell,
 } from "lucide-react";
 
 interface CommandPaletteProps {
@@ -35,6 +36,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const pages: Page[] = [
     { name: "Dashboard", path: "/app", icon: LayoutDashboard },
     { name: "Live Monitor", path: "/app/feed", icon: Radio },
+    { name: "Deals", path: "/app/deals", icon: TrendingUp },
+    { name: "Discovery", path: "/app/discovery", icon: Search },
+    { name: "Notifications", path: "/app/notifications", icon: Bell },
     { name: "Deal Intelligence", path: "/app/intelligence", icon: FileText },
     { name: "AI Analyst", path: "/app/chat", icon: MessageSquareText },
     { name: "Prediction Markets", path: "/app/markets", icon: TrendingUp },

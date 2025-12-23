@@ -25,7 +25,6 @@ export function DealCard({ dealId }: DealCardProps) {
   const [pCloseBase, setPCloseBase] = React.useState(deal?.p_close_base || 0);
   const [spreadThreshold, setSpreadThreshold] = React.useState(deal?.spread_entry_threshold || 0);
   const [eventTypeFilter, setEventTypeFilter] = React.useState<string[]>([]);
-  const [currentTime] = React.useState(() => Date.now());
   const [isAlertModalOpen, setIsAlertModalOpen] = React.useState(false);
   const [isExportOpen, setIsExportOpen] = React.useState(false);
   const [sectionStates, setSectionStates] = React.useState<{ [key: string]: boolean }>(() => {
@@ -100,10 +99,11 @@ export function DealCard({ dealId }: DealCardProps) {
 
   const daysUntilOutside = React.useMemo(() => {
     if (!deal) return 0;
+    const now = Date.now();
     return Math.ceil(
-      (new Date(deal.outsideDate).getTime() - currentTime) / (1000 * 60 * 60 * 24)
+      (new Date(deal.outsideDate).getTime() - now) / (1000 * 60 * 60 * 24)
     );
-  }, [deal, currentTime]);
+  }, [deal]);
 
   if (!deal) {
     return (
@@ -159,19 +159,19 @@ export function DealCard({ dealId }: DealCardProps) {
         <div>
           <button
             onClick={() => router.push("/app/deals")}
-            className="text-sm text-zinc-500 hover:text-zinc-300 font-mono mb-2 flex items-center gap-1"
+            className="text-sm text-text-muted hover:text-text-main font-mono mb-2 flex items-center gap-1"
           >
             ← Back to Deals
           </button>
-          <h1 className="text-3xl font-mono font-bold text-zinc-100 mb-2">
+          <h1 className="text-3xl font-mono font-bold text-text-main mb-2">
             {deal.acquirerName} → {deal.companyName}
           </h1>
           <div className="flex items-center gap-4 flex-wrap">
             <StatusBadge status={deal.status} />
-            <span className="text-sm text-zinc-500 font-mono">
+            <span className="text-sm text-text-muted font-mono">
               Announced: {new Date(deal.announcementDate).toLocaleDateString()}
             </span>
-            <span className="text-sm text-amber-500 font-mono">
+            <span className="text-sm text-primary-500 font-mono">
               Outside: {daysUntilOutside > 0 ? `⏱ ${daysUntilOutside}d` : "CLOSED"}
             </span>
           </div>
@@ -179,45 +179,45 @@ export function DealCard({ dealId }: DealCardProps) {
       </div>
 
       {/* Key Metrics Panel */}
-      <div className="grid grid-cols-5 gap-4 p-4 bg-zinc-950 border border-zinc-800 rounded-lg">
+      <div className="grid grid-cols-5 gap-4 p-4 bg-background border border-border rounded-lg">
         <div>
-          <div className="text-xs text-zinc-500 font-mono uppercase mb-1">Spread</div>
-          <div className="text-2xl font-mono font-bold text-amber-500">
+          <div className="text-xs text-text-muted font-mono uppercase mb-1">Spread</div>
+          <div className="text-2xl font-mono font-bold text-primary-500">
             {deal.currentSpread.toFixed(1)}%
           </div>
-          <div className="text-xs text-zinc-500 font-mono">↑ 0.3% (24h)</div>
+          <div className="text-xs text-text-muted font-mono">↑ 0.3% (24h)</div>
         </div>
         <div>
-          <div className="text-xs text-zinc-500 font-mono uppercase mb-1">p_close_base</div>
+          <div className="text-xs text-text-muted font-mono uppercase mb-1">p_close_base</div>
           <input
             type="number"
             value={pCloseBase}
             onChange={(e) => setPCloseBase(Number(e.target.value))}
-            className="text-2xl font-mono font-bold text-zinc-100 bg-transparent border-b border-zinc-700 focus:border-amber-500 outline-none w-20"
+            className="text-2xl font-mono font-bold text-text-main bg-transparent border-b border-border focus:border-primary-500 outline-none w-20"
           />
-          <span className="text-2xl font-mono font-bold text-zinc-100">%</span>
+          <span className="text-2xl font-mono font-bold text-text-main">%</span>
         </div>
         <div>
-          <div className="text-xs text-zinc-500 font-mono uppercase mb-1">EV</div>
+          <div className="text-xs text-text-muted font-mono uppercase mb-1">EV</div>
           <div className="text-2xl font-mono font-bold text-green-500">
             {((deal.currentSpread * pCloseBase) / 100).toFixed(2)}%
           </div>
         </div>
         <div>
-          <div className="text-xs text-zinc-500 font-mono uppercase mb-1">Deal Value</div>
-          <div className="text-2xl font-mono font-bold text-zinc-100">
+          <div className="text-xs text-text-muted font-mono uppercase mb-1">Deal Value</div>
+          <div className="text-2xl font-mono font-bold text-text-main">
             ${(deal.reportedEquityTakeoverValue / 1e9).toFixed(1)}B
           </div>
         </div>
         <div>
-          <div className="text-xs text-zinc-500 font-mono uppercase mb-1">Entry Threshold</div>
+          <div className="text-xs text-text-muted font-mono uppercase mb-1">Entry Threshold</div>
           <input
             type="number"
             value={spreadThreshold}
             onChange={(e) => setSpreadThreshold(Number(e.target.value))}
-            className="text-2xl font-mono font-bold text-zinc-100 bg-transparent border-b border-zinc-700 focus:border-amber-500 outline-none w-16"
+            className="text-2xl font-mono font-bold text-text-main bg-transparent border-b border-border focus:border-primary-500 outline-none w-16"
           />
-          <span className="text-2xl font-mono font-bold text-zinc-100">%</span>
+          <span className="text-2xl font-mono font-bold text-text-main">%</span>
         </div>
       </div>
 
@@ -227,23 +227,23 @@ export function DealCard({ dealId }: DealCardProps) {
         {clauses.length > 0 ? (
           <div className="space-y-3">
             {clauses.map((clause) => (
-              <div key={clause.id} className="flex items-start gap-4 p-3 bg-zinc-900 rounded-md">
+              <div key={clause.id} className="flex items-start gap-4 p-3 bg-surface rounded-md">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-mono font-medium text-amber-500 uppercase">
+                    <span className="text-xs font-mono font-medium text-primary-500 uppercase">
                       {clause.type.replace(/_/g, " ")}
                     </span>
-                    <span className="text-xs font-mono text-zinc-500">
+                    <span className="text-xs font-mono text-text-muted">
                       {clause.sourceFilingType} {clause.sourceSection}
                     </span>
                   </div>
-                  <div className="text-sm text-zinc-300 font-mono">{clause.value}</div>
+                  <div className="text-sm text-text-main font-mono">{clause.value}</div>
                 </div>
                 <a
                   href={clause.sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-amber-500 hover:text-amber-400 font-mono"
+                  className="text-xs text-primary-500 hover:text-primary-600 font-mono"
                 >
                   →
                 </a>
@@ -251,7 +251,7 @@ export function DealCard({ dealId }: DealCardProps) {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-zinc-500 font-mono">No deal terms available.</p>
+          <p className="text-sm text-text-muted font-mono">No deal terms available.</p>
         )}
       </CollapsibleSection>
       </div>
@@ -270,8 +270,8 @@ export function DealCard({ dealId }: DealCardProps) {
               }}
               className={`px-3 py-1.5 rounded-md font-mono text-xs transition-colors ${
                 eventTypeFilter.includes(type)
-                  ? "bg-amber-500 text-zinc-950"
-                  : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                  ? "bg-primary-500 text-white"
+                  : "bg-surface text-text-muted hover:bg-surfaceHighlight"
               }`}
             >
               {type}
@@ -280,7 +280,7 @@ export function DealCard({ dealId }: DealCardProps) {
           {eventTypeFilter.length > 0 && (
             <button
               onClick={() => setEventTypeFilter([])}
-              className="text-xs font-mono text-zinc-500 hover:text-zinc-300 underline"
+              className="text-xs font-mono text-text-muted hover:text-text-main underline"
             >
               Clear filters
             </button>
@@ -289,7 +289,7 @@ export function DealCard({ dealId }: DealCardProps) {
         {filteredEvents.length > 0 ? (
           <EventTimeline events={filteredEvents} />
         ) : (
-          <p className="text-sm text-zinc-500 font-mono">No events match the selected filters.</p>
+          <p className="text-sm text-text-muted font-mono">No events match the selected filters.</p>
         )}
       </CollapsibleSection>
       </div>
@@ -300,7 +300,7 @@ export function DealCard({ dealId }: DealCardProps) {
         {marketSnapshots.length > 0 ? (
           <SpreadChart data={marketSnapshots} events={events} />
         ) : (
-          <p className="text-sm text-zinc-500 font-mono">No spread history available.</p>
+          <p className="text-sm text-text-muted font-mono">No spread history available.</p>
         )}
       </CollapsibleSection>
       </div>
@@ -317,7 +317,7 @@ export function DealCard({ dealId }: DealCardProps) {
       <CollapsibleSection title="Regulatory & Litigation" defaultOpen={false}>
         <div className="space-y-4">
           <div>
-            <h4 className="text-sm font-mono font-medium text-zinc-100 mb-2">Regulatory Status</h4>
+            <h4 className="text-sm font-mono font-medium text-text-main mb-2">Regulatory Status</h4>
             {deal.regulatoryFlags.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {deal.regulatoryFlags.map((flag) => (
@@ -330,17 +330,17 @@ export function DealCard({ dealId }: DealCardProps) {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-zinc-500 font-mono">No regulatory issues.</p>
+              <p className="text-sm text-text-muted font-mono">No regulatory issues.</p>
             )}
           </div>
           <div>
-            <h4 className="text-sm font-mono font-medium text-zinc-100 mb-2">Litigation</h4>
+            <h4 className="text-sm font-mono font-medium text-text-main mb-2">Litigation</h4>
             {deal.litigationCount > 0 ? (
-              <p className="text-sm text-zinc-300 font-mono">
+              <p className="text-sm text-text-main font-mono">
                 {deal.litigationCount} active {deal.litigationCount === 1 ? "case" : "cases"}
               </p>
             ) : (
-              <p className="text-sm text-zinc-500 font-mono">No active litigation.</p>
+              <p className="text-sm text-text-muted font-mono">No active litigation.</p>
             )}
           </div>
         </div>
