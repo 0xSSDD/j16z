@@ -4,6 +4,7 @@ import * as React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import type { Deal } from "@/lib/types";
+import { getTodayISO, addDaysToToday } from "@/lib/date-utils";
 
 interface AddDealModalProps {
   isOpen: boolean;
@@ -47,9 +48,9 @@ export function AddDealModal({ isOpen, onClose, onAdd }: AddDealModalProps) {
       acquirerSymbol: acquirerTicker.toUpperCase(),
       companyName: dealName.trim() || `${targetTicker.toUpperCase()} Inc.`,
       acquirerName: `${acquirerTicker.toUpperCase()} Corp.`,
-      announcementDate: new Date().toISOString().split("T")[0],
-      acquisitionDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-      outsideDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      announcementDate: getTodayISO(),
+      acquisitionDate: addDaysToToday(180),
+      outsideDate: addDaysToToday(365),
       reportedEquityTakeoverValue: 0,
       considerationType: "CASH",
       p_close_base: 50,

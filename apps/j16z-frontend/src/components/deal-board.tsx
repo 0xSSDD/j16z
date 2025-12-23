@@ -12,6 +12,8 @@ import { WatchlistModal } from "@/components/watchlist-modal";
 import { AddDealModal } from "@/components/add-deal-modal";
 import { Tooltip, TooltipProvider } from "@/components/ui/tooltip";
 import { AlertTriangle, Scale } from "lucide-react";
+import { daysUntil, formatDateForFilename } from "@/lib/date-utils";
+import { exportToCSV, exportToJSON } from "@/lib/file-utils";
 
 export function DealBoard() {
   const router = useRouter();
@@ -22,6 +24,20 @@ export function DealBoard() {
   const [pCloseFilter, setPCloseFilter] = React.useState<string>("");
   const [sectorFilter, setSectorFilter] = React.useState<string>("");
   const [watchlistOnly, setWatchlistOnly] = React.useState(false);
+
+  // Listen for command palette events
+  React.useEffect(() => {
+    const handleOpenAddDeal = () => setIsAddDealModalOpen(true);
+    const handleOpenWatchlist = () => setIsWatchlistModalOpen(true);
+
+    window.addEventListener("openAddDealModal", handleOpenAddDeal);
+    window.addEventListener("openWatchlistModal", handleOpenWatchlist);
+
+    return () => {
+      window.removeEventListener("openAddDealModal", handleOpenAddDeal);
+      window.removeEventListener("openWatchlistModal", handleOpenWatchlist);
+    };
+  }, []);
 
   const columns: ColumnDef<Deal>[] = [
     {
@@ -122,14 +138,11 @@ export function DealBoard() {
       accessorKey: "outsideDate",
       header: "Outside Date",
       cell: ({ row }) => {
-        const daysUntil = Math.ceil(
-          (new Date(row.original.outsideDate).getTime() - Date.now()) /
-            (1000 * 60 * 60 * 24)
-        );
-        if (daysUntil < 0) return <span className="text-text-muted">CLOSED</span>;
+        const days = daysUntil(row.original.outsideDate);
+        if (days < 0) return <span className="text-text-muted">CLOSED</span>;
         return (
           <span className="text-primary-500">
-            ⏱ {daysUntil}d
+            ⏱ {days}d
           </span>
         );
       },
@@ -158,32 +171,19 @@ export function DealBoard() {
   };
 
   const exportCSV = () => {
-    const headers = ["Deal", "Status", "Spread", "p_close", "EV", "Outside Date"];
-    const rows = filteredDeals.map((deal) => [
-      `${deal.acquirerSymbol}/${deal.symbol}`,
-      deal.status,
-      `${deal.currentSpread.toFixed(1)}%`,
-      `${deal.p_close_base}%`,
-      `${deal.ev.toFixed(2)}%`,
-      deal.outsideDate,
-    ]);
-    const csv = [headers, ...rows].map((row) => row.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `deals-${new Date().toISOString().split("T")[0]}.csv`;
-    a.click();
+    const data = filteredDeals.map((deal) => ({
+      Deal: `${deal.acquirerSymbol}/${deal.symbol}`,
+      Status: deal.status,
+      Spread: `${deal.currentSpread.toFixed(1)}%`,
+      p_close: `${deal.p_close_base}%`,
+      EV: `${deal.ev.toFixed(2)}%`,
+      "Outside Date": deal.outsideDate,
+    }));
+    exportToCSV(data, `deals-${formatDateForFilename()}.csv`);
   };
 
   const exportJSON = () => {
-    const json = JSON.stringify(filteredDeals, null, 2);
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `deals-${new Date().toISOString().split("T")[0]}.json`;
-    a.click();
+    exportToJSON(filteredDeals, `deals-${formatDateForFilename()}.json`);
   };
 
   return (

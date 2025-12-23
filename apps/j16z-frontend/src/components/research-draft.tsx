@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
 import { Deal, Event, Clause } from "@/lib/types";
 import { MOCK_DEALS, MOCK_EVENTS, MOCK_CLAUSES } from "@/lib/constants";
+import { formatDate, formatTime, formatDateForFilename } from "@/lib/date-utils";
+import { exportTextFile } from "@/lib/file-utils";
 
 interface ResearchDraftProps {
   dealId: string;
@@ -54,12 +56,11 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
   };
 
   const exportMarkdown = () => {
-    const blob = new Blob([content], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${deal.acquirerSymbol}-${deal.symbol}-memo-${new Date().toISOString().split("T")[0]}.md`;
-    a.click();
+    exportTextFile(
+      content,
+      `${deal.acquirerSymbol}-${deal.symbol}-memo-${formatDateForFilename()}.md`,
+      "text/markdown"
+    );
   };
 
   const exportDocx = async () => {
@@ -96,7 +97,7 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${deal.acquirerSymbol}-${deal.symbol}-memo-${new Date().toISOString().split("T")[0]}.docx`;
+    a.download = `${deal.acquirerSymbol}-${deal.symbol}-memo-${formatDateForFilename()}.docx`;
     a.click();
   };
 
@@ -118,7 +119,7 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
         <div className="flex items-center gap-2">
           {lastSaved && (
             <span className="text-xs text-muted-foreground font-mono">
-              Saved {lastSaved.toLocaleTimeString()}
+              Saved {formatTime(lastSaved)}
             </span>
           )}
           <button
@@ -161,14 +162,14 @@ function generateDraft(deal: Deal, events: Event[], clauses: Clause[]): string {
 
   return `# ${deal.acquirerName} / ${deal.companyName} - M&A Analysis
 
-**Date:** ${new Date().toLocaleDateString()}
+**Date:** ${formatDate(new Date())}
 **Status:** ${deal.status}
 **Deal Value:** $${(deal.reportedEquityTakeoverValue / 1e9).toFixed(1)}B
 **Consideration:** ${deal.considerationType}
 
 ## Executive Summary
 
-${deal.acquirerName} announced its acquisition of ${deal.companyName} on ${new Date(deal.announcementDate).toLocaleDateString()} for approximately $${(deal.reportedEquityTakeoverValue / 1e9).toFixed(1)} billion in ${deal.considerationType.toLowerCase()} consideration. The current deal spread is ${deal.currentSpread.toFixed(1)}%, with an estimated probability of close at ${deal.p_close_base}%, yielding an expected value of ${deal.ev.toFixed(2)}%.
+${deal.acquirerName} announced its acquisition of ${deal.companyName} on ${formatDate(deal.announcementDate)} for approximately $${(deal.reportedEquityTakeoverValue / 1e9).toFixed(1)} billion in ${deal.considerationType.toLowerCase()} consideration. The current deal spread is ${deal.currentSpread.toFixed(1)}%, with an estimated probability of close at ${deal.p_close_base}%, yielding an expected value of ${deal.ev.toFixed(2)}%.
 
 ## Deal Terms
 
@@ -178,7 +179,7 @@ ${clauses.length > 0 ? clauses.map((c) => `**${c.type.replace(/_/g, " ")}:** ${c
 
 ${regulatoryEvents.length > 0 ? `The transaction is subject to regulatory review by multiple jurisdictions. Key developments include:
 
-${regulatoryEvents.map((e) => `- **${new Date(e.timestamp).toLocaleDateString()}:** ${e.title} - ${e.summary}`).join("\n")}` : "No significant regulatory issues identified."}
+${regulatoryEvents.map((e) => `- **${formatDate(e.timestamp)}:** ${e.title} - ${e.summary}`).join("\n")}` : "No significant regulatory issues identified."}
 
 ${deal.regulatoryFlags.length > 0 ? `\n**Active Regulatory Concerns:** ${deal.regulatoryFlags.map((f) => f.replace(/_/g, " ")).join(", ")}` : ""}
 
@@ -186,7 +187,7 @@ ${deal.regulatoryFlags.length > 0 ? `\n**Active Regulatory Concerns:** ${deal.re
 
 ${litigationEvents.length > 0 ? `The transaction faces litigation challenges:
 
-${litigationEvents.map((e) => `- **${new Date(e.timestamp).toLocaleDateString()}:** ${e.title} - ${e.summary}`).join("\n")}` : "No active litigation."}
+${litigationEvents.map((e) => `- **${formatDate(e.timestamp)}:** ${e.title} - ${e.summary}`).join("\n")}` : "No active litigation."}
 
 ## Risk Assessment
 
@@ -194,7 +195,7 @@ ${litigationEvents.map((e) => `- **${new Date(e.timestamp).toLocaleDateString()}
 ${deal.regulatoryFlags.length > 0 ? `- Regulatory approval uncertainty (${deal.regulatoryFlags.length} active review${deal.regulatoryFlags.length > 1 ? "s" : ""})` : ""}
 ${deal.litigationCount > 0 ? `- Litigation risk (${deal.litigationCount} active case${deal.litigationCount > 1 ? "s" : ""})` : ""}
 - Market risk (current spread: ${deal.currentSpread.toFixed(1)}%)
-- Timing risk (outside date: ${new Date(deal.outsideDate).toLocaleDateString()})
+- Timing risk (outside date: ${formatDate(deal.outsideDate)})
 
 ## Scenario Analysis
 

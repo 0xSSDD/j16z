@@ -145,11 +145,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     cmd.name.toLowerCase().includes(query.toLowerCase())
   );
 
-  const recentItems = query === ""
-    ? commands.filter(cmd => recentCommands.includes(cmd.id)).slice(0, 3)
-    : [];
+  const recentItems = commands.filter(cmd => recentCommands.includes(cmd.id)).slice(0, 5);
 
-  const displayItems = query === "" && recentItems.length > 0 ? recentItems : filtered;
+  // When no query, show recent + all commands
+  // When query exists, show filtered results
+  const shouldShowSections = query === "" && recentItems.length > 0;
+  const displayItems = query === "" ? commands : filtered;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -176,6 +177,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     } else if (e.key === "Enter") {
       e.preventDefault();
       if (displayItems[selectedIndex]) handleSelect(displayItems[selectedIndex]);
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      onClose();
     }
   };
 
@@ -208,16 +212,90 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           </div>
         </div>
         <div className="max-h-[400px] overflow-y-auto p-2">
-          {query === "" && recentItems.length > 0 && (
-            <div className="px-3 py-2 text-[10px] font-mono text-text-dim uppercase tracking-wide">
-              Recent
-            </div>
-          )}
           {displayItems.length === 0 ? (
             <div className="p-8 text-center text-sm text-text-muted">
               No results found.
             </div>
+          ) : shouldShowSections ? (
+            <>
+              {/* Recent Commands Section */}
+              {recentItems.length > 0 && (
+                <>
+                  <div className="px-3 py-2 text-[10px] font-mono text-text-dim uppercase tracking-wide">
+                    Recent
+                  </div>
+                  {recentItems.map((command, idx) => (
+                    <div
+                      key={command.id}
+                      className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                        idx === selectedIndex
+                          ? "bg-amber-500 text-zinc-950"
+                          : "text-text-muted hover:bg-surfaceHighlight hover:text-text-main"
+                      }`}
+                      onClick={() => handleSelect(command)}
+                      onMouseEnter={() => setSelectedIndex(idx)}
+                    >
+                      <command.icon
+                        className={`h-4 w-4 ${idx === selectedIndex ? "text-zinc-950" : "text-text-dim"}`}
+                      />
+                      <span className="flex-1">{command.name}</span>
+                      {command.category === "deal" && (
+                        <span className="text-[10px] font-mono opacity-60">Deal</span>
+                      )}
+                      {command.category === "action" && (
+                        <span className="text-[10px] font-mono opacity-60">Action</span>
+                      )}
+                      {idx === selectedIndex && (
+                        <div className="ml-2 font-mono text-[10px] opacity-80">
+                          ⏎
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Separator */}
+                  <div className="my-2 border-t border-border" />
+                </>
+              )}
+
+              {/* All Commands Section */}
+              <div className="px-3 py-2 text-[10px] font-mono text-text-dim uppercase tracking-wide">
+                All Commands
+              </div>
+              {displayItems.map((command, idx) => {
+                const actualIndex = recentItems.length > 0 ? idx + recentItems.length : idx;
+                return (
+                  <div
+                    key={command.id}
+                    className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                      actualIndex === selectedIndex
+                        ? "bg-amber-500 text-zinc-950"
+                        : "text-text-muted hover:bg-surfaceHighlight hover:text-text-main"
+                    }`}
+                    onClick={() => handleSelect(command)}
+                    onMouseEnter={() => setSelectedIndex(actualIndex)}
+                  >
+                    <command.icon
+                      className={`h-4 w-4 ${actualIndex === selectedIndex ? "text-zinc-950" : "text-text-dim"}`}
+                    />
+                    <span className="flex-1">{command.name}</span>
+                    {command.category === "deal" && (
+                      <span className="text-[10px] font-mono opacity-60">Deal</span>
+                    )}
+                    {command.category === "action" && (
+                      <span className="text-[10px] font-mono opacity-60">Action</span>
+                    )}
+                    {actualIndex === selectedIndex && (
+                      <div className="ml-2 font-mono text-[10px] opacity-80">
+                        ⏎
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </>
           ) : (
+            /* Search Results - No Sections */
             displayItems.map((command, idx) => (
               <div
                 key={command.id}
