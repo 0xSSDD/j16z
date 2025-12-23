@@ -1,497 +1,594 @@
-# J 16 Z MVP: Feature Roadmap for January 1st Launch
-
-**Goal:** Deliver a functional M&A information synthesis platform for David's analyst by January 1st, 2025.
-
-**Core Value Proposition:** Eliminate the 70% of analyst time spent gathering and organizing information by automatically synthesizing SEC filings, court cases, news, and prediction market data into actionable intelligence.
-
----
-
-## Priority 1: CRITICAL PATH FEATURES (Must ship by Jan 1st)
-
-These features represent the minimum viable product that delivers immediate analyst value. Total estimated time: **12-14 days**.
-
-### 1.1 User Authentication & Basic Access Control
-- **What:** Secure login, password reset, basic user management
-- **Why:** Foundation for all other features, enterprise security requirement
-- **Difficulty:** ⭐⭐ (2/5) - Use pre-built auth service
-- **Time Estimate:** 0.5 days
-- **Dependencies:** None
-- **Recommendation:** Clerk or Supabase Auth for fastest implementation
-- **Risk:** Low - well-documented solutions exist
-
-### 1.2 Company Watchlist Management
-- **What:** Add/remove companies to track, view watchlist, basic company metadata (name, ticker, CIK)
-- **Why:** Focuses analyst attention on relevant deals only
-- **Difficulty:** ⭐⭐ (2/5) - Basic CRUD operations
-- **Time Estimate:** 1 day
-- **Dependencies:** Authentication
-- **Key Features:**
-  - Add company by ticker or name
-  - Remove company from watchlist
-  - View all watched companies
-  - Search company database
-- **Risk:** Low
-
-### 1.3 SEC EDGAR Filing Ingestion & Storage
-- **What:** Automated polling of SEC EDGAR for M&A-relevant filings from watched companies
-- **Why:** Core data source - 80% of M&A intelligence starts here
-- **Difficulty:** ⭐⭐⭐ (3/5) - API integration + background jobs
-- **Time Estimate:** 2-3 days
-- **Dependencies:** Company watchlist
-- **Filing Types to Track (Priority Order):**
-  1. **8-K** - Material events (merger announcements) - CRITICAL
-  2. **SC 13D** - Activist investor positions (>5%) - CRITICAL
-  3. **DEFM14A** - Merger proxy statements - CRITICAL
-  4. **S-4** - Merger registration - HIGH
-  5. **SC TO** - Tender offers - HIGH
-  6. **425** - Merger communications - HIGH
-  7. **SC 13G** - Passive ownership (>5%) - MEDIUM
-  8. **13-F** - Quarterly holdings - MEDIUM
-  9. **DEF 14A** - Annual proxies - LOW
-- **Technical Requirements:**
-  - Background job runs every 15-30 minutes
-  - Parse filing metadata (date, form type, description)
-  - Store filing URL for quick access
-  - Respect SEC rate limits (10 req/sec)
-- **Risk:** Medium - rate limiting, parsing complexity
-
-### 1.4 Alert Configuration System
-- **What:** Allow analysts to set which filing types and companies trigger alerts
-- **Why:** Customization prevents alert fatigue
-- **Difficulty:** ⭐⭐⭐ (3/5) - Flexible rule engine
-- **Time Estimate:** 1.5 days
-- **Dependencies:** Filing ingestion
-- **Configuration Options:**
-  - Enable/disable specific form types (e.g., only 8-K + SC 13D)
-  - Set alert frequency (real-time, daily digest, weekly)
-  - Company-specific overrides
-  - Sector-based alerts (post-MVP)
-- **Risk:** Medium - complexity grows with flexibility
-
-### 1.5 Daily Email Digest Generation
-- **What:** Automated email summarizing new filings, sent daily at 7 AM ET
-- **Why:** Analysts start their day knowing what happened overnight
-- **Difficulty:** ⭐⭐⭐ (3/5) - Email templating + scheduling
-- **Time Estimate:** 1.5 days
-- **Dependencies:** Alerts, filing data
-- **Email Contents:**
-  - Subject: "M&A Digest: X deals, Y filings - Dec 13"
-  - Summary stats (new filings count by type)
-  - Top priority items (8-K, 13D) listed first
-  - Direct links to each filing on SEC website
-  - "View full dashboard" CTA
-- **Technical Requirements:**
-  - HTML email template
-  - Scheduled job (cron or similar)
-  - Email service integration (Resend, SendGrid, SES)
-  - Delivery tracking
-- **Risk:** Low - well-solved problem
-
-### 1.6 Filing Search & Browse Interface
-- **What:** Simple web interface to search and filter recent filings
-- **Why:** Analysts need to reference past filings quickly
-- **Difficulty:** ⭐⭐⭐ (3/5) - Frontend + API
-- **Time Estimate:** 2 days
-- **Dependencies:** Filing data
-- **Key Features:**
-  - Filter by: date range, form type, company, keyword
-  - Sort by: date (newest first), form type, company
-  - Pagination (50 items per page)
-  - Click filing → opens SEC website in new tab
-  - Export to CSV (post-MVP)
-- **Risk:** Low
-
-### 1.7 Basic Dashboard View
-- **What:** Landing page showing recent activity at a glance
-- **Why:** Central hub for analyst workflow
-- **Difficulty:** ⭐⭐⭐ (3/5) - Frontend work
-- **Time Estimate:** 1.5 days
-- **Dependencies:** All above features
-- **Dashboard Widgets:**
-  - "Last 24 hours" - new filings count
-  - "Your watchlist" - company list with quick links
-  - "Recent filings" - table of last 20 filings
-  - "Active alerts" - count and status
-- **Risk:** Low
-
-### 1.8 Deployment & Monitoring
-- **What:** Production-ready hosting with basic error tracking
-- **Why:** Platform must be reliable for daily use
-- **Difficulty:** ⭐⭐ (2/5) - Use managed services
-- **Time Estimate:** 1 day
-- **Requirements:**
-  - Backend hosting (Railway, Render, or AWS)
-  - Database (PostgreSQL on same platform)
-  - Error tracking (Sentry free tier)
-  - Uptime monitoring (UptimeRobot)
-  - SSL certificate
-- **Risk:** Medium - deployment issues can derail timeline
-
----
-
-## Priority 2: IMPORTANT FEATURES (Nice to have by Jan 1st)
-
-These features significantly enhance analyst productivity but can ship in early January if time runs short. Total estimated time: **5-7 days**.
-
-### 2.1 RSS News Feed Integration
-- **What:** Automatically aggregate M&A news from RSS sources, filter by keywords
-- **Why:** Provides context around SEC filings (news often precedes formal announcements)
-- **Difficulty:** ⭐⭐⭐⭐ (4/5) - RSS aggregation + filtering + deduplication
-- **Time Estimate:** 2-3 days
-- **Dependencies:** Alert system
-- **News Sources:**
-  - Reuters Business
-  - Bloomberg Deals
-  - MarketWatch M&A
-  - Seeking Alpha
-  - Wall Street Journal (if available)
-- **Key Features:**
-  - Auto-categorize by company mention
-  - Keyword filtering ("merger", "acquisition", "takeover", etc.)
-  - Deduplicate similar articles
-  - Include in daily digest
-  - Sentiment tagging (post-MVP)
-- **Technical Approach:**
-  - Self-hosted Miniflux or FreshRSS
-  - Webhook integration to push new articles
-  - Store articles with company linkage
-- **Risk:** Medium - parsing quality varies by source
-
-### 2.2 Alert Enable/Disable UI
-- **What:** Toggle alerts on/off without deleting configuration
-- **Why:** Analysts may want to pause alerts during vacation
-- **Difficulty:** ⭐⭐ (2/5) - Simple toggle
-- **Time Estimate:** 0.5 days
-- **Dependencies:** Alert system
-- **Risk:** Low
-
-### 2.3 Filing Content Preview
-- **What:** Show snippet of filing text in dashboard (first 500 words)
-- **Why:** Analysts can triage without leaving platform
-- **Difficulty:** ⭐⭐⭐ (3/5) - HTML parsing + storage
-- **Time Estimate:** 1-2 days
-- **Dependencies:** Filing ingestion
-- **Technical Challenge:** SEC filings are often complex HTML/XBRL
-- **Risk:** Medium - parsing can be fragile
-
-### 2.4 Email Open/Click Tracking
-- **What:** Track which emails are opened and which links are clicked
-- **Why:** Understand which alerts drive engagement
-- **Difficulty:** ⭐⭐ (2/5) - Email service provides this
-- **Time Estimate:** 0.5 days
-- **Dependencies:** Email system
-- **Risk:** Low
-
-### 2.5 Mobile-Responsive Design
-- **What:** Dashboard works on tablets and phones
-- **Why:** Analysts check alerts on-the-go
-- **Difficulty:** ⭐⭐⭐ (3/5) - CSS work
-- **Time Estimate:** 1-2 days
-- **Dependencies:** Dashboard
-- **Risk:** Low - use responsive framework from start
-
----
-
-## Priority 3: POST-JANUARY FEATURES (Ship in Q1 2025)
-
-These features significantly expand platform capabilities but are not required for initial analyst testing. Total estimated time: **10-15 days**.
-
-### 3.1 CourtListener Litigation Monitoring
-- **What:** Track M&A-related lawsuits (antitrust challenges, shareholder suits, SEC enforcement)
-- **Why:** Litigation can kill deals - early warning is valuable
-- **Difficulty:** ⭐⭐⭐⭐ (4/5) - Complex API, data quality issues
-- **Time Estimate:** 2-3 days
-- **Key Use Cases:**
-  - Antitrust challenges (DOJ/FTC blocking mergers)
-  - Shareholder class actions
-  - SEC enforcement actions
-  - Bankruptcy proceedings (distressed M&A)
-- **Technical Challenges:**
-  - CourtListener API rate limits
-  - Party name matching is fuzzy
-  - Bulk data download required for history
-- **Risk:** High - data quality and entity resolution
-
-### 3.2 Polymarket/Kalshi Deal Probability Integration
-- **What:** Show prediction market odds on deal completion
-- **Why:** Market-implied probabilities provide unique signal
-- **Difficulty:** ⭐⭐⭐ (3/5) - API integration
-- **Time Estimate:** 1-2 days
-- **Example:** "Microsoft-Activision merger completion: 92% (Polymarket)"
-- **Technical Approach:**
-  - Query Polymarket/Kalshi for M&A-related markets
-  - Match to companies in watchlist
-  - Display probability alongside filing data
-- **Risk:** Medium - market availability is inconsistent
-
-### 3.3 AI-Powered Filing Summaries
-- **What:** GPT-4 generates 3-sentence summary of key points in filing
-- **Why:** Saves analysts 10-15 minutes per filing
-- **Difficulty:** ⭐⭐⭐⭐ (4/5) - Prompt engineering + costs
-- **Time Estimate:** 2-3 days
-- **Cost Considerations:**
-  - GPT-4 costs ~$0.03 per filing
-  - Could be $50-100/month for active users
-- **Technical Requirements:**
-  - Extract text from HTML filings
-  - Prompt engineering for consistent summaries
-  - Cache summaries to avoid re-processing
-- **Risk:** High - hallucination risk in financial context
-
-### 3.4 Slack/Teams Integration
-- **What:** Post alerts to Slack/Teams channels
-- **Why:** Many analysts live in Slack
-- **Difficulty:** ⭐⭐⭐ (3/5) - Webhook integration
-- **Time Estimate:** 1-2 days
-- **Risk:** Low - well-documented APIs
-
-### 3.5 Advanced Filtering & Saved Searches
-- **What:** Complex queries (e.g., "8-K filings from tech companies >$10B market cap")
-- **Why:** Power users need sophisticated filtering
-- **Difficulty:** ⭐⭐⭐⭐ (4/5) - Query builder UI + backend
-- **Time Estimate:** 2-3 days
-- **Risk:** Medium - scope can balloon
-
-### 3.6 Historical Data Backfill
-- **What:** Load last 12 months of filings for all companies
-- **Why:** Analysts need historical context
-- **Difficulty:** ⭐⭐⭐ (3/5) - Bulk data processing
-- **Time Estimate:** 1-2 days
-- **Technical Challenge:** SEC bulk data is ~100GB compressed
-- **Risk:** Medium - database size, processing time
-
-### 3.7 Export & Reporting
-- **What:** Export filtered filing lists to CSV/Excel, generate weekly reports
-- **Why:** Analysts share insights with stakeholders
-- **Difficulty:** ⭐⭐⭐ (3/5) - File generation
-- **Time Estimate:** 1-2 days
-- **Risk:** Low
-
----
-
-## User Segments & Feature Prioritization Matrix
-
-### Primary User: Private Equity Analyst (David's analyst)
-- **Pain Points:** Information overload, manual EDGAR checking, missed opportunities
-- **Must-Have Features:** SEC filing alerts, email digest, watchlist
-- **Nice-to-Have:** News integration, filing preview
-- **Don't Care About:** Advanced filtering (they track <20 companies)
-
-### Secondary User: Buy-Side Research Analyst
-- **Pain Points:** Tracking 50+ companies, staying current on sector M&A
-- **Must-Have Features:** Sector alerts, bulk watchlist import
-- **Nice-to-Have:** AI summaries, historical data
-- **Don't Care About:** Litigation tracking (legal team handles)
-
-### Tertiary User: Corporate Development Professional
-- **Pain Points:** Competitor monitoring, industry consolidation tracking
-- **Must-Have Features:** Sector-based alerts, news integration
-- **Nice-to-Have:** Prediction markets, advanced search
-- **Don't Care About:** Daily emails (prefer weekly digest)
-
----
-
-## Technical Stack Recommendations
-
-### Frontend
-- **Framework:** Next.js 14 (TypeScript) + Tailwind CSS
-- **Rationale:** Best-in-class DX, Vercel deployment is trivial
-- **Alternatives:** SvelteKit (if team prefers), Vue + Nuxt
-
-### Backend
-- **Framework:** Next.js API routes OR separate Node.js/Express server
-- **Rationale:** 
-  - Next.js API routes: Fastest for simple CRUD, deployed with frontend
-  - Separate Node/Express: Better for complex background jobs
-- **Recommendation:** Start with Next.js API routes, extract to separate server if needed
-- **TypeScript:** Mandatory for type safety with external APIs
-
-### Database
-- **Choice:** PostgreSQL (Supabase, Railway, or Neon)
-- **Rationale:** ACID compliance, JSON columns, full-text search, mature ecosystem
-- **Alternatives:** None recommended - Postgres is the right choice
-
-### Background Jobs
-- **Choice:** Vercel Cron (Next.js) OR Inngest (more complex workflows)
-- **Rationale:** 
-  - Vercel Cron: Free, simple, works for basic scheduling
-  - Inngest: Better for complex multi-step workflows, retries, monitoring
-- **Recommendation:** Start with Vercel Cron, migrate to Inngest if complexity grows
-
-### Email
-- **Choice:** Resend
-- **Rationale:** 3,000 emails/month free, React Email templates, best DX, SOC 2 compliant
-- **Alternatives:** Postmark (better deliverability), SendGrid (more features)
-
-### Authentication
-- **Choice:** Clerk
-- **Rationale:** Pre-built UI, 10K MAU free, organizations support
-- **Alternatives:** Supabase Auth (if using Supabase for DB), Auth0 (enterprise)
-
-### Hosting
-- **Frontend:** Vercel (free tier is generous)
-- **Backend:** Railway, Render, or Fly.io (~$10-20/month)
-- **Database:** Included with backend hosting OR separate Neon/Supabase
-- **Total Cost:** $10-25/month for MVP scale
-
----
-
-## Development Timeline (18-21 days)
-
-### Week 1: Foundation (Dec 14-20)
-- **Day 1-2:** Project setup, Next.js scaffold, database schema, Clerk auth
-- **Day 3-4:** Company watchlist CRUD, basic API endpoints
-- **Day 5-7:** SEC EDGAR client (TypeScript), filing ingestion logic, background job setup
-
-### Week 2: Core Features (Dec 21-27)
-- **Day 8-9:** Alert configuration system, backend + frontend
-- **Day 10-11:** Email integration (Resend), digest template design
-- **Day 12-14:** Dashboard UI (React), filing search/filter
-
-### Week 3: Polish & Deploy (Dec 28-Jan 3)
-- **Day 15-17:** Bug fixes, error handling, loading states, empty states
-- **Day 18-19:** Production deployment, environment variables, monitoring setup
-- **Day 20-21:** Testing with David's analyst, documentation, handoff
-
-**Buffer:** 3-4 days built into estimates for unexpected issues
-
----
-
-## Risk Assessment & Mitigation
-
-### High-Risk Items
-1. **SEC Rate Limiting**
-   - Risk: Getting blocked or throttled
-   - Mitigation: Implement exponential backoff, cache aggressively, respect 10 req/sec limit
-   - Contingency: Use sec-api.io ($50/mo) if SEC blocks our IP
-
-2. **Deployment Issues**
-   - Risk: Last-minute config problems, environment variables
-   - Mitigation: Deploy to staging by Dec 20, test thoroughly
-   - Contingency: Use Vercel for everything (even backend) if time is short
-
-3. **Data Quality**
-   - Risk: Parsing errors, missing filings, incorrect company matching
-   - Mitigation: Start with simple parsing, improve iteratively
-   - Contingency: Link to SEC website for full content, don't parse initially
-
-### Medium-Risk Items
-1. **Email Deliverability**
-   - Risk: Emails land in spam
-   - Mitigation: Set up SPF/DKIM/DMARC on day 1, start with known recipients
-   - Contingency: Use Postmark if Resend has issues
-
-2. **Background Job Reliability**
-   - Risk: Jobs fail silently, miss filings
-   - Mitigation: Add error tracking (Sentry), retry logic, dead letter queue
-   - Contingency: Manual trigger endpoint for forcing refresh
-
-### Low-Risk Items
-1. **Authentication** - Use Clerk's pre-built components
-2. **Frontend UI** - Use Tailwind + shadcn/ui components
-3. **Database** - PostgreSQL is battle-tested
-
----
-
-## Success Metrics (30-day post-launch)
-
-### Usage Metrics
-- **Daily Active Users:** ≥1 (David's analyst)
-- **Email Open Rate:** ≥40%
-- **Filing Click-Through Rate:** ≥20%
-- **Watchlist Size:** Average 5-15 companies per user
-
-### Performance Metrics
-- **Filing Ingestion Delay:** <30 minutes from SEC publication
-- **Email Delivery Time:** <5 minutes from job trigger
-- **Page Load Time:** <2 seconds
-- **Uptime:** ≥99% (7 hours downtime allowed per month)
-
-### Quality Metrics
-- **False Positive Rate:** <10% (filings flagged incorrectly)
-- **False Negative Rate:** <5% (missed filings)
-- **User-Reported Bugs:** <5 per week
-
-### Business Metrics
-- **Time Saved per Analyst:** ≥5 hours/week (measured via survey)
-- **Monthly Operating Cost:** <$50
-- **User Satisfaction (NPS):** ≥50
-
----
-
-## Go/No-Go Decision Framework
-
-### Go Decision (Ship on Jan 1st) if:
-✅ SEC filing ingestion works reliably (tested with 10+ companies)  
-✅ Daily email digest sends successfully  
-✅ Watchlist add/remove works  
-✅ Platform accessible via web browser with auth  
-✅ No critical security vulnerabilities  
-✅ Basic error handling exists  
-
-### No-Go Decision (Delay launch) if:
-❌ SEC API integration fundamentally broken  
-❌ Email delivery completely non-functional  
-❌ Authentication bypassed or insecure  
-❌ Database data loss observed  
-❌ Critical bugs crash application  
-
-**Gray Area Items (ship with known issues):**
-- ⚠️ Mobile UI has minor layout issues → Ship, fix in January
-- ⚠️ Some filings don't parse perfectly → Ship, link to SEC website
-- ⚠️ Email template looks plain → Ship, improve design later
-- ⚠️ No RSS news yet → Ship without, add in January
-
----
-
-## Feature Complexity vs. Value Matrix
-
-```
-High Value, Low Complexity (Do First):
-- SEC filing alerts
-- Email digest
-- Company watchlist
-- Basic dashboard
-
-High Value, High Complexity (Do Second):
-- News RSS integration
-- Filing content preview
-- AI summaries (post-MVP)
-
-Low Value, Low Complexity (Quick wins):
-- Alert enable/disable toggle
-- Email tracking
-- CSV export
-
-Low Value, High Complexity (Avoid):
-- Custom filtering UI
-- Advanced analytics
-- Multi-user collaboration
-```
-
----
-
-## Recommendations for Jan 1st Launch
-
-**SHIP:**
-1. SEC filing alerts for watchlist companies
-2. Daily email digest (7 AM ET)
-3. Basic web dashboard with filing list
-4. Watchlist management
-5. Simple search/filter
-
-**DEFER TO JANUARY:**
-1. RSS news integration (add by Jan 15)
-2. CourtListener litigation tracking (add by Jan 31)
-3. Prediction markets (add by Feb 15)
-4. AI summaries (add when budget allows)
-
-**MINIMUM VIABLE ANALYST WORKFLOW:**
-1. Analyst logs in Monday morning
-2. Sees email digest: "5 new filings from your watchlist"
-3. Clicks filing link → opens SEC EDGAR
-4. Adds new company to watchlist via dashboard
-5. Repeats daily
-
-**This workflow saves 30-60 minutes daily by eliminating manual EDGAR checking.**
+## j16z – MVP Product & Engineering Spec
+*(HSR / M&A / CourtListener / RSS / Email / Webhooks)*
 
+***
+
+## 0. Goal and End Output
+
+**Goal:**
+Build a production‑grade MVP that tracks public M&A deals end‑to‑end and turns raw regulatory, legal, and market data into **analyst‑ready and client‑ready outputs** for merger‑arb / event‑driven and policy‑focused firms.
+
+**End outputs j16z must produce:**
+
+- A **deal board** showing all tracked deals with spreads, probabilities, regulatory/litigation status, and key dates.
+- A **deal card** per deal with terms, clauses, event timeline, spreads, and qualitative notes.
+- **Alerts** (email, Slack, webhook) on material events.
+- **Daily/weekly email digests** summarising what changed and which deals are now interesting.
+- **Research drafts** (memo skeletons) that analysts can edit into institutional notes.
+- **Structured data feeds** (CSV/API) of deals, events, and terms that firms can resell or pipe into internal systems.
+
+***
+
+## 1. Core Analyst User Stories
+
+1. **Define coverage**
+   As an analyst, I want to define a list of deals and covered tickers so the system automatically tracks all relevant filings, agency actions, litigation, and market spreads for my universe.
+
+2. **Understand each event quickly**
+   As an analyst, when a filing or event happens (HSR/SEC/FTC/DOJ/CourtListener), I want a concise summary with links to primary documents so I can quickly decide if it is material for my trade and client note.
+
+3. **Single deal dashboard**
+   As an analyst, I want a single dashboard per deal showing the event timeline, current spread, key clauses (termination, MAE, regulatory, litigation conditions), and upcoming dates so I can brief PMs and institutional clients from one place.
+
+4. **Structured data for models and clients**
+   As an analyst, I want to export structured data (deal terms, dates, spreads, clauses, events) to Excel/CSV/API so I can feed my own models and those of institutional clients.
+
+5. **Probabilities and thresholds**
+   As an analyst, I want to set and adjust per‑deal probabilities (chance of closing) and thresholds (minimum spread for entry, risk flags) so I can turn raw events into position and recommendation decisions.
+
+6. **Research production**
+   As an analyst, I want j16z to pre‑fill a memo/report skeleton (terms, clauses, event highlights, charts) so I can quickly turn it into sellable research for institutional investors.
+
+7. **Alerts, digests, and integrations**
+   As an analyst or PM, I want configurable alerts via email, Slack, and webhooks, plus daily/weekly email digests, so I can stay on top of material events without constantly checking dashboards.
+
+8. **Qualitative RSS / news**
+   As an analyst, I want to connect relevant RSS/news feeds (law‑firm alerts, blogs, specialist newsletters) so j16z can surface high‑signal qualitative “tidbits” next to each deal.
+
+All MVP functionality should satisfy one or more of these stories.
+
+***
+
+## 2. System Architecture Overview
+
+**Components:**
+
+1. **Data Ingestion Layer**
+   - Sources: SEC EDGAR, CourtListener, FTC, DOJ Antitrust, market‑data API, user‑configured RSS/news feeds.
+   - Mechanisms: Official RSS feeds where available plus HTTP/API polling.
+
+2. **Normalization & Storage**
+   - Map raw inputs into normalized entities: Company, Deal, Filing, CourtCase, DocketEntry, AgencyEvent, MarketSnapshot, NewsItem, Event, User, Watchlist, AlertRule.
+
+3. **Processing Pipeline**
+   - Extract structured deal terms and clauses.
+   - Detect changes over time.
+   - Classify events and compute materiality scores.
+   - Generate short summaries and research draft pieces.
+
+4. **Alerts & Notifications**
+   - Evaluate AlertRules on new events.
+   - Send alerts via email, Slack, and webhooks.
+
+5. **API & Web UI**
+   - REST/GraphQL API for internal tools and client integrations.
+   - Web application (React/Vue) offering: deal board, deal cards, event timelines, export tools.
+
+Backend: Python/FastAPI (or Node/TypeScript).
+Database: PostgreSQL.
+
+***
+
+## 3. Data Sources and APIs
+
+### 3.1 SEC EDGAR (free, mandatory)
+
+**Purpose:** Track deal‑related filings.
+
+**Sources:**
+
+- SEC structured disclosure RSS feeds (form‑type specific).[1][2]
+- SEC company/submissions JSON APIs and filing archives.
+
+**Data:**
+
+- Filings relevant to M&A:
+  - 8‑K (deal announcement and amendments, key events).
+  - S‑4 (merger prospectus).
+  - DEFM14A/DEFA14A (merger proxies).
+  - 10‑K/10‑Q (risk factors, business updates post‑announcement).
+  - 13D/13G (activist / shareholder filings that may affect deals).
+
+**Implementation Requirements:**
+
+- Maintain a polite User‑Agent and rate‑limiting policy.
+- For each Deal, store acquirer/target CIKs.
+- Subscribe to relevant SEC RSS feeds and/or poll APIs for those CIKs; filter by form types above.
+- For each new filing:
+  - Download HTML/TXT document.
+  - Store Filing record with: company_id, deal_id (if linked), CIK, accession, type, date, URL, raw_text.
+
+***
+
+### 3.2 CourtListener (free, mandatory)
+
+**Purpose:** Track litigation related to deals (merger challenges, shareholder suits, antitrust cases, appraisal actions).
+
+**Sources:**
+
+- CourtListener REST API (dockets, docket entries, opinions).[3][4]
+- CourtListener per‑docket RSS feeds for alerts.[5]
+
+**Implementation Requirements:**
+
+- **Deal creation step:**
+  - Use CourtListener search API to find dockets with party names matching acquirer and target around the announcement date.
+  - Present candidates in UI for analyst confirmation; attach selected dockets to the Deal as CourtCase records.
+
+- **Docket monitoring:**
+  - For each attached CourtCase, subscribe to its RSS feed for fast detection.
+  - When RSS reports a new entry, call the API to pull full DocketEntry (date, description, URL, full_text if available).
+  - Store DocketEntry records.
+
+- **Event creation:**
+  - Classify entries via keywords (“complaint”, “motion for preliminary injunction”, “order granting/denying”, “stipulation of dismissal”).
+  - For material types, create Event records (type=COURT) with summaries and links.
+
+***
+
+### 3.3 FTC / DOJ Antitrust (free, essential)
+
+**Purpose:** Track antitrust enforcement and HSR‑related actions.
+
+**Sources:**
+
+- FTC RSS feeds for competition and case press releases.[6]
+- DOJ Antitrust Division press release RSS feed.[7]
+
+**Implementation Requirements:**
+
+- Subscribe to relevant RSS feeds.
+- For each item:
+  - Parse title/summary and search for acquirer/target names and deal IDs.
+  - If matched, create AgencyEvent with: agency, type (PRESS_RELEASE, COMPLAINT, CONSENT_DECREE, POLICY_STATEMENT), date, title, URL, summary_text.
+  - Create Event (type=AGENCY) with short_summary and materiality based on type (e.g., complaints high, generic policy lower).
+
+***
+
+### 3.4 Market Data API (paid / freemium)
+
+**Purpose:** Compute spreads and spread movements.
+
+**Source Examples:**
+
+- IEX Cloud, Polygon, Twelve Data, etc.[8]
+
+**Implementation Requirements:**
+
+- Store ticker→symbol mapping for each Company.
+- During market hours, periodically request last price for acquirer and target.
+- Use Deal terms to compute:
+  - `implied_consideration_per_share` (cash, stock, or combination).
+  - `spread_absolute` and `spread_percent`.
+- Store MarketSnapshot records and create SPREAD_MOVE Events when spread changes beyond user thresholds.
+
+***
+
+### 3.5 Curated RSS / News Feeds (optional but in MVP)
+
+**Purpose:** Track qualitative information (newsletters, blogs, law‑firm alerts) for each deal.
+
+**Sources:**
+
+- User‑supplied RSS URLs:
+  - Law‑firm antitrust alerts.[9][10]
+  - Specialist investor newsletters.[11][12]
+  - Other relevant blogs or news feeds.
+
+**Implementation Requirements:**
+
+- Allow users to attach RSS feeds:
+  - To a Deal, or
+  - To a Theme/Watchlist (e.g., “US tech antitrust”).
+- Regularly poll each feed; for each new item:
+  - Create NewsItem with feed_id, title, URL, published_at, summary.
+  - Attempt to match to deals based on company names/tickers mentioned; set deal_id when matched.
+  - Create NEWS Events with low/medium materiality; analysts can manually promote them.
+
+***
+
+## 4. Domain Model (DB‑Level)
+
+### Company
+
+- `id`
+- `name`
+- `ticker`
+- `cik`
+- `lei` (optional)
+- `country`
+- `sector`
+
+### Deal
+
+- `id`
+- `acquirer_company_id` (FK → Company)
+- `target_company_id` (FK → Company)
+- `headline_value_usd`
+- `consideration_type` (CASH, STOCK, MIX)
+- `cash_per_share` (nullable)
+- `stock_ratio` (nullable)
+- `collar_low` / `collar_high` (nullable)
+- `announcement_date`
+- `expected_close_date` (nullable)
+- `outside_date` (nullable)
+- `status` (ANNOUNCED, REGULATORY_REVIEW, LITIGATION, TERMINATED, CLOSED, UNKNOWN)
+- `notes` (text)
+
+**Analyst fields (probabilities/thresholds):**
+
+- `p_close_base` (float 0–1; default null)
+- `p_break_regulatory` (float 0–1; optional)
+- `p_break_litigation` (float 0–1; optional)
+- `p_break_other` (float 0–1; optional)
+- `spread_entry_threshold` (float; e.g. 0.02 for 2% min spread)
+- `size_bucket` (SMALL, MEDIUM, LARGE)
+
+### DealClause
+
+Captured from filings:
+
+- `id`
+- `deal_id`
+- `clause_type` (TERMINATION_FEE, REVERSE_TERMINATION_FEE, MAE, REGULATORY_EFFORTS, LITIGATION_CONDITION, FINANCING_CONDITION, OTHER)
+- `text_excerpt`
+- `source_filing_id`
+- `section_reference` (string, e.g. “Section 7.2(b)”)
+
+### Filing
+
+- `id`
+- `company_id`
+- `deal_id` (nullable)
+- `cik`
+- `accession_number`
+- `filing_type` (8‑K, S‑4, DEFM14A, etc.)
+- `filing_date`
+- `url`
+- `raw_text` (or pointer to blob storage)
+- `parsed_json` (structured representation: sections, items, tables)
+
+### CourtCase
+
+- `id`
+- `deal_id` (nullable)
+- `courtlistener_id`
+- `court`
+- `case_number`
+- `caption`
+- `status` (OPEN, CLOSED, UNKNOWN)
+- `created_date`
+- `last_update`
+
+### DocketEntry
+
+- `id`
+- `court_case_id`
+- `courtlistener_entry_id`
+- `date_filed`
+- `description`
+- `full_text` (nullable)
+- `url`
+
+### AgencyEvent
+
+- `id`
+- `deal_id` (nullable)
+- `agency` (FTC, DOJ, OTHER)
+- `event_type` (PRESS_RELEASE, COMPLAINT, CONSENT_DECREE, POLICY_STATEMENT, OTHER)
+- `date`
+- `title`
+- `url`
+- `summary_text`
+
+### MarketSnapshot
+
+- `id`
+- `deal_id`
+- `as_of` (timestamp)
+- `acquirer_price`
+- `target_price`
+- `implied_consideration_per_share`
+- `spread_absolute`
+- `spread_percent`
+
+### NewsItem
+
+- `id`
+- `feed_id`
+- `deal_id` (nullable)
+- `title`
+- `url`
+- `published_at`
+- `summary`
+- `tags` (jsonb, optional)
+
+### Event
+
+Unified event abstraction:
+
+- `id`
+- `deal_id`
+- `event_type` (FILING, COURT, AGENCY, SPREAD, NEWS)
+- `sub_type` (e.g., `OUTSIDE_DATE_CHANGE`, `INJUNCTION_DENIED`, `SECOND_REQUEST`, `SPREAD_WIDEN`, `CLIENT_NOTE`)
+- `event_date`
+- `title`
+- `short_summary`
+- `materiality_score` (0–100)
+- `source_table` (Filing/CourtCase/DocketEntry/AgencyEvent/MarketSnapshot/NewsItem)
+- `source_id`
+
+### User, Watchlist, AlertRule
+
+**User**
+
+- `id`, `name`, `email`, `role` (ANALYST, PM, ADMIN)
+
+**Watchlist**
+
+- `id`, `user_id`, `name`
+- Many‑to‑many mapping to Deals.
+
+**AlertRule**
+
+- `id`, `user_id`
+- `deal_id` (nullable: null = applies to all deals in user’s watchlists)
+- `criteria_json` (e.g. `{"event_types":["COURT","AGENCY"],"materiality_min":70}`)
+- `channels` (array of EMAIL, SLACK, WEBHOOK)
+- `webhook_url` (nullable)
+- `webhook_secret` (nullable)
+
+***
+
+## 5. Ingestion & Processing Pipelines
+
+### 5.1 Deal Creation Workflow
+
+**Inputs:** Manual form or CSV.
+
+**Steps:**
+
+1. Analyst inputs acquirer & target tickers (and optional headline value, expected close, sector, initial `p_close_base`, `spread_entry_threshold`).
+2. System resolves tickers to Companies (and CIKs).
+3. System creates Deal record with fields above.
+4. System kicks off link discovery:
+   - SEC search: recent filings mentioning “merger”, “acquisition” for these CIKs.
+   - CourtListener search: dockets with these party names near announcement date.
+   - FTC/DOJ scan: RSS items with those party names.
+
+### 5.2 SEC Pipeline
+
+**Trigger:** New filing for a covered CIK via RSS/API.
+
+**Steps:**
+
+1. **Discovery** – Detect via RSS or API.
+2. **Download** – Fetch primary HTML/TXT.
+3. **Parsing** – Extract sections (by Item and headings); optionally parse XBRL tables.
+4. **Term & clause extraction** (especially from S‑4 / DEFM14A / deal‑8‑K):
+   - Consideration: cash, stock, mix, any collar ranges.
+   - Key dates: expected close, outside date.
+   - Termination fee and reverse termination fee (amounts and triggers).
+   - MAE definition and carve‑outs.
+   - Regulatory efforts clause (text).
+   - Litigation condition (close conditioned on dismissal/resolution?).
+   - HSR/antitrust‑related risk discussion.
+5. **Store** – Update Deal and DealClause records.
+6. **Change detection** – For amendments, diff relevant clauses vs previous version; flag changes.
+7. **Summarization** – Create short_summary focusing on changes and implications.
+8. **Event** – Create FILING Event with `sub_type` derived from context and `materiality_score`.
+9. **Alert evaluation** – Run AlertRules and send notifications.
+
+### 5.3 CourtListener Pipeline
+
+**Trigger:** Deal creation (initial search) and RSS updates for attached dockets.
+
+**Steps:**
+
+1. **Initial search** – Identify likely dockets; analyst confirms.
+2. **Monitoring** – For each CourtCase, subscribe to RSS; on new entry, pull full DocketEntry via API.
+3. **Classification & summarization** – Identify complaints, injunction motions, orders, dismissals; summarize each.
+4. **Event** – Create COURT Events with appropriate sub_type and materiality.
+5. **Alerts** – Send alerts for e.g. any injunction order, new complaint, settlement.
+
+### 5.4 FTC/DOJ Pipeline
+
+**Trigger:** RSS items from FTC and DOJ feeds.
+
+**Steps:**
+
+1. Fetch new RSS items.
+2. String‑match company/deal names; when matched, create AgencyEvent.
+3. Summarize content with focus on enforcement step and deal implications.
+4. Create AGENCY Event; set materiality (complaint/consent high; generic policy medium/low).
+5. Evaluate AlertRules and notify.
+
+### 5.5 Market Data & Spread Computation
+
+**Trigger:** Scheduled job during market hours.
+
+**Steps:**
+
+1. For each active Deal: fetch acquirer and target prices.
+2. Compute implied consideration and spread for each deal type:
+   - CASH: `implied = cash_per_share`.
+   - STOCK: `implied = stock_ratio * acquirer_price`.
+   - MIX: `implied = cash_per_share + stock_ratio * acquirer_price`.
+3. Store MarketSnapshot.
+4. If spread changed beyond user‑defined thresholds, create SPREAD_MOVE Event.
+5. Use for screens and digests.
+
+### 5.6 Curated RSS / News Pipeline
+
+**Trigger:** Scheduled polling per feed.
+
+**Steps:**
+
+1. Fetch latest RSS items from each configured feed.
+2. De‑duplicate by URL.
+3. Attempt entity matching (deal/company names/tickers in title/summary).
+4. Create NewsItem; if matched to deal, create NEWS Event.
+5. Analyst can promote or downgrade materiality.
+
+***
+
+## 6. Alerts, Digests, and Webhooks
+
+### 6.1 Real‑Time Alerts
+
+For each new Event:
+
+1. Identify AlertRules that apply (matching user, watchlists, deal_id, criteria).
+2. For each rule and channel:
+
+   - **Email:**
+     - Subject: `[j16z] [Deal] [EventType/SubType] – short title`.
+     - Body: summary, key numbers, links to j16z deal card and primary doc.
+
+   - **Slack:**
+     - Post JSON→formatted message into configured channel with buttons linking to deal and document.
+
+   - **Webhook:**
+     - POST JSON payload to rule.webhook_url containing full Event and Deal context (as outlined earlier), signed with webhook_secret.
+
+### 6.2 Daily Analyst Digest
+
+- Per user (or per watchlist).
+- Contents:
+
+  - List of deals with new Events above a materiality threshold in last 24h.
+  - For each deal:
+    - One‑line summary per event.
+    - Current spread vs `spread_entry_threshold`.
+    - Current `p_close_base`.
+
+- Intended to be the analyst’s morning “what changed” email.
+
+### 6.3 Weekly “Idea Sheet” Digest
+
+- Per user / desk.
+- Contents:
+
+  - Top N deals where spread ≥ `spread_entry_threshold` and `p_close_base` in a target range (e.g., 40–80%).
+  - For each deal:
+    - Snapshot of key terms, spread, EV per share, main risks.
+    - Links to deal card and suggested research draft.
+
+- Meant as a starting point for internal and client‑facing weekly commentary.
+
+***
+
+## 7. Frontend / UX
+
+### 7.1 Deal Board
+
+- Table of all tracked deals with:
+
+  - Deal name (Acquirer → Target).
+  - Status.
+  - Spread (%).
+  - `p_close_base`.
+  - Simple EV metric (e.g., `spread * p_close_base`).
+  - Regulatory status (icons for second request, complaint, consent).
+  - Litigation status (count and last event).
+  - Outside‑date countdown.
+
+- Filters:
+
+  - By spread, p_close_base, EV, sector, regulatory/litigation flags, watchlist.
+
+### 7.2 Deal Card
+
+- **Summary header:** key terms, spread, probability, status, big dates.
+- **Key Clauses panel:** table listing termination/reverse fees, MAE, regulatory efforts, litigation condition, financing condition; each row links to filing excerpt.
+- **Event timeline:** vertical, time‑ordered; filter by event_type and materiality.
+- **Spreads tab:** chart of spread history and notable event markers.
+- **News/RSS tab:** list of NewsItems; analyst can tag notes.
+- **Probability/threshold widget:** inputs for `p_close_base`, breakdowns, and `spread_entry_threshold`.
+
+### 7.3 Research Draft View
+
+- One‑click from Deal Card: “Generate draft note”.
+- Shows editable Markdown/HTML:
+
+  - Deal overview (auto‑filled).
+  - Terms & clauses table.
+  - Regulatory and litigation sections with key events and citations.
+  - Spread and EV snapshot.
+  - Scenario stub with p_close and simple payoff math.
+
+- Export: copy to clipboard; download `.md` or `.docx`.
+
+***
+
+## 8. Exports & API
+
+**CSV Exports:**
+
+- Deals table (with terms, probabilities, spreads).
+- Events per deal (for selected date range).
+
+**API:**
+
+- `GET /deals` – list with filters.
+- `GET /deals/{id}` – full detail.
+- `GET /deals/{id}/events` – paginated events.
+- `GET /deals/{id}/terms` – structured clauses.
+- Auth via token per user or per client.
+
+These allow firms to build their own internal dashboards and client‑facing products.
+
+***
+
+## 9. In‑Scope vs Out‑of‑Scope (MVP)
+
+**In scope:**
+
+- All ingestion pipelines above (SEC, CourtListener, FTC/DOJ, market‑data, curated RSS).
+- Clause and term extraction for key deal documents.
+- Event classification and materiality scoring.
+- Deal board, deal card, research draft generator.
+- Alerts (email, Slack, webhook) and daily/weekly digests.
+- CSV/API exports.
+- Basic multi‑user support and watchlists.
+
+**Out of scope (for later versions):**
+
+- Automatic global deal discovery from paid M&A feeds.
+- Non‑US regulators and courts.
+- Advanced ML models for p_close (beyond optional suggestions).
+- Full investor portal with separate client logins.
+- Portfolio‑level risk analytics (VaR, correlation, etc.).
+
+This document is self‑contained and includes all previously discussed requirements, aligned with your notes and the research sources cited.[2][13][14][15][16]
+
+Sources
+[1] RSS Feeds https://www.sec.gov/about/rss-feeds
+[2] Structured Disclosure RSS Feeds https://www.sec.gov/structureddata/rss-feeds
+[3] CourtListener https://www.courtlistener.com/help/api/
+[4] court-listener-api-definition/court-listener-api.json at master · freelawproject/court-listener-api-definition https://github.com/freelawproject/court-listener-api-definition/blob/master/court-listener-api.json
+[5] CourtListener https://www.courtlistener.com/feeds/
+[6] RSS | Federal Trade Commission https://www.ftc.gov/stay-connected/rss
+[7] Antitrust Division | Press Releases https://www.justice.gov/atr/press-releases
+[8] Top 10 AI Tools for Financial Research (Buyer's Guide) https://www.alpha-sense.com/resources/research-articles/ai-tools-for-financial-research/
+[9] FTC and DOJ Update Guidance to Reinforce Preservation ... https://www.nelsonmullins.com/insights/alerts/additional_nelson_mullins_alerts/all/ftc-and-doj-update-guidance-to-reinforce-preservation-obligations-regarding-messaging-applications-and-tools
+[10] FTC joins DOJ in rescinding health care antitrust policies https://www.hoganlovells.com/en/publications/ftc-joins-doj-in-rescinding-health-care-antitrust-policies
+[11] 7 Best Sources for Hedge Fund Letters in 2025 https://blog.publicview.ai/hedge-fund-letters
+[12] Top 10 hedge fund newsletters for inspiration https://flodesk.com/tips/hedge-fund-newsletters
+[13] A Complete Guide to Understanding Merger Arbitrage Hedge Funds https://www.process.st/merger-arbitrage-hedge-funds/
+[14] [PDF] Merger (Risk) Arbitrage Strategy https://www.aima.org/asset/676DA5D6-8CE4-42D7-A2C6171EAC6382DC/
+[15] [PDF] The Draft Merger Guidelines - Antitrust Writing Awards https://awards.concurrences.com/IMG/pdf/v_37_no_3_draft-merger-guidelines.pdf?116570%2Fbc7dbf634242c154c7ac2566e8fedac032987dd2b75311bb2ed913e5ff75693f
+[16] 5 Hedge Fund Workflows That Drive Operational Alpha | Verity https://verityplatform.com/resources/hedge-fund-workflows/
+[17] How to Set Up TradingView Alerts (2025) - Free & Paid Plans ... https://www.tv-hub.org/guide/tradingview-alerts-setup
+[18] The best stock alert apps for 2025 - Investorsobserver https://investorsobserver.com/learning-center/best-stock-alert-apps-for-2024/
+[19] Webhooks for Alerts - TrendSpider https://help.trendspider.com/kb/alerts/webhooks
