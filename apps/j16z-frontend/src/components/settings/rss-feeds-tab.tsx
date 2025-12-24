@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, X, RefreshCw } from "lucide-react";
 import { SimpleDropdown } from "@/components/ui/simple-dropdown";
 
@@ -91,6 +91,24 @@ export function RSSFeedsTab() {
     setFeeds(prev => prev.filter(f => f.id !== id));
   };
 
+  const handleCloseModal = () => {
+    setShowAddModal(false);
+    setNewFeedUrl("");
+    setNewFeedWatchlists([]);
+    setValidationError("");
+  };
+
+  // Add escape key handler for modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showAddModal) {
+        handleCloseModal();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [showAddModal]);
+
   return (
     <div className="space-y-8">
       {/* Built-in Feeds */}
@@ -175,9 +193,18 @@ export function RSSFeedsTab() {
 
       {/* Add Feed Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md rounded-lg border border-border bg-surface p-6">
-            <h3 className="mb-4 text-lg font-semibold text-text-main">Add Custom RSS Feed</h3>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={handleCloseModal}
+        >
+          <div
+            className="w-full max-w-md rounded-lg border border-border bg-surface p-6"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+          >
+            <h3 id="modal-title" className="mb-4 text-lg font-semibold text-text-main">Add Custom RSS Feed</h3>
 
             <div className="space-y-4">
               <div>
@@ -222,12 +249,7 @@ export function RSSFeedsTab() {
                   Add Feed
                 </button>
                 <button
-                  onClick={() => {
-                    setShowAddModal(false);
-                    setNewFeedUrl("");
-                    setNewFeedWatchlists([]);
-                    setValidationError("");
-                  }}
+                  onClick={handleCloseModal}
                   className="flex-1 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-text-main transition-colors hover:bg-surfaceHighlight"
                 >
                   Cancel

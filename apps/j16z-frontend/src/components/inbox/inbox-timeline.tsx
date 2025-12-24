@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { getAllEvents } from "@/lib/api";
-import { calculateSeverityWithLevel } from "@/lib/severity-scoring";
+import { calculateSeverityWithLevel, EventType } from "@/lib/severity-scoring";
 import type { Event } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
 
@@ -28,6 +28,20 @@ interface EnrichedEvent extends Event {
   isRead: boolean;
 }
 
+// Helper function to get severity order for sorting
+const getSeverityOrder = (severity: string): number => {
+  switch (severity) {
+    case "CRITICAL":
+      return 3;
+    case "WARNING":
+      return 2;
+    case "INFO":
+      return 1;
+    default:
+      return 0;
+  }
+};
+
 export function InboxTimeline({
   filters,
   selectedEventId,
@@ -49,7 +63,7 @@ export function InboxTimeline({
         // Enrich events with severity scores
         const enriched = rawEvents.map((event) => {
           const { score, level, badge } = calculateSeverityWithLevel({
-            type: event.type as any,
+            type: event.type as EventType,
             subtype: event.subtype,
             daysToOutsideDate: 45, // TODO: Calculate from deal data
             spreadMoveBps: 0, // TODO: Get from event data if SPREAD_MOVE
@@ -66,21 +80,11 @@ export function InboxTimeline({
 
         // Sort by severity (descending), then timestamp (descending)
         enriched.sort((a, b) => {
-          const getSeverityOrder = (severity: string) => {
-            switch (severity) {
-              case "CRITICAL":
-                return 3;
-              case "WARNING":
-                return 2;
-              case "INFO":
-                return 1;
-              default:
-                return 0;
-            }
-          };
+          const aSeverity = a.severityLevel || a.severity || "INFO";
+          const bSeverity = b.severityLevel || b.severity || "INFO";
 
-          if (getSeverityOrder(b.severity) !== getSeverityOrder(a.severity)) {
-            return getSeverityOrder(b.severity) - getSeverityOrder(a.severity);
+          if (getSeverityOrder(bSeverity) !== getSeverityOrder(aSeverity)) {
+            return getSeverityOrder(bSeverity) - getSeverityOrder(aSeverity);
           }
           return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
         });
@@ -307,7 +311,7 @@ export function InboxTimeline({
                   ←
                 </button>
                 <span className="text-sm text-text-main">
-                  Page {currentPage} of {totalPages}
+                  Page {currentPage} of {Math.max(1, totalPages)}
                 </span>
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}

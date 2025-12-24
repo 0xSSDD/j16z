@@ -55,7 +55,9 @@ export function InboxFilters({ filters, onFiltersChange, searchQuery, onSearchCh
       }
     }
 
-    loadDeals();
+    loadDeals().catch(err => {
+      console.error("Failed to initialize deals:", err);
+    });
   }, []);
 
 

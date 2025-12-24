@@ -194,7 +194,7 @@
 - [x] 20.7 Ensure navigation from Watchlist modal "View" button works
 
 ## 21. Deal Card Timeline Redesign
-- [ ] 21.1 make watchlist filter mathc the design of the rest of the filters on the deals page
+- [ ] 21.1 make watchlist filter match the design of the rest of the filters on the deals page
 - [ ] 21.2 Implement unified chronological timeline
 - [ ] 21.3 Add severity badges to timeline events
 - [x] 21.4 Implement collapsible sections (Deal Terms, Probabilities, Spread History)

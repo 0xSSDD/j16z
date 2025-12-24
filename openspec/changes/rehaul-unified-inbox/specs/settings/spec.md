@@ -50,16 +50,18 @@ The Settings SHALL provide Alert Rules tab for configuring default alert thresho
 - **WHEN** user clicks "+ Add Override" in Per-Deal Overrides section
 - **THEN** modal appears with deal selector and override options
 - **AND** user selects "Microsoft/Activision" deal
-- **AND** user configures "Alert only on AGENCY + COURT events"
+- **AND** user configures event filters via checkboxes (multi-select): AGENCY, COURT, FILING, SPREAD_MOVE, NEWS
+- **AND** user selects AGENCY and COURT checkboxes only
 - **AND** clicks Save
-- **THEN** override appears in list
+- **THEN** override appears in list showing "AGENCY + COURT events only"
 - **AND** FILING and NEWS events for that deal no longer trigger external alerts
 - **AND** override can be edited or deleted
 
 #### Scenario: Email digest configuration
 - **WHEN** user views Email Digest Config section
 - **THEN** page displays daily and weekly digest options
-- **AND** user can set time (e.g., "8:00 AM ET")
+- **AND** user can set time (e.g., "8:00 AM") with timezone auto-detected from browser
+- **AND** user can manually override timezone via dropdown (ET, PT, UTC, etc.)
 - **AND** user can select event tiers (HIGH + MEDIUM or ALL)
 - **AND** user can enable/disable weekend suppression
 - **AND** changes save automatically after 2-second debounce
@@ -91,9 +93,12 @@ The Settings SHALL provide Integrations tab for managing Slack, Email, and Webho
 - **THEN** modal appears with email address field
 - **AND** user updates email to new-analyst@firm.com
 - **AND** clicks Save
-- **THEN** verification email is sent to new address
+- **THEN** verification email is sent to new address (valid for 48 hours)
 - **AND** integration status shows "Pending verification"
+- **AND** "Resend verification" button appears (max 3 resends, 5-minute cooldown)
 - **AND** after verification, status updates to "Active"
+- **AND** if not verified within 48 hours, status changes to "Expired"
+- **AND** user can re-initiate setup from Expired state
 
 #### Scenario: Disconnect integration
 - **WHEN** user clicks Disconnect on Slack integration

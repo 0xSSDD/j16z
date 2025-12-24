@@ -186,6 +186,28 @@ export function DealBoard() {
 
   const filteredDeals = React.useMemo(() => {
     return deals.filter((deal) => {
+      // Watchlist filter
+      if (watchlistOnly) {
+        // Check if deal is in any watchlist (using localStorage)
+        if (typeof window !== "undefined") {
+          const stored = localStorage.getItem("watchlists");
+          if (stored) {
+            try {
+              const watchlists = JSON.parse(stored);
+              const isInWatchlist = watchlists.some((w: any) =>
+                w.dealIds?.includes(deal.id)
+              );
+              if (!isInWatchlist) return false;
+            } catch (error) {
+              console.error("Failed to check watchlist:", error);
+            }
+          } else {
+            // No watchlists exist, filter out all deals
+            return false;
+          }
+        }
+      }
+
       // Spread filter - if any spread filter is selected, deal must meet at least one
       if (spreadFilter.length > 0) {
         const meetsSpread = spreadFilter.some(threshold => deal.currentSpread >= parseFloat(threshold));
@@ -197,10 +219,6 @@ export function DealBoard() {
         const meetsPClose = pCloseFilter.some(threshold => deal.p_close_base >= parseFloat(threshold));
         if (!meetsPClose) return false;
       }
-
-      // Sector filter - if any sector is selected, deal must match one of them
-      // Note: This would need a sector field on Deal type to work properly
-      // For now, we'll skip this filter since deals don't have sector data
 
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
@@ -214,7 +232,7 @@ export function DealBoard() {
       }
       return true;
     });
-  }, [deals, spreadFilter, pCloseFilter, sectorFilter, searchQuery]);
+  }, [deals, spreadFilter, pCloseFilter, watchlistOnly, searchQuery]);
 
   const activeFilters = React.useMemo(() => {
     const filters = [];

@@ -95,3 +95,128 @@ Current navigation architecture creates significant cognitive overhead and decis
 - Alert opt-out rate: 50-60% → <15% (industry-leading)
 - 30-60 hours/year saved per analyst
 - $24k-$548k annual savings per 5-analyst desk (time + P&L upside)
+
+## Implementation Timeline
+
+**Rollout Strategy:** Phased rollout with feature flags
+
+**Phase 1 - Beta (Week 1-2):**
+- Enable for internal team only via feature flag `ENABLE_UNIFIED_INBOX`
+- Monitor performance metrics, error rates, and user feedback
+- Success criteria: <5% error rate, positive internal feedback
+
+**Phase 2 - Canary (Week 3):**
+- Enable for 10% of users (selected power users)
+- A/B test against old interface
+- Success criteria: Time-to-action improvement >40%, <10% rollback requests
+
+**Phase 3 - General Availability (Week 4):**
+- Full rollout to all users
+- Old routes redirect to new structure
+- In-app migration guide and changelog
+
+**Rollback Plan:**
+- Feature flag allows instant revert to old UI
+- Data remains intact (localStorage-based, no schema changes)
+- Rollback triggers: >15% error rate, >25% negative feedback, critical bugs
+
+## Testing & QA Strategy
+
+**Unit Tests:**
+- All new components (Inbox, Settings tabs, Watchlists)
+- Filter logic, search functionality, pagination
+- localStorage persistence and migration
+
+**Integration Tests:**
+- Navigation flow: Inbox → Deal Card → Settings
+- Filter combinations and edge cases
+- Modal interactions and form submissions
+
+**Load/Performance Tests:**
+- Inbox with 1000+ events (expected volume)
+- Pagination performance with large datasets
+- localStorage read/write performance
+- Target: <200ms initial load, <50ms filter updates
+
+**E2E Tests:**
+- Critical user journeys: View event → Take action → Configure alert
+- Keyboard navigation and accessibility
+- Cross-browser compatibility (Chrome, Safari, Firefox)
+
+**Staging Sign-off:**
+- Product team approval
+- QA team regression testing
+- Performance benchmarks met
+
+## Analytics & Reporting Impact
+
+**Removed Dashboard Metrics:**
+- Deal pipeline overview (count by status)
+- Event volume by type/severity
+- Alert trigger frequency
+- Time-to-action analytics
+
+**New Metrics Location:**
+- Settings > Alert Rules: Alert performance metrics (trigger rate, opt-out rate)
+- Deals page: Deal pipeline stats (via filters and counts)
+- Inbox: Real-time event counts by severity/type (filter badges)
+
+**Historical Data Access:**
+- Export functionality on Deals page (CSV/JSON)
+- Settings > Alert Rules shows historical alert performance
+- No loss of data - UI reorganization only
+
+**Migration Steps:**
+- Document new metrics locations in changelog
+- Add tooltips pointing to new locations
+- Email guide to all users with before/after screenshots
+
+## User Communication Plan
+
+**Pre-Launch (1 week before):**
+- Email announcement with feature preview video
+- In-app banner: "New unified inbox coming soon"
+- Documentation site updated with migration guide
+
+**Launch Day:**
+- In-app modal on first login: "Welcome to the new j16z"
+- Interactive tour highlighting key changes
+- Changelog entry with detailed breakdown
+
+**Post-Launch (Ongoing):**
+- In-app help tooltips for new features
+- Support runbook for common questions
+- Weekly feedback collection via in-app survey
+
+**Support Resources:**
+- Migration guide: Old page → New location mapping
+- Video tutorials for Inbox, Settings, Watchlists
+- FAQ document addressing common concerns
+- Dedicated Slack channel for feedback
+
+## Rollback Plan
+
+**Rollback Criteria:**
+- Error rate >15% for 2+ hours
+- >25% of users request old interface
+- Critical bug affecting core functionality (deal viewing, event filtering)
+- Performance degradation >50% from baseline
+
+**Rollback Steps:**
+1. Disable feature flag `ENABLE_UNIFIED_INBOX`
+2. Verify old routes are functional
+3. Check localStorage data integrity
+4. Notify users via in-app banner
+5. Post-mortem within 24 hours
+
+**Data Integrity Checks:**
+- Verify watchlists persist correctly
+- Confirm alert configurations unchanged
+- Validate no event data loss
+- Check user preferences intact
+
+**Post-Mortem Timeline:**
+- Incident report within 24 hours
+- Root cause analysis within 48 hours
+- Fix timeline communicated to users
+- Re-launch plan with additional safeguards

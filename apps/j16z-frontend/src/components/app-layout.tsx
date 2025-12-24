@@ -126,6 +126,8 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
+
     // Update unread count from localStorage
     const updateUnreadCount = async () => {
       try {
@@ -135,7 +137,10 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
         const events = await getAllEvents();
         const readEvents = getReadEvents();
         const unread = events.filter((e) => !readEvents.has(e.id)).length;
-        setUnreadCount(unread);
+
+        if (isMounted) {
+          setUnreadCount(unread);
+        }
       } catch (error) {
         console.error("Failed to update unread count:", error);
       }
@@ -148,6 +153,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
     window.addEventListener("inbox:unread-updated", handleUnreadUpdate);
 
     return () => {
+      isMounted = false;
       window.removeEventListener("inbox:unread-updated", handleUnreadUpdate);
     };
   }, []);
