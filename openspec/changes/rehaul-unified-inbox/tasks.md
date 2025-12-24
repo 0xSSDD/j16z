@@ -130,124 +130,130 @@
 
 ## 14. Settings - Alert Rules Tab
 
-- [ ] 14.1 Create `src/components/settings/alert-rules-tab.tsx`
-- [ ] 14.2 Implement default thresholds section (materiality, spread, outside date, channels)
-- [ ] 14.3 Add inline editors for each threshold
-- [ ] 14.4 Implement per-deal overrides section with "+ Add Override" button
-- [ ] 14.5 Add override modal (deal selector, event type checkboxes)
-- [ ] 14.6 Implement email digest configuration (daily/weekly, time, tiers)
-- [ ] 14.7 Add auto-save with 2-second debounce
-- [ ] 14.8 Add success/error toast notifications - use standard packages  for tanstack or shadcn/ui
+- [x] 14.1 Create `src/components/settings/alert-rules-tab.tsx`
+- [x] 14.2 Implement default thresholds section (materiality, spread, outside date, channels)
+- [x] 14.3 Add inline editors for each threshold
+- [x] 14.4 Implement per-deal overrides section with "+ Add Override" button
+- [x] 14.5 Add override modal (deal selector, event type checkboxes)
+- [x] 14.6 Implement email digest configuration (daily/weekly, time, tiers)
+- [x] 14.7 Add auto-save with 2-second debounce
+- [x] 14.8 Add success/error toast notifications - use standard packages  for tanstack or shadcn/ui
 
 ## 15. Settings - Integrations Tab
 
-- [ ] 15.1 Create `src/components/settings/integrations-tab.tsx`
-- [ ] 15.2 Display connected integrations list (Slack, Email, Webhooks)
-- [ ] 15.3 Implement "+ Add Integration" modal with type selector
-- [ ] 15.4 Add Slack OAuth flow integration
-- [ ] 15.5 Add Email integration with verification flow
-- [ ] 15.6 Add Webhook configuration (URL, event types, test payload)
-- [ ] 15.7 Implement Edit and Disconnect actions
-- [ ] 15.8 Add integration status indicators (Active, Pending, Error)
+- [x] 15.1 Create `src/components/settings/integrations-tab.tsx`
+- [x] 15.2 Display connected integrations list (Slack, Email, Webhooks)
+- [x] 15.3 Implement "+ Add Integration" modal with type selector
+- [x] 15.4 Add Slack OAuth flow integration
+- [x] 15.5 Add Email integration with verification flow
+- [x] 15.6 Add Webhook configuration (URL, event types, test payload)
+- [x] 15.7 Implement Edit and Disconnect actions
+- [x] 15.8 Add integration status indicators (Active, Pending, Error)
 
 ## 16. Settings - RSS Feeds Tab
 
-- [ ] 16.1 Create `src/components/settings/rss-feeds-tab.tsx`
-- [ ] 16.2 Display built-in feeds section (SEC, FTC/DOJ, CourtListener)
-- [ ] 16.3 Display custom feeds section with "+ Add Custom Feed" button
-- [ ] 16.4 Implement add custom feed modal (URL, watchlist selector)
-- [ ] 16.5 Add feed validation and parsing
-- [ ] 16.6 Implement Edit and Delete actions for custom feeds
-- [ ] 16.7 Show last sync timestamp for each feed
+- [x] 16.1 Create `src/components/settings/rss-feeds-tab.tsx`
+- [x] 16.2 Display built-in feeds section (SEC, FTC/DOJ, CourtListener)
+- [x] 16.3 Display custom feeds section with "+ Add Custom Feed" button
+- [x] 16.4 Implement add custom feed modal (URL, watchlist selector)
+- [x] 16.5 Add feed validation and parsing
+- [x] 16.6 Implement Edit and Delete actions for custom feeds
+- [x] 16.7 Show last sync timestamp for each feed
 
 ## 17. Settings - Team Tab
 
-- [ ] 17.1 Create `src/components/settings/team-tab.tsx`
-- [ ] 17.2 Display team members list with roles
-- [ ] 17.3 Implement "+ Invite New Member" modal (email, role)
-- [ ] 17.4 Add invitation email sending
-- [ ] 17.5 Implement Edit member permissions modal
-- [ ] 17.6 Implement Remove member action with confirmation
-- [ ] 17.7 Add permissions model enforcement (admin/analyst/pm)
-- [ ] 17.8 Show pending invitations with status
+- [x] 17.1 Create `src/components/settings/team-tab.tsx`
+- [x] 17.2 Display team members list with roles
+- [x] 17.3 Implement "+ Invite New Member" modal (email, role)
+- [x] 17.4 Add invitation email sending
+- [x] 17.5 Implement Edit member permissions modal
+- [x] 17.6 Implement Remove member action with confirmation
+- [x] 17.7 Add permissions model enforcement (admin/analyst/pm)
+- [x] 17.8 Show pending invitations with status
 
 ## 18. Settings - API Keys Tab
 
-- [ ] 18.1 Create `src/components/settings/api-keys-tab.tsx`
-- [ ] 18.2 Display API keys list (ID, created, last used)
-- [ ] 18.3 Implement "+ Generate New Key" modal with name field
-- [ ] 18.4 Show generated key value once with copy button
-- [ ] 18.5 Implement Rotate action with 24-hour grace period
-- [ ] 18.6 Implement Revoke action with immediate invalidation
-- [ ] 18.7 Add Copy key ID action
-- [ ] 18.8 Add "API Documentation" link
+- [x] 18.1 Create `src/components/settings/api-keys-tab.tsx`
+- [x] 18.2 Display API keys list (ID, created, last used)
+- [x] 18.3 Implement "+ Generate New Key" modal with name field
+- [x] 18.4 Show generated key value once with copy button
+- [x] 18.5 Implement Rotate action with 24-hour grace period
+- [x] 18.6 Implement Revoke action with immediate invalidation
+- [x] 18.7 Add Copy key ID action
+- [x] 18.8 Add "API Documentation" link
 
-## 19. Settings - Search and Quick Access
-
-- [ ] 19.1 Add settings search field in header
-- [ ] 19.2 Implement search across all tabs and sections
-- [ ] 19.3 Add search result highlighting and navigation
-- [ ] 19.4 Add "Configure Alerts" quick link in Inbox header
-- [ ] 19.5 Implement deep linking to specific settings sections
 
 ## 20. Watchlists Page
 
-- [ ] 20.1 Enhance existing `src/app/app/watchlists/[id]/page.tsx`
-- [ ] 20.2 Create main Watchlists page at `src/app/app/watchlists/page.tsx`
-- [ ] 20.3 Display all watchlists with deal counts
-- [ ] 20.4 Add "+ Create Watchlist" button
-- [ ] 20.5 Implement watchlist creation modal
-- [ ] 20.6 Add Edit and Delete actions for watchlists
-- [ ] 20.7 Ensure navigation from Watchlist modal "View" button works
+- [x] 20.1 Enhance existing `src/app/app/watchlists/[id]/page.tsx`
+- [x] 20.2 Create main Watchlists page at `src/app/app/watchlists/page.tsx`
+- [x] 20.3 Display all watchlists with deal counts
+- [x] 20.4 Add "+ Create Watchlist" button
+- [x] 20.5 Implement watchlist creation modal
+- [x] 20.6 Add Edit and Delete actions for watchlists
+- [x] 20.7 Ensure navigation from Watchlist modal "View" button works
 
 ## 21. Deal Card Timeline Redesign
 - [ ] 21.1 make watchlist filter mathc the design of the rest of the filters on the deals page
 - [ ] 21.2 Implement unified chronological timeline
-- [ ] 21.3 Add materiality badges to timeline events
-- [ ] 21.4 Implement collapsible sections (Deal Terms, Probabilities, Spread History)
+- [ ] 21.3 Add severity badges to timeline events
+- [x] 21.4 Implement collapsible sections (Deal Terms, Probabilities, Spread History)
 - [ ] 21.5 Make Event Timeline the primary section (expanded by default)
 - [ ] 21.6 Add "Show More" button for events >30 days old
-- [ ] 21.7 Implement event type and materiality filters within timeline
+- [ ] 21.7 Implement event type and severity filters within timeline
 
 ## 22. Route Cleanup and Redirects
 
-- [ ] 22.1 Update `/app` route to redirect to `/app/inbox`
-- [ ] 22.2 Add redirects from old routes to new equivalents:
+- [x] 22.1 Update `/app` route to redirect to `/app/inbox`
+- [x] 22.2 Add redirects from old routes to new equivalents:
   - `/app/feed` → `/app/inbox`
   - `/app/intelligence` → `/app/inbox`
   - `/app/notifications` → `/app/inbox`
-- [ ] 22.3 Remove Dashboard page component
-- [ ] 22.4 Remove Live Monitor page component
-- [ ] 22.5 Remove Deal Intelligence page component
-- [ ] 22.6 Remove Notifications page component
-- [ ] 22.7 Remove Discovery page component
+  - `/app/discovery` → `/app/deals`
+- [x] 22.3 Remove Dashboard page component
+- [x] 22.4 Remove Live Monitor page component
+- [x] 22.5 Remove Deal Intelligence page component
+- [x] 22.6 Remove Notifications page component
+- [x] 22.7 Remove Discovery page component
 
 ## 23. Data Migration and Compatibility
 
-- [ ] 23.1 Migrate existing watchlists from localStorage to new format (if needed)
-- [ ] 23.2 Migrate alert configurations to Settings structure
-- [ ] 23.3 Migrate RSS feed subscriptions to Settings
-- [ ] 23.4 Ensure backward compatibility during rollout
-- [ ] 23.5 Add migration script for user preferences
+- [x] 23.1 Migrate existing watchlists from localStorage to new format (if needed)
+- [x] 23.2 Migrate alert configurations to Settings structure
+- [x] 23.3 Migrate RSS feed subscriptions to Settings
+- [x] 23.4 Ensure backward compatibility during rollout
+- [x] 23.5 Add migration script for user preferences
 
 ## 24. Mock Data Validation and Updates
 
-- [ ] 24.1 Review existing mock data in `src/lib/constants.ts` (MOCK_DEALS, MOCK_EVENTS, MOCK_CLAUSES)
-- [ ] 24.2 Add materiality scores to MOCK_EVENTS for Inbox testing
-- [ ] 24.3 Ensure MOCK_EVENTS include all required fields: type (AGENCY/COURT/FILING/SPREAD_MOVE/NEWS), timestamp, dealId, materiality score
-- [ ] 24.4 Add mock events with exact event types from spec: FTC Second Request (85 pts), FTC Complaint (95 pts), Injunction (90 pts), 8-K Amendment (60 pts), Spread moves (40-70 pts)
-- [ ] 24.5 Create mock data for Settings: alert rules, integrations, RSS feeds, team members, API keys
-- [ ] 24.6 Add mock read/unread status data structure for Inbox testing
-- [ ] 24.7 Ensure mock deals have all fields needed for inline context: currentSpread, p_close_base, outsideDate, daysUntilOutside
-- [ ] 24.8 Add mock data for event detail side panel: summary, key points, source links
-- [ ] 24.9 Create mock data for unified Deal Card timeline (remove tab-specific mocks)
-- [ ] 24.11 Update `src/lib/api.ts` to support new Inbox endpoints: `getAllEvents()`, `getEventById()`, `markEventAsRead()`
-- [ ] 24.12 Add mock API responses for Settings endpoints: alert rules, integrations, RSS feeds
-- [ ] 24.13 Verify NEXT_PUBLIC_USE_MOCK_DATA flag works with all new components
-- [ ] 24.14 Document mock data structure changes in comments
+- [x] 24.1 Review existing mock data in `src/lib/constants.ts` (MOCK_DEALS, MOCK_EVENTS, MOCK_CLAUSES)
+- [x] 24.2 Add severity scores to MOCK_EVENTS for Inbox testing
+- [x] 24.3 Ensure MOCK_EVENTS include all required fields: type (AGENCY/COURT/FILING/SPREAD_MOVE/NEWS), timestamp, dealId, severity score
+- [x] 24.4 Add mock events with exact event types from spec: FTC Second Request, FTC Complaint, Injunction, 8-K Amendment, Spread moves
+- [x] 24.5 Create mock data for Settings: alert rules, integrations, RSS feeds, team members, API keys
+- [x] 24.6 Add mock read/unread status data structure for Inbox testing
+- [x] 24.7 Ensure mock deals have all fields needed for inline context: currentSpread, p_close_base, outsideDate, daysUntilOutside
+- [x] 24.8 Add mock data for event detail side panel: summary, key points, source links
+- [x] 24.9 Create mock data for unified Deal Card timeline (remove tab-specific mocks)
+- [x] 24.11 Update `src/lib/api.ts` to support new Inbox endpoints: `getAllEvents()`, `getEventById()`, `markEventAsRead()`
+- [x] 24.12 Add mock API responses for Settings endpoints: alert rules, integrations, RSS feeds
+- [x] 24.13 Verify NEXT_PUBLIC_USE_MOCK_DATA flag works with all new components
+- [x] 24.14 Document mock data structure changes in comments
 
 ## 25. Real-Time Updates
 - [ ] 25.2 Add new event toast notification ("1 new event")
 - [ ] 25.3 Prepend new events to timeline
 - [ ] 25.4 Update unread count in real-time
+- [ ] 25.5 Add click-to-scroll on toast notification
+
+## 26. Terminology Update: Materiality → Severity
+
+- [x] 26.1 Replace "materiality" with "severity" across all components
+- [x] 26.2 Update filter labels: HIGH → Critical, MEDIUM → Warning, LOW → Info
+- [x] 26.3 Update Alert Rules tab to use severity terminology
+- [x] 26.4 Update Inbox filters to use severity terminology
+- [x] 26.5 Update mock data to use severity levels (CRITICAL, WARNING, INFO)
+- [x] 26.6 Update materiality scoring functions to severity scoring
+- [x] 26.7 Update type definitions (MaterialityTier → SeverityLevel)
+- [x] 26.8 Update all UI text and labels throughout the app
 - [ ] 25.5 Add click-to-scroll on toast notification

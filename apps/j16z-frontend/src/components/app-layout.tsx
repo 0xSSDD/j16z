@@ -80,30 +80,26 @@ const Logo = () => (
 );
 
 export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
-  const [isDarkMode, setIsDarkMode] = useState(true);
   const [isCmdKOpen, setIsCmdKOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
+    setMounted(true);
+
     const savedTheme = localStorage.getItem("theme");
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const shouldBeDark = savedTheme === "dark" || (!savedTheme && prefersDark);
+
+    setIsDarkMode(shouldBeDark);
 
     if (shouldBeDark) {
       document.documentElement.classList.remove("light");
     } else {
       document.documentElement.classList.add("light");
     }
-
-    // Use setTimeout to avoid synchronous setState in effect
-    const timer = setTimeout(() => {
-      setIsDarkMode(shouldBeDark);
-      setMounted(true);
-    }, 0);
-
-    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {

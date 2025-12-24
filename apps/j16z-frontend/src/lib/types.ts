@@ -75,7 +75,7 @@ export interface Deal {
 }
 
 export type EventType = 'FILING' | 'COURT' | 'AGENCY' | 'SPREAD_MOVE' | 'NEWS';
-export type Materiality = 'HIGH' | 'MEDIUM' | 'LOW';
+export type Severity = 'CRITICAL' | 'WARNING' | 'INFO';
 export type SourceType = 'SEC_EDGAR' | 'COURT_LISTENER' | 'FTC_GOV' | 'DOJ_GOV' | 'RSS';
 
 export interface Event {
@@ -84,7 +84,7 @@ export interface Event {
   timestamp: string;
   type: EventType;
   subtype: string;
-  materiality: Materiality;
+  severity: Severity;
   title: string;
   summary: string;
   content?: string;

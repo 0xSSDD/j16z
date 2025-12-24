@@ -17,7 +17,7 @@ export function InboxHeader() {
         <div>
           <h1 className="text-2xl font-bold text-text-main">Inbox</h1>
           <p className="text-sm text-text-muted">
-            Unified event timeline with materiality scoring
+            Unified event timeline with severity scoring
           </p>
           <p className="mt-1 text-xs text-text-dim">
             Press <kbd className="rounded border border-border bg-surfaceHighlight px-1 font-mono">?</kbd> for keyboard shortcuts

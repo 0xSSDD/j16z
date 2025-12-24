@@ -1,7 +1,5 @@
-"use client";
-
-import { DealDiscovery } from "@/components/deal-discovery";
+import { redirect } from "next/navigation";
 
 export default function DiscoveryPage() {
-  return <DealDiscovery />;
+  redirect("/app/deals");
 }

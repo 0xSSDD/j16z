@@ -2,13 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { getAllEvents } from "@/lib/api";
-import { calculateMaterialityWithTier } from "@/lib/materiality-scoring";
+import { calculateSeverityWithLevel } from "@/lib/severity-scoring";
 import type { Event } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
 
 interface InboxTimelineProps {
   filters: {
-    materiality: string[];
+    severity: string[];
     eventType: string[];
     deal: string[];
     watchlist: string[];
@@ -22,9 +22,9 @@ interface InboxTimelineProps {
 }
 
 interface EnrichedEvent extends Event {
-  materialityScore: number;
-  materialityTier: string;
-  materialityBadge: string;
+  severityScore: number;
+  severityLevel: string;
+  severityBadge: string;
   isRead: boolean;
 }
 
@@ -46,29 +46,41 @@ export function InboxTimeline({
       try {
         const rawEvents = await getAllEvents();
 
-        // Enrich events with materiality scores
+        // Enrich events with severity scores
         const enriched = rawEvents.map((event) => {
-          const { score, tier, badge } = calculateMaterialityWithTier({
+          const { score, level, badge } = calculateSeverityWithLevel({
             type: event.type as any,
             subtype: event.subtype,
             daysToOutsideDate: 45, // TODO: Calculate from deal data
-            pClose: 65, // TODO: Get from deal data
-            litigationCount: 0, // TODO: Get from deal data
+            spreadMoveBps: 0, // TODO: Get from event data if SPREAD_MOVE
           });
 
           return {
             ...event,
-            materialityScore: score,
-            materialityTier: tier,
-            materialityBadge: badge,
+            severityScore: score,
+            severityLevel: level,
+            severityBadge: badge,
             isRead: false, // TODO: Get from localStorage
           };
         });
 
-        // Sort by materiality score (descending), then timestamp (descending)
+        // Sort by severity (descending), then timestamp (descending)
         enriched.sort((a, b) => {
-          if (b.materialityScore !== a.materialityScore) {
-            return b.materialityScore - a.materialityScore;
+          const getSeverityOrder = (severity: string) => {
+            switch (severity) {
+              case "CRITICAL":
+                return 3;
+              case "WARNING":
+                return 2;
+              case "INFO":
+                return 1;
+              default:
+                return 0;
+            }
+          };
+
+          if (getSeverityOrder(b.severity) !== getSeverityOrder(a.severity)) {
+            return getSeverityOrder(b.severity) - getSeverityOrder(a.severity);
           }
           return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
         });
@@ -91,7 +103,9 @@ export function InboxTimeline({
 
   // Apply filters and search
   const filteredEvents = events.filter((event) => {
-    if (filters.materiality.length > 0 && !filters.materiality.includes(event.materialityTier)) {
+    // Severity filter (with safe fallback for migration)
+    const severity = filters.severity || [];
+    if (severity.length > 0 && !severity.includes(event.severity)) {
       return false;
     }
     if (filters.eventType.length > 0 && !filters.eventType.includes(event.type)) {
@@ -172,6 +186,32 @@ export function InboxTimeline({
     setCurrentPage(1);
   };
 
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case "CRITICAL":
+        return "text-red-500";
+      case "WARNING":
+        return "text-yellow-500";
+      case "INFO":
+        return "text-green-500";
+      default:
+        return "text-text-muted";
+    }
+  };
+
+  const getSeverityIcon = (severity: string) => {
+    switch (severity) {
+      case "CRITICAL":
+        return "🔴";
+      case "WARNING":
+        return "🟡";
+      case "INFO":
+        return "🟢";
+      default:
+        return "⚪";
+    }
+  };
+
   return (
     <div className="flex-1 overflow-y-auto border-r border-border">
       <div className="space-y-2 p-4">
@@ -201,8 +241,8 @@ export function InboxTimeline({
                   </span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-medium">
-                        {event.materialityBadge} {event.materialityTier}
+                      <span className={`text-xs font-medium ${getSeverityColor(event.severity)}`}>
+                        {getSeverityIcon(event.severity)} {event.severity}
                       </span>
                       <span className="text-xs text-text-muted">
                         {event.type}

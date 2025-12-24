@@ -1,5 +1,5 @@
-import { FeedManager } from "@/components/feed-manager";
+import { redirect } from "next/navigation";
 
 export default function FeedPage() {
-  return <FeedManager />;
+  redirect("/app/inbox");
 }

@@ -26,7 +26,7 @@ export default function InboxPage() {
       }
     }
     return {
-      materiality: [] as string[],
+      severity: [] as string[],
       eventType: [] as string[],
       deal: [] as string[],
       watchlist: [] as string[],
@@ -98,29 +98,31 @@ export default function InboxPage() {
         return;
       }
 
-      // Materiality filter toggles (only when not in input)
+      // Toggle severity filters (1-3 for CRITICAL/WARNING/INFO)
       if (e.key === "1" && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        const newMateriality = filters.materiality.includes("HIGH")
-          ? filters.materiality.filter((t: string) => t !== "HIGH")
-          : [...filters.materiality, "HIGH"];
-        setFilters({ ...filters, materiality: newMateriality });
+        const newSeverity = filters.severity.includes("CRITICAL")
+          ? filters.severity.filter((l: string) => l !== "CRITICAL")
+          : [...filters.severity, "CRITICAL"];
+        setFilters({ ...filters, severity: newSeverity });
         return;
       }
+
       if (e.key === "2" && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        const newMateriality = filters.materiality.includes("MEDIUM")
-          ? filters.materiality.filter((t: string) => t !== "MEDIUM")
-          : [...filters.materiality, "MEDIUM"];
-        setFilters({ ...filters, materiality: newMateriality });
+        const newSeverity = filters.severity.includes("WARNING")
+          ? filters.severity.filter((l: string) => l !== "WARNING")
+          : [...filters.severity, "WARNING"];
+        setFilters({ ...filters, severity: newSeverity });
         return;
       }
+
       if (e.key === "3" && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        const newMateriality = filters.materiality.includes("LOW")
-          ? filters.materiality.filter((t: string) => t !== "LOW")
-          : [...filters.materiality, "LOW"];
-        setFilters({ ...filters, materiality: newMateriality });
+        const newSeverity = filters.severity.includes("INFO")
+          ? filters.severity.filter((l: string) => l !== "INFO")
+          : [...filters.severity, "INFO"];
+        setFilters({ ...filters, severity: newSeverity });
         return;
       }
 

@@ -6,7 +6,7 @@ import { VirtualizedDropdown } from "@/components/ui/virtualized-dropdown";
 
 interface InboxFiltersProps {
   filters: {
-    materiality: string[];
+    severity: string[];
     eventType: string[];
     deal: string[];
     watchlist: string[];
@@ -20,6 +20,15 @@ interface InboxFiltersProps {
 export function InboxFilters({ filters, onFiltersChange, searchQuery, onSearchChange }: InboxFiltersProps) {
   const [deals, setDeals] = useState<Array<{ id: string; name: string }>>([]);
   const [watchlists, setWatchlists] = useState<Array<{ id: string; name: string }>>([]);
+
+  // Ensure filters has severity property (migration from materiality)
+  const safeFilters = {
+    severity: filters.severity || [],
+    eventType: filters.eventType || [],
+    deal: filters.deal || [],
+    watchlist: filters.watchlist || [],
+    unreadOnly: filters.unreadOnly || false,
+  };
 
   useEffect(() => {
     // Load deals from API/mock data
@@ -50,41 +59,41 @@ export function InboxFilters({ filters, onFiltersChange, searchQuery, onSearchCh
   }, []);
 
 
-  const toggleMateriality = (tier: string) => {
-    const newMateriality = filters.materiality.includes(tier)
-      ? filters.materiality.filter((t) => t !== tier)
-      : [...filters.materiality, tier];
-    onFiltersChange({ ...filters, materiality: newMateriality });
+  const toggleSeverity = (level: string) => {
+    const newSeverity = safeFilters.severity.includes(level)
+      ? safeFilters.severity.filter((l) => l !== level)
+      : [...safeFilters.severity, level];
+    onFiltersChange({ ...safeFilters, severity: newSeverity });
   };
 
   const toggleEventType = (type: string) => {
-    const newEventType = filters.eventType.includes(type)
-      ? filters.eventType.filter((t) => t !== type)
-      : [...filters.eventType, type];
-    onFiltersChange({ ...filters, eventType: newEventType });
+    const newEventType = safeFilters.eventType.includes(type)
+      ? safeFilters.eventType.filter((t) => t !== type)
+      : [...safeFilters.eventType, type];
+    onFiltersChange({ ...safeFilters, eventType: newEventType });
   };
 
   const toggleDeal = (dealId: string) => {
-    const newDeal = filters.deal.includes(dealId)
-      ? filters.deal.filter((d) => d !== dealId)
-      : [...filters.deal, dealId];
-    onFiltersChange({ ...filters, deal: newDeal });
+    const newDeal = safeFilters.deal.includes(dealId)
+      ? safeFilters.deal.filter((d) => d !== dealId)
+      : [...safeFilters.deal, dealId];
+    onFiltersChange({ ...safeFilters, deal: newDeal });
   };
 
   const toggleWatchlist = (watchlistId: string) => {
-    const newWatchlist = filters.watchlist.includes(watchlistId)
-      ? filters.watchlist.filter((w) => w !== watchlistId)
-      : [...filters.watchlist, watchlistId];
-    onFiltersChange({ ...filters, watchlist: newWatchlist });
+    const newWatchlist = safeFilters.watchlist.includes(watchlistId)
+      ? safeFilters.watchlist.filter((w) => w !== watchlistId)
+      : [...safeFilters.watchlist, watchlistId];
+    onFiltersChange({ ...safeFilters, watchlist: newWatchlist });
   };
 
   const toggleUnreadOnly = () => {
-    onFiltersChange({ ...filters, unreadOnly: !filters.unreadOnly });
+    onFiltersChange({ ...safeFilters, unreadOnly: !safeFilters.unreadOnly });
   };
 
   const clearAllFilters = () => {
     onFiltersChange({
-      materiality: [],
+      severity: [],
       eventType: [],
       deal: [],
       watchlist: [],
@@ -101,12 +110,18 @@ export function InboxFilters({ filters, onFiltersChange, searchQuery, onSearchCh
     { id: "NEWS", name: "News" },
   ];
 
+  const severityOptions = [
+    { id: "CRITICAL", name: "🔴 Critical" },
+    { id: "WARNING", name: "🟡 Warning" },
+    { id: "INFO", name: "🟢 Info" },
+  ];
+
   const hasActiveFilters =
-    filters.materiality.length > 0 ||
-    filters.eventType.length > 0 ||
-    filters.deal.length > 0 ||
-    filters.watchlist.length > 0 ||
-    filters.unreadOnly ||
+    safeFilters.severity.length > 0 ||
+    safeFilters.eventType.length > 0 ||
+    safeFilters.deal.length > 0 ||
+    safeFilters.watchlist.length > 0 ||
+    safeFilters.unreadOnly ||
     searchQuery.length > 0;
 
   return (
@@ -129,71 +144,43 @@ export function InboxFilters({ filters, onFiltersChange, searchQuery, onSearchCh
         </div>
 
         <div className="flex flex-1 items-center gap-2">
-        <button
-          onClick={() => toggleMateriality("HIGH")}
-          className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-            filters.materiality.includes("HIGH")
-              ? "bg-red-500/20 text-red-400 border border-red-500/30"
-              : "bg-surface text-text-muted border border-border hover:bg-surfaceHighlight"
-          }`}
-        >
-          🔴 HIGH
-        </button>
-        <button
-          onClick={() => toggleMateriality("MEDIUM")}
-          className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-            filters.materiality.includes("MEDIUM")
-              ? "bg-orange-500/20 text-orange-400 border border-orange-500/30"
-              : "bg-surface text-text-muted border border-border hover:bg-surfaceHighlight"
-          }`}
-        >
-          🟠 MEDIUM
-        </button>
-        <button
-          onClick={() => toggleMateriality("LOW")}
-          className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-            filters.materiality.includes("LOW")
-              ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-              : "bg-surface text-text-muted border border-border hover:bg-surfaceHighlight"
-          }`}
-        >
-          🟡 LOW
-        </button>
-
-        <div className="mx-2 h-4 w-px bg-border" />
-
-        <VirtualizedDropdown
-          label="Event Type"
-          items={eventTypes}
-          selectedIds={filters.eventType}
-          onToggle={toggleEventType}
-        />
-
-        <VirtualizedDropdown
-          label="Deal"
-          items={deals}
-          selectedIds={filters.deal}
-          onToggle={toggleDeal}
-        />
-
-        <VirtualizedDropdown
-          label="Watchlist"
-          items={watchlists}
-          selectedIds={filters.watchlist}
-          onToggle={toggleWatchlist}
-        />
-
-        <div className="mx-2 h-4 w-px bg-border" />
-
-        <label className="flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-surfaceHighlight cursor-pointer">
-          <input
-            type="checkbox"
-            checked={filters.unreadOnly}
-            onChange={toggleUnreadOnly}
-            className="h-3 w-3 rounded border-border bg-surface text-primary-500 focus:ring-primary-500"
+          <VirtualizedDropdown
+            label="Severity"
+            items={severityOptions}
+            selectedIds={safeFilters.severity}
+            onToggle={toggleSeverity}
           />
-          Unread Only
-        </label>
+
+          <VirtualizedDropdown
+            label="Event Type"
+            items={eventTypes}
+            selectedIds={safeFilters.eventType}
+            onToggle={toggleEventType}
+          />
+
+          <VirtualizedDropdown
+            label="Deal"
+            items={deals}
+            selectedIds={safeFilters.deal}
+            onToggle={toggleDeal}
+          />
+
+          <VirtualizedDropdown
+            label="Watchlist"
+            items={watchlists}
+            selectedIds={safeFilters.watchlist}
+            onToggle={toggleWatchlist}
+          />
+
+          <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-surfaceHighlight">
+            <input
+              type="checkbox"
+              checked={safeFilters.unreadOnly}
+              onChange={toggleUnreadOnly}
+              className="h-3 w-3 rounded border-border bg-surface text-primary-500 focus:ring-primary-500"
+            />
+            Unread Only
+          </label>
         </div>
 
         {hasActiveFilters && (

@@ -1,38 +1,17 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import React, { useState } from "react";
 import { AlertTriangle, Zap, Rss, Users, Key } from "lucide-react";
+import { AlertRulesTab } from "@/components/settings/alert-rules-tab";
+import { IntegrationsTab } from "@/components/settings/integrations-tab";
+import { RSSFeedsTab } from "@/components/settings/rss-feeds-tab";
+import { TeamTab } from "@/components/settings/team-tab";
+import { APIKeysTab } from "@/components/settings/api-keys-tab";
 
 type SettingsTab = "alerts" | "integrations" | "rss" | "team" | "api";
 
 export default function SettingsPage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
-    const tabParam = searchParams.get("tab");
-    if (tabParam && ["alerts", "integrations", "rss", "team", "api"].includes(tabParam)) {
-      return tabParam as SettingsTab;
-    }
-    // Load from localStorage if no URL param
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("settings_active_tab");
-      if (stored && ["alerts", "integrations", "rss", "team", "api"].includes(stored)) {
-        return stored as SettingsTab;
-      }
-    }
-    return "alerts";
-  });
-
-  useEffect(() => {
-    // Update URL when tab changes
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", activeTab);
-    router.replace(`/app/settings?${params.toString()}`, { scroll: false });
-
-    // Persist to localStorage
-    localStorage.setItem("settings_active_tab", activeTab);
-  }, [activeTab, router, searchParams]);
+  const [activeTab, setActiveTab] = useState<SettingsTab>("alerts");
 
   const tabs = [
     { id: "alerts" as SettingsTab, label: "Alert Rules", icon: AlertTriangle },
@@ -84,119 +63,6 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function AlertRulesTab() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-bold text-text-main mb-4">Default Alert Rules</h2>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between rounded-lg border border-border bg-background p-4">
-            <div>
-              <p className="text-sm font-medium text-text-main">Materiality Threshold</p>
-              <p className="text-xs text-text-muted">Alert on HIGH (score &gt; 70)</p>
-            </div>
-            <button className="text-sm text-primary-500 hover:underline">Edit</button>
-          </div>
-          <div className="flex items-center justify-between rounded-lg border border-border bg-background p-4">
-            <div>
-              <p className="text-sm font-medium text-text-main">Spread Movement Alert</p>
-              <p className="text-xs text-text-muted">Alert on &gt; 2.5% movement</p>
-            </div>
-            <button className="text-sm text-primary-500 hover:underline">Edit</button>
-          </div>
-          <div className="flex items-center justify-between rounded-lg border border-border bg-background p-4">
-            <div>
-              <p className="text-sm font-medium text-text-main">External Channels</p>
-              <p className="text-xs text-text-muted">Slack + Email</p>
-            </div>
-            <button className="text-sm text-primary-500 hover:underline">Edit</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function IntegrationsTab() {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-lg font-bold text-text-main">Integrations</h2>
-      <div className="space-y-4">
-        <div className="flex items-center justify-between rounded-lg border border-border bg-background p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10">
-              <span className="text-xl">💬</span>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-text-main">Slack</p>
-              <p className="text-xs text-text-muted">Not connected</p>
-            </div>
-          </div>
-          <button className="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text-main hover:bg-surfaceHighlight">
-            Connect
-          </button>
-        </div>
-        <div className="flex items-center justify-between rounded-lg border border-border bg-background p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
-              <span className="text-xl">📧</span>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-text-main">Email</p>
-              <p className="text-xs text-text-muted">Not configured</p>
-            </div>
-          </div>
-          <button className="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text-main hover:bg-surfaceHighlight">
-            Configure
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function RSSFeedsTab() {
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-text-main">RSS Feeds</h2>
-        <button className="rounded-lg border border-border bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
-          Add Feed
-        </button>
-      </div>
-      <p className="text-sm text-text-muted">No custom RSS feeds configured</p>
-    </div>
-  );
-}
-
-function TeamTab() {
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-text-main">Team Members</h2>
-        <button className="rounded-lg border border-border bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
-          Invite Member
-        </button>
-      </div>
-      <p className="text-sm text-text-muted">Team management coming soon</p>
-    </div>
-  );
-}
-
-function APIKeysTab() {
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-text-main">API Keys</h2>
-        <button className="rounded-lg border border-border bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
-          Generate Key
-        </button>
-      </div>
-      <p className="text-sm text-text-muted">No API keys generated</p>
     </div>
   );
 }

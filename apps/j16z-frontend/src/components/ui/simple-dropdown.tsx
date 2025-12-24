@@ -13,7 +13,7 @@ interface SimpleDropdownProps {
 export function SimpleDropdown({
   label,
   items,
-  selectedIds,
+  selectedIds = [],
   onToggle,
 }: SimpleDropdownProps) {
   const [isOpen, setIsOpen] = React.useState(false);

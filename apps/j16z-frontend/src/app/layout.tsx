@@ -48,7 +48,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-svh bg-background text-text-main antialiased selection:bg-primary-500/30 selection:text-primary-600">
+      <body suppressHydrationWarning className="min-h-svh bg-background text-text-main antialiased selection:bg-primary-500/30 selection:text-primary-600">
         <div className="flex min-h-svh flex-col">
           {children}
         </div>

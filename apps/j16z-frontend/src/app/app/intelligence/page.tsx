@@ -1,5 +1,5 @@
-import { IntelligenceFeed } from "@/components/intelligence-feed";
+import { redirect } from "next/navigation";
 
 export default function IntelligencePage() {
-  return <IntelligenceFeed />;
+  redirect("/app/inbox");
 }

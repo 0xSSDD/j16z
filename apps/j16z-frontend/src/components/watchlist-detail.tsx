@@ -114,7 +114,7 @@ export function WatchlistDetail({ watchlistId }: WatchlistDetailProps) {
   }
 
   const filteredDeals = MOCK_DEALS.filter((deal) =>
-    watchlist.dealIds.includes(deal.id)
+    watchlist.dealIds?.includes(deal.id) || false
   );
 
   return (

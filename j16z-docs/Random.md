@@ -4,3 +4,4 @@
 - posthog or datadog or sentry
 -  Howd does the anlysts export this, where is the repot creation, or send email etc
 - audit log page - for this will have to have admin / analyst roles - need to use an id management system
+- Docs page, that explains all the terms like spread ev etc, and then j16z how it helps

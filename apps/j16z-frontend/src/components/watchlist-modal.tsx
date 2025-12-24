@@ -109,7 +109,7 @@ export function WatchlistModal({ isOpen, onClose, onSave }: WatchlistModalProps)
                         </div>
                       )}
                       <div className="text-xs text-muted-foreground font-mono mt-1">
-                        {watchlist.dealIds.length} deals
+                        {watchlist.dealIds?.length || 0} deals
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
