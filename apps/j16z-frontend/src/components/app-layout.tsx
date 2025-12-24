@@ -5,18 +5,15 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { CommandPalette } from "@/components/command-palette";
 import {
-  LayoutDashboard,
-  Radio,
-  FileText,
+  Inbox,
   Settings as SettingsIcon,
   Search,
   Bell,
-  MessageSquareText,
   LogOut,
   Moon,
   Sun,
   TrendingUp,
-  ShieldAlert,
+  List,
   Zap,
 } from "lucide-react";
 
@@ -32,10 +29,12 @@ const SidebarItem = ({
   href,
   icon: Icon,
   label,
+  badge,
 }: {
   href: string;
   icon: SidebarIconComponent;
   label: string;
+  badge?: number;
 }) => {
   const pathname = usePathname();
   const isActive = pathname === href;
@@ -51,6 +50,11 @@ const SidebarItem = ({
     >
       <Icon className="h-4 w-4 opacity-70 group-hover:opacity-100" />
       <span className="flex-1">{label}</span>
+      {badge !== undefined && badge > 0 && (
+        <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary-500 px-1.5 text-[10px] font-bold text-white">
+          {badge > 99 ? "99+" : badge}
+        </span>
+      )}
     </Link>
   );
 };
@@ -79,31 +83,32 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isCmdKOpen, setIsCmdKOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const shouldBeDark = savedTheme === "dark" || (!savedTheme && prefersDark);
-    
+
     if (shouldBeDark) {
       document.documentElement.classList.remove("light");
     } else {
       document.documentElement.classList.add("light");
     }
-    
+
     // Use setTimeout to avoid synchronous setState in effect
     const timer = setTimeout(() => {
       setIsDarkMode(shouldBeDark);
       setMounted(true);
     }, 0);
-    
+
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
-    
+
     if (isDarkMode) {
       document.documentElement.classList.remove("light");
     } else {
@@ -122,6 +127,33 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
 
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
+  }, []);
+
+  useEffect(() => {
+    // Update unread count from localStorage
+    const updateUnreadCount = async () => {
+      try {
+        const { getAllEvents } = await import("@/lib/api");
+        const { getReadEvents } = await import("@/lib/read-status");
+
+        const events = await getAllEvents();
+        const readEvents = getReadEvents();
+        const unread = events.filter((e) => !readEvents.has(e.id)).length;
+        setUnreadCount(unread);
+      } catch (error) {
+        console.error("Failed to update unread count:", error);
+      }
+    };
+
+    updateUnreadCount();
+
+    // Listen for custom event to update badge
+    const handleUnreadUpdate = () => updateUnreadCount();
+    window.addEventListener("inbox:unread-updated", handleUnreadUpdate);
+
+    return () => {
+      window.removeEventListener("inbox:unread-updated", handleUnreadUpdate);
+    };
   }, []);
 
   const toggleTheme = () => {
@@ -167,35 +199,9 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
           <div className="px-6 pb-2 pt-2 text-[10px] font-bold uppercase tracking-wider text-text-dim">
             Platform
           </div>
-          <SidebarItem href="/app" icon={LayoutDashboard} label="Dashboard" />
-          <SidebarItem href="/app/feed" icon={Radio} label="Live Monitor" />
+          <SidebarItem href="/app/inbox" icon={Inbox} label="Inbox" badge={unreadCount} />
           <SidebarItem href="/app/deals" icon={TrendingUp} label="Deals" />
-          <SidebarItem href="/app/discovery" icon={Search} label="Discovery" />
-          <SidebarItem href="/app/notifications" icon={Bell} label="Notifications" />
-          <SidebarItem
-            href="/app/intelligence"
-            icon={FileText}
-            label="Deal Intelligence"
-          />
-
-          <div className="px-6 pb-2 pt-6 text-[10px] font-bold uppercase tracking-wider text-text-dim">
-            Research
-          </div>
-          <SidebarItem
-            href="/app/chat"
-            icon={MessageSquareText}
-            label="AI Analyst"
-          />
-          <SidebarItem
-            href="/app/markets"
-            icon={Zap}
-            label="Prediction Mkts"
-          />
-          <SidebarItem
-            href="/app/risk"
-            icon={ShieldAlert}
-            label="Risk Radar"
-          />
+          <SidebarItem href="/app/watchlists" icon={List} label="Watchlists" />
         </nav>
 
         <div className="mt-auto border-t border-border p-4">

@@ -11,7 +11,8 @@ import { FilterChips } from "@/components/ui/filter-chips";
 import { WatchlistModal } from "@/components/watchlist-modal";
 import { AddDealModal } from "@/components/add-deal-modal";
 import { Tooltip, TooltipProvider } from "@/components/ui/tooltip";
-import { AlertTriangle, Scale } from "lucide-react";
+import { SimpleDropdown } from "@/components/ui/simple-dropdown";
+import { AlertTriangle, Scale, Search } from "lucide-react";
 import { daysUntil, formatDateForFilename } from "@/lib/date-utils";
 import { exportToCSV, exportToJSON } from "@/lib/file-utils";
 
@@ -20,10 +21,32 @@ export function DealBoard() {
   const [deals, setDeals] = React.useState<Deal[]>(MOCK_DEALS);
   const [isWatchlistModalOpen, setIsWatchlistModalOpen] = React.useState(false);
   const [isAddDealModalOpen, setIsAddDealModalOpen] = React.useState(false);
-  const [spreadFilter, setSpreadFilter] = React.useState<string>("");
-  const [pCloseFilter, setPCloseFilter] = React.useState<string>("");
-  const [sectorFilter, setSectorFilter] = React.useState<string>("");
+  const [spreadFilter, setSpreadFilter] = React.useState<string[]>([]);
+  const [pCloseFilter, setPCloseFilter] = React.useState<string[]>([]);
+  const [sectorFilter, setSectorFilter] = React.useState<string[]>([]);
   const [watchlistOnly, setWatchlistOnly] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [pageSize, setPageSize] = React.useState(20);
+  const [currentPage, setCurrentPage] = React.useState(1);
+
+  // Filter options
+  const spreadOptions = [
+    { id: "2", name: "Spread > 2%" },
+    { id: "3", name: "Spread > 3%" },
+    { id: "5", name: "Spread > 5%" },
+  ];
+
+  const pCloseOptions = [
+    { id: "40", name: "p_close > 40%" },
+    { id: "50", name: "p_close > 50%" },
+    { id: "60", name: "p_close > 60%" },
+  ];
+
+  const sectorOptions = [
+    { id: "Technology", name: "Technology" },
+    { id: "Healthcare", name: "Healthcare" },
+    { id: "Retail", name: "Retail" },
+  ];
 
   // Listen for command palette events
   React.useEffect(() => {
@@ -103,7 +126,7 @@ export function DealBoard() {
     },
     {
       accessorKey: "regulatoryFlags",
-      header: "Reg/Lit",
+      header: "Regulation/Litigation",
       cell: ({ row }) => {
         const hasRegulatory = row.original.regulatoryFlags.length > 0;
         const hasLitigation = row.original.litigationCount > 0;
@@ -118,7 +141,7 @@ export function DealBoard() {
               <div className="flex items-center gap-1">
                 <AlertTriangle className="h-3 w-3 text-red-500" />
                 <span className="text-xs text-red-500 font-medium">
-                  {row.original.regulatoryFlags.length} Reg
+                  {row.original.regulatoryFlags.length} Regulation
                 </span>
               </div>
             )}
@@ -126,7 +149,7 @@ export function DealBoard() {
               <div className="flex items-center gap-1">
                 <Scale className="h-3 w-3 text-amber-500" />
                 <span className="text-xs text-amber-500 font-medium">
-                  {row.original.litigationCount} Lit
+                  {row.original.litigationCount} Litigation
                 </span>
               </div>
             )}
@@ -149,25 +172,82 @@ export function DealBoard() {
     },
   ];
 
+  const toggleSpreadFilter = (id: string) => {
+    setSpreadFilter(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
+  };
+
+  const togglePCloseFilter = (id: string) => {
+    setPCloseFilter(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
+  };
+
+  const toggleSectorFilter = (id: string) => {
+    setSectorFilter(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
+  };
+
   const filteredDeals = React.useMemo(() => {
     return deals.filter((deal) => {
-      if (spreadFilter && deal.currentSpread < parseFloat(spreadFilter)) return false;
-      if (pCloseFilter && deal.p_close_base < parseFloat(pCloseFilter)) return false;
+      // Spread filter - if any spread filter is selected, deal must meet at least one
+      if (spreadFilter.length > 0) {
+        const meetsSpread = spreadFilter.some(threshold => deal.currentSpread >= parseFloat(threshold));
+        if (!meetsSpread) return false;
+      }
+
+      // p_close filter - if any p_close filter is selected, deal must meet at least one
+      if (pCloseFilter.length > 0) {
+        const meetsPClose = pCloseFilter.some(threshold => deal.p_close_base >= parseFloat(threshold));
+        if (!meetsPClose) return false;
+      }
+
+      // Sector filter - if any sector is selected, deal must match one of them
+      // Note: This would need a sector field on Deal type to work properly
+      // For now, we'll skip this filter since deals don't have sector data
+
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesSymbol = deal.symbol.toLowerCase().includes(query);
+        const matchesAcquirer = deal.acquirerSymbol.toLowerCase().includes(query);
+        const matchesCompany = deal.companyName.toLowerCase().includes(query);
+        const matchesAcquirerName = deal.acquirerName.toLowerCase().includes(query);
+        if (!matchesSymbol && !matchesAcquirer && !matchesCompany && !matchesAcquirerName) {
+          return false;
+        }
+      }
       return true;
     });
-  }, [deals, spreadFilter, pCloseFilter]);
+  }, [deals, spreadFilter, pCloseFilter, sectorFilter, searchQuery]);
 
   const activeFilters = React.useMemo(() => {
     const filters = [];
-    if (spreadFilter) filters.push({ label: "Spread", value: `>${spreadFilter}%`, onRemove: () => setSpreadFilter("") });
-    if (pCloseFilter) filters.push({ label: "p_close", value: `>${pCloseFilter}%`, onRemove: () => setPCloseFilter("") });
-    if (sectorFilter) filters.push({ label: "Sector", value: sectorFilter, onRemove: () => setSectorFilter("") });
+    spreadFilter.forEach(f => {
+      filters.push({ label: "Spread", value: `>${f}%`, onRemove: () => toggleSpreadFilter(f) });
+    });
+    pCloseFilter.forEach(f => {
+      filters.push({ label: "p_close", value: `>${f}%`, onRemove: () => togglePCloseFilter(f) });
+    });
+    sectorFilter.forEach(f => {
+      filters.push({ label: "Sector", value: f, onRemove: () => toggleSectorFilter(f) });
+    });
     if (watchlistOnly) filters.push({ label: "Watchlist", value: "Only", onRemove: () => setWatchlistOnly(false) });
     return filters;
   }, [spreadFilter, pCloseFilter, sectorFilter, watchlistOnly]);
 
+  const totalPages = Math.ceil(filteredDeals.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedDeals = filteredDeals.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, spreadFilter, pCloseFilter, sectorFilter, watchlistOnly]);
+
   const handleRowClick = (deal: Deal) => {
     router.push(`/app/deals/${deal.id}`);
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(1);
   };
 
   const exportCSV = () => {
@@ -225,57 +305,57 @@ export function DealBoard() {
       </div>
 
       <div className="flex items-center gap-4 flex-wrap">
-        <select
-          value={spreadFilter}
-          onChange={(e) => setSpreadFilter(e.target.value)}
-          className="px-3 py-2 bg-surface border border-border rounded-md text-text-main font-mono text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-        >
-          <option value="">All Spreads</option>
-          <option value="2">Spread &gt; 2%</option>
-          <option value="3">Spread &gt; 3%</option>
-          <option value="5">Spread &gt; 5%</option>
-        </select>
-
-        <select
-          value={pCloseFilter}
-          onChange={(e) => setPCloseFilter(e.target.value)}
-          className="px-3 py-2 bg-surface border border-border rounded-md text-text-main font-mono text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-        >
-          <option value="">All p_close</option>
-          <option value="40">p_close &gt; 40%</option>
-          <option value="50">p_close &gt; 50%</option>
-          <option value="60">p_close &gt; 60%</option>
-        </select>
-
-        <select
-          value={sectorFilter}
-          onChange={(e) => setSectorFilter(e.target.value)}
-          className="px-3 py-2 bg-surface border border-border rounded-md text-text-main font-mono text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-        >
-          <option value="">All Sectors</option>
-          <option value="Technology">Technology</option>
-          <option value="Healthcare">Healthcare</option>
-          <option value="Retail">Retail</option>
-        </select>
-
-        <label className="flex items-center gap-2 px-3 py-2 bg-surface border border-border rounded-md text-text-main font-mono text-sm cursor-pointer hover:bg-surfaceHighlight transition-colors">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
           <input
-            type="checkbox"
-            checked={watchlistOnly}
-            onChange={(e) => setWatchlistOnly(e.target.checked)}
-            className="w-4 h-4 rounded border-border bg-background text-primary-500 focus:ring-primary-500"
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search deals by symbol or company..."
+            className="w-full rounded-md border border-border bg-surface py-2 pl-10 pr-4 text-sm text-text-main placeholder:text-text-muted focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
           />
-          <span>Watchlist Only</span>
-        </label>
+        </div>
+
+        <SimpleDropdown
+          label="Spread"
+          items={spreadOptions}
+          selectedIds={spreadFilter}
+          onToggle={toggleSpreadFilter}
+        />
+
+        <SimpleDropdown
+          label="p_close"
+          items={pCloseOptions}
+          selectedIds={pCloseFilter}
+          onToggle={togglePCloseFilter}
+        />
+
+        <SimpleDropdown
+          label="Sector"
+          items={sectorOptions}
+          selectedIds={sectorFilter}
+          onToggle={toggleSectorFilter}
+        />
+
+        <button
+          onClick={() => setWatchlistOnly(!watchlistOnly)}
+          className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
+            watchlistOnly
+              ? "border-primary-500/30 bg-primary-500/10 text-primary-400"
+              : "border-border bg-surface text-text-muted hover:bg-surfaceHighlight"
+          }`}
+        >
+          Watchlist Only
+        </button>
       </div>
 
       {activeFilters.length > 0 && (
         <FilterChips
           filters={activeFilters}
           onClearAll={() => {
-            setSpreadFilter("");
-            setPCloseFilter("");
-            setSectorFilter("");
+            setSpreadFilter([]);
+            setPCloseFilter([]);
+            setSectorFilter([]);
             setWatchlistOnly(false);
           }}
         />
@@ -288,16 +368,69 @@ export function DealBoard() {
           if (row && row.dataset.state !== undefined) {
             const index = Array.from(row.parentElement?.children || []).indexOf(row);
             if (index > 0) {
-              handleRowClick(filteredDeals[index - 1]);
+              const startIndex = (currentPage - 1) * pageSize;
+              handleRowClick(paginatedDeals[index - 1]);
             }
           }
         }}
       >
-        <DataTable columns={columns} data={filteredDeals} />
+        <DataTable columns={columns} data={paginatedDeals} />
       </div>
 
-      <div className="text-center text-sm text-text-muted font-mono">
-        Sort: Spread ▾ • CMD+K for actions • Space for peek
+      <div className="flex items-center justify-between gap-4 border-t border-border pt-4">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => handlePageSizeChange(20)}
+            className={`rounded border px-3 py-1 text-sm font-medium transition-colors ${
+              pageSize === 20
+                ? "border-primary-500 bg-primary-500/10 text-primary-400"
+                : "border-border bg-surface text-text-main hover:bg-surfaceHighlight"
+            }`}
+          >
+            20
+          </button>
+          <button
+            onClick={() => handlePageSizeChange(30)}
+            className={`rounded border px-3 py-1 text-sm font-medium transition-colors ${
+              pageSize === 30
+                ? "border-primary-500 bg-primary-500/10 text-primary-400"
+                : "border-border bg-surface text-text-main hover:bg-surfaceHighlight"
+            }`}
+          >
+            30
+          </button>
+          <button
+            onClick={() => handlePageSizeChange(50)}
+            className={`rounded border px-3 py-1 text-sm font-medium transition-colors ${
+              pageSize === 50
+                ? "border-primary-500 bg-primary-500/10 text-primary-400"
+                : "border-border bg-surface text-text-main hover:bg-surfaceHighlight"
+            }`}
+          >
+            50
+          </button>
+          <span className="text-sm text-text-muted">per page</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="rounded border border-border bg-surface px-3 py-1 text-sm font-medium text-text-main transition-colors hover:bg-surfaceHighlight disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            ←
+          </button>
+          <span className="text-sm text-text-main">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="rounded border border-border bg-surface px-3 py-1 text-sm font-medium text-text-main transition-colors hover:bg-surfaceHighlight disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            →
+          </button>
+        </div>
       </div>
 
       <WatchlistModal

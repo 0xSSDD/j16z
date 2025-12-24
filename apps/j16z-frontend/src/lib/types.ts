@@ -87,6 +87,7 @@ export interface Event {
   materiality: Materiality;
   title: string;
   summary: string;
+  content?: string;
   sourceUrl: string;
   sourceType: SourceType;
 }

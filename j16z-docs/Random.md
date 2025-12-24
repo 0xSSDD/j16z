@@ -1,0 +1,6 @@
+- Raw feed
+- Courtlistenere popover that we had - where and how to firt, I like te way it looke
+- Explore page
+- posthog or datadog or sentry
+-  Howd does the anlysts export this, where is the repot creation, or send email etc
+- audit log page - for this will have to have admin / analyst roles - need to use an id management system
