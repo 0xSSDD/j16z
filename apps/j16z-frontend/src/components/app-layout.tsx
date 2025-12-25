@@ -226,23 +226,6 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
               </span>
             </div>
           </div>
-
-          <div className="mt-2 flex gap-1">
-            <button
-              onClick={toggleTheme}
-              className="flex flex-1 items-center justify-center rounded-md py-1.5 text-text-dim transition-colors hover:bg-surfaceHighlight hover:text-text-main"
-              title="Toggle Theme"
-            >
-              {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-            <button
-              onClick={handleLogout}
-              className="flex flex-1 items-center justify-center rounded-md py-1.5 text-text-dim transition-colors hover:bg-surfaceHighlight hover:text-rose-500"
-              title="Log Out"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
-          </div>
         </div>
       </aside>
 
@@ -262,9 +245,19 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
               <span className="text-xs font-bold text-text-main">Pro Plan</span>
             </div>
             <div className="h-4 w-px bg-border" />
-            <button className="relative rounded-full p-2 text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-primary-500">
-              <Bell className="h-4 w-4" />
-              <span className="absolute right-2.5 top-2 h-1.5 w-1.5 rounded-full border border-background bg-primary-500" />
+            <button
+              onClick={toggleTheme}
+              className="rounded-full p-2 text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-text-main"
+              title="Toggle Theme"
+            >
+              {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+            <button
+              onClick={handleLogout}
+              className="rounded-full p-2 text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-rose-500"
+              title="Log Out"
+            >
+              <LogOut className="h-4 w-4" />
             </button>
           </div>
         </header>

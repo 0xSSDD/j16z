@@ -12,3 +12,4 @@
 ----
 - save notifications for later
 - change priority for a notification
+- think of what AI features can be added to this that would actually be useful - [erplexity ], so have a platform ection, and then an Explore section (which has AI features and news)
