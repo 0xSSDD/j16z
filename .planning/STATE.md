@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 ## Current Position
 
 Phase: 1 of 7 (Backend Foundation + Auth)
-Plan: 0 of 3 in current phase (3 plans created, ready to execute)
-Status: Planning complete — ready to execute
-Last activity: 2026-02-26 — Phase 1 plans created (3 plans, 3 waves, 9 tasks, all 11 requirements covered)
+Plan: 1 of 3 in current phase (01-01 complete, 01-02 and 01-03 remaining)
+Status: Executing — Plan 01-01 complete
+Last activity: 2026-02-25 — Plan 01-01 executed: Hono API + Drizzle schema + stub routes
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█░░░░░░░░░] 5%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0 hours
+- Total plans completed: 1
+- Average duration: 6 min
+- Total execution time: 6 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 01-backend-foundation-auth | 1 | 6 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: none yet
-- Trend: -
+- Last 5 plans: 01-01 (6 min)
+- Trend: baseline established
 
 *Updated after each plan completion*
 
@@ -44,6 +44,11 @@ Recent decisions affecting current work:
 
 - [Roadmap]: Multi-tenant isolation (AUTH-06) is a hard CI gate — must pass before any pilot client is onboarded, regardless of other phase completion status
 - [Roadmap]: Requirements.md stated 52 requirements but enumeration totals 62; all 62 are mapped — the stated count was an error
+- [01-01]: Use postgres.js driver (not pg) per Drizzle's Supabase recommendation; prepare: false required for PgBouncer Transaction mode
+- [01-01]: firmIdFromJwt wraps auth.jwt() in a subquery to prevent per-row evaluation in RLS policies (performance)
+- [01-01]: Two Drizzle clients: db (RLS pooled port 6543) and adminDb (service-role direct port 5432)
+- [01-01]: Seed deals are per-firm copies so each firm can independently soft-delete/restore starter content
+- [01-01]: Routes temporarily use adminDb — Plan 01-02 adds JWT auth middleware to switch to RLS-scoped db
 
 ### Pending Todos
 
@@ -58,6 +63,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-26
-Stopped at: Phase 1 plans created (01-01, 01-02, 01-03). Ready to execute Plan 01-01 (Wave 1).
-Resume file: .planning/phases/01-backend-foundation-auth/01-01-PLAN.md
+Last session: 2026-02-25
+Stopped at: Completed 01-01-PLAN.md — Hono API + Drizzle schema + stub routes. Ready to execute Plan 01-02 (auth middleware).
+Resume file: .planning/phases/01-backend-foundation-auth/01-02-PLAN.md

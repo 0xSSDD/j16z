@@ -12,7 +12,7 @@ The frontend shell is built and running on mock data. The entire backend, ingest
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Backend Foundation + Auth** - Database schema, Hono API skeleton, Supabase auth, multi-tenant isolation gate
+- [ ] **Phase 1: Backend Foundation + Auth** - Database schema, Hono API skeleton, Supabase auth, multi-tenant isolation gate (1/3 plans complete)
 - [ ] **Phase 2: SEC EDGAR Ingestion** - Poll, ingest, and store EDGAR filings; flip frontend to real data
 - [ ] **Phase 3: LLM Extraction Pipeline** - Clause extraction with citation verification; real deal cards and scored Inbox
 - [ ] **Phase 4: CourtListener, FTC/DOJ, and RSS Ingestion** - All secondary data sources; complete event coverage
@@ -36,7 +36,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans in 3 waves
 
 Plans:
-- [ ] 01-01-PLAN.md — Hono API scaffold + Drizzle schema with all 13+ domain tables, firm_id scoping, RLS policies, soft deletes (Wave 1)
+- [x] 01-01-PLAN.md — Hono API scaffold + Drizzle schema with all 13+ domain tables, firm_id scoping, RLS policies, soft deletes (Wave 1) — COMPLETE 2026-02-25
 - [ ] 01-02-PLAN.md — Supabase JWT auth middleware, BullMQ + Upstash Redis queue setup, frontend api.ts wiring with JWT passthrough, Next.js auth middleware (Wave 2, depends on 01-01)
 - [ ] 01-03-PLAN.md — Login page (magic link primary), onboarding flow, seed data, cross-tenant isolation CI gate test, custom access token hook (Wave 3, depends on 01-02)
 
@@ -146,7 +146,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Backend Foundation + Auth | 0/3 | Not started | - |
+| 1. Backend Foundation + Auth | 1/3 | In progress | - |
 | 2. SEC EDGAR Ingestion | 0/3 | Not started | - |
 | 3. LLM Extraction Pipeline | 0/3 | Not started | - |
 | 4. CourtListener, FTC/DOJ, RSS | 0/3 | Not started | - |

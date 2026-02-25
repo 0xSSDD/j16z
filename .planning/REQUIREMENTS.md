@@ -9,9 +9,9 @@ Requirements for production MVP. Each maps to roadmap phases.
 
 ### Backend Foundation
 
-- [ ] **BACK-01**: Backend API service runs in monorepo at `apps/api/` using Hono + Drizzle ORM
-- [ ] **BACK-02**: Database schema with Supabase Postgres — deals, events, filings, clauses, market snapshots, alert rules, users, teams
-- [ ] **BACK-03**: All database queries scoped by `firm_id` with Supabase RLS for multi-tenant isolation
+- [x] **BACK-01**: Backend API service runs in monorepo at `apps/api/` using Hono + Drizzle ORM *(completed 01-01, 2026-02-25)*
+- [x] **BACK-02**: Database schema with Supabase Postgres — deals, events, filings, clauses, market snapshots, alert rules, users, teams *(completed 01-01, 2026-02-25)*
+- [x] **BACK-03**: All database queries scoped by `firm_id` with Supabase RLS for multi-tenant isolation *(completed 01-01, 2026-02-25)*
 - [ ] **BACK-04**: Frontend API abstraction (`api.ts`) connects to real backend when `NEXT_PUBLIC_USE_MOCK_DATA=false`
 - [ ] **BACK-05**: BullMQ job queue with Redis for scheduled ingestion and async extraction jobs
 
@@ -151,9 +151,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BACK-01 | Phase 1 | Pending |
-| BACK-02 | Phase 1 | Pending |
-| BACK-03 | Phase 1 | Pending |
+| BACK-01 | Phase 1 | Complete (01-01) |
+| BACK-02 | Phase 1 | Complete (01-01) |
+| BACK-03 | Phase 1 | Complete (01-01) |
 | BACK-04 | Phase 1 | Pending |
 | BACK-05 | Phase 1 | Pending |
 | AUTH-01 | Phase 1 | Pending |
