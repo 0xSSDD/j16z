@@ -12,7 +12,7 @@ The frontend shell is built and running on mock data. The entire backend, ingest
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Backend Foundation + Auth** - Database schema, Hono API skeleton, Supabase auth, multi-tenant isolation gate (1/3 plans complete)
+- [x] **Phase 1: Backend Foundation + Auth** - Database schema, Hono API skeleton, Supabase auth, multi-tenant isolation gate (1/3 plans complete) (completed 2026-02-25)
 - [ ] **Phase 2: SEC EDGAR Ingestion** - Poll, ingest, and store EDGAR filings; flip frontend to real data
 - [ ] **Phase 3: LLM Extraction Pipeline** - Clause extraction with citation verification; real deal cards and scored Inbox
 - [ ] **Phase 4: CourtListener, FTC/DOJ, and RSS Ingestion** - All secondary data sources; complete event coverage
@@ -146,7 +146,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Backend Foundation + Auth | 2/3 | In Progress|  |
+| 1. Backend Foundation + Auth | 3/3 | Complete   | 2026-02-25 |
 | 2. SEC EDGAR Ingestion | 0/3 | Not started | - |
 | 3. LLM Extraction Pipeline | 0/3 | Not started | - |
 | 4. CourtListener, FTC/DOJ, RSS | 0/3 | Not started | - |

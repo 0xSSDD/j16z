@@ -17,12 +17,12 @@ Requirements for production MVP. Each maps to roadmap phases.
 
 ### Authentication
 
-- [ ] **AUTH-01**: User can sign up with email and password via Supabase auth
-- [ ] **AUTH-02**: User can log in via magic link (passwordless)
+- [x] **AUTH-01**: User can sign up with email and password via Supabase auth
+- [x] **AUTH-02**: User can log in via magic link (passwordless)
 - [x] **AUTH-03**: User session persists across browser refresh
-- [ ] **AUTH-04**: User can log out from any page
+- [x] **AUTH-04**: User can log out from any page
 - [x] **AUTH-05**: Team-level data isolation — users only see their firm's deals, events, and watchlists
-- [ ] **AUTH-06**: Cross-tenant isolation passes as blocking CI gate before pilot onboarding
+- [x] **AUTH-06**: Cross-tenant isolation passes as blocking CI gate before pilot onboarding
 
 ### SEC EDGAR Ingestion
 
@@ -156,12 +156,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BACK-03 | Phase 1 | Complete (01-01) |
 | BACK-04 | Phase 1 | Complete |
 | BACK-05 | Phase 1 | Complete |
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
+| AUTH-01 | Phase 1 | Complete |
+| AUTH-02 | Phase 1 | Complete |
 | AUTH-03 | Phase 1 | Complete |
-| AUTH-04 | Phase 1 | Pending |
+| AUTH-04 | Phase 1 | Complete |
 | AUTH-05 | Phase 1 | Complete |
-| AUTH-06 | Phase 1 | Pending |
+| AUTH-06 | Phase 1 | Complete |
 | EDGAR-01 | Phase 2 | Pending |
 | EDGAR-02 | Phase 2 | Pending |
 | EDGAR-03 | Phase 2 | Pending |
