@@ -12,16 +12,16 @@ Requirements for production MVP. Each maps to roadmap phases.
 - [x] **BACK-01**: Backend API service runs in monorepo at `apps/api/` using Hono + Drizzle ORM *(completed 01-01, 2026-02-25)*
 - [x] **BACK-02**: Database schema with Supabase Postgres — deals, events, filings, clauses, market snapshots, alert rules, users, teams *(completed 01-01, 2026-02-25)*
 - [x] **BACK-03**: All database queries scoped by `firm_id` with Supabase RLS for multi-tenant isolation *(completed 01-01, 2026-02-25)*
-- [ ] **BACK-04**: Frontend API abstraction (`api.ts`) connects to real backend when `NEXT_PUBLIC_USE_MOCK_DATA=false`
-- [ ] **BACK-05**: BullMQ job queue with Redis for scheduled ingestion and async extraction jobs
+- [x] **BACK-04**: Frontend API abstraction (`api.ts`) connects to real backend when `NEXT_PUBLIC_USE_MOCK_DATA=false`
+- [x] **BACK-05**: BullMQ job queue with Redis for scheduled ingestion and async extraction jobs
 
 ### Authentication
 
 - [ ] **AUTH-01**: User can sign up with email and password via Supabase auth
 - [ ] **AUTH-02**: User can log in via magic link (passwordless)
-- [ ] **AUTH-03**: User session persists across browser refresh
+- [x] **AUTH-03**: User session persists across browser refresh
 - [ ] **AUTH-04**: User can log out from any page
-- [ ] **AUTH-05**: Team-level data isolation — users only see their firm's deals, events, and watchlists
+- [x] **AUTH-05**: Team-level data isolation — users only see their firm's deals, events, and watchlists
 - [ ] **AUTH-06**: Cross-tenant isolation passes as blocking CI gate before pilot onboarding
 
 ### SEC EDGAR Ingestion
@@ -154,13 +154,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BACK-01 | Phase 1 | Complete (01-01) |
 | BACK-02 | Phase 1 | Complete (01-01) |
 | BACK-03 | Phase 1 | Complete (01-01) |
-| BACK-04 | Phase 1 | Pending |
-| BACK-05 | Phase 1 | Pending |
+| BACK-04 | Phase 1 | Complete |
+| BACK-05 | Phase 1 | Complete |
 | AUTH-01 | Phase 1 | Pending |
 | AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Complete |
 | AUTH-04 | Phase 1 | Pending |
-| AUTH-05 | Phase 1 | Pending |
+| AUTH-05 | Phase 1 | Complete |
 | AUTH-06 | Phase 1 | Pending |
 | EDGAR-01 | Phase 2 | Pending |
 | EDGAR-02 | Phase 2 | Pending |
