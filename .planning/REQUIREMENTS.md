@@ -151,13 +151,74 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (Populated by roadmapper) | | |
+| BACK-01 | Phase 1 | Pending |
+| BACK-02 | Phase 1 | Pending |
+| BACK-03 | Phase 1 | Pending |
+| BACK-04 | Phase 1 | Pending |
+| BACK-05 | Phase 1 | Pending |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| AUTH-04 | Phase 1 | Pending |
+| AUTH-05 | Phase 1 | Pending |
+| AUTH-06 | Phase 1 | Pending |
+| EDGAR-01 | Phase 2 | Pending |
+| EDGAR-02 | Phase 2 | Pending |
+| EDGAR-03 | Phase 2 | Pending |
+| EDGAR-04 | Phase 2 | Pending |
+| EDGAR-05 | Phase 2 | Pending |
+| EDGAR-06 | Phase 2 | Pending |
+| EXTRACT-01 | Phase 3 | Pending |
+| EXTRACT-02 | Phase 3 | Pending |
+| EXTRACT-03 | Phase 3 | Pending |
+| EXTRACT-04 | Phase 3 | Pending |
+| EXTRACT-05 | Phase 3 | Pending |
+| EXTRACT-06 | Phase 3 | Pending |
+| EXTRACT-07 | Phase 3 | Pending |
+| COURT-01 | Phase 4 | Pending |
+| COURT-02 | Phase 4 | Pending |
+| COURT-03 | Phase 4 | Pending |
+| COURT-04 | Phase 4 | Pending |
+| COURT-05 | Phase 4 | Pending |
+| AGENCY-01 | Phase 4 | Pending |
+| AGENCY-02 | Phase 4 | Pending |
+| AGENCY-03 | Phase 4 | Pending |
+| AGENCY-04 | Phase 4 | Pending |
+| RSS-01 | Phase 4 | Pending |
+| RSS-02 | Phase 4 | Pending |
+| RSS-03 | Phase 4 | Pending |
+| ALERT-01 | Phase 5 | Pending |
+| ALERT-02 | Phase 5 | Pending |
+| ALERT-03 | Phase 5 | Pending |
+| ALERT-04 | Phase 5 | Pending |
+| ALERT-05 | Phase 5 | Pending |
+| ALERT-06 | Phase 5 | Pending |
+| MKT-01 | Phase 5 | Pending |
+| MKT-02 | Phase 5 | Pending |
+| MKT-03 | Phase 5 | Pending |
+| MKT-04 | Phase 5 | Pending |
+| DIGEST-01 | Phase 6 | Pending |
+| DIGEST-02 | Phase 6 | Pending |
+| DIGEST-03 | Phase 6 | Pending |
+| DIGEST-04 | Phase 6 | Pending |
+| MEMO-01 | Phase 6 | Pending |
+| MEMO-02 | Phase 6 | Pending |
+| MEMO-03 | Phase 6 | Pending |
+| MEMO-04 | Phase 6 | Pending |
+| UI-01 | Phase 7 | Pending |
+| UI-02 | Phase 7 | Pending |
+| UI-03 | Phase 7 | Pending |
+| UI-04 | Phase 7 | Pending |
+| UI-05 | Phase 7 | Pending |
+| EXPORT-01 | Phase 7 | Pending |
+| EXPORT-02 | Phase 7 | Pending |
+| EXPORT-03 | Phase 7 | Pending |
 
 **Coverage:**
-- v1 requirements: 52 total
-- Mapped to phases: 0
-- Unmapped: 52
+- v1 requirements: 62 total (note: REQUIREMENTS.md previously stated 52; actual enumeration is 62)
+- Mapped to phases: 62
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-25*
-*Last updated: 2026-02-25 after initial definition*
+*Last updated: 2026-02-26 — traceability populated by roadmapper; all 62 requirements mapped*

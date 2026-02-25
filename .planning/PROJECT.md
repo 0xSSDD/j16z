@@ -123,7 +123,8 @@ Analysts spend 3-5 hours/day trolling fragmented sources. j16z turns that into a
 
 ## Constraints
 
-- **Monorepo**: All apps in `apps/` directory — frontend, backend API, LangExtract (may live inside backend)
+- **Monorepo**: All apps in `apps/` directory — frontend (TypeScript), backend API (TypeScript/Hono), LangExtract (Python)
+- **LangExtract**: Google's open-source LangExtract library (Python) — source grounding prevents hallucination, few-shot M&A examples, handles 500+ page filings
 - **Auth**: Supabase (SDK already installed in frontend)
 - **Frontend stack**: Next.js 16, React 19, Tailwind v4, shadcn/ui — locked, do not change
 - **Package manager**: pnpm — locked
@@ -141,7 +142,7 @@ Analysts spend 3-5 hours/day trolling fragmented sources. j16z turns that into a
 | CourtListener-style side panel for events | Analysts validated this pattern feels natural for event detail | ✓ Good — implemented |
 | Dark mode default with Aurora palette | Target users (hedge fund analysts) prefer dark interfaces; brand differentiation | ✓ Good — implemented |
 | Backend in same monorepo (apps/api/) | Keep deployment simple, shared types, monorepo benefits | — Pending |
-| LangExtract as module within backend | Simplicity over microservice complexity for MVP | — Pending |
+| LangExtract as Python service (apps/langextract/) | Google's LangExtract library is Python-only; source grounding solves hallucination; separate service communicates via internal API/queue | — Pending |
 | Supabase for auth | SDK already installed, fast path to production auth | — Pending |
 | eToro-style tabs on deal page | Replace collapsible sections with tabs for faster navigation within deals | — Pending |
 | "Deal intelligence, made faster" as hero message | Clean, Linear-style positioning that speaks to the core value proposition | — Pending |
