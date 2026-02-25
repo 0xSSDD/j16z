@@ -3,6 +3,8 @@ import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
+import { authMiddleware } from './middleware/auth.js';
+import { firmContextMiddleware } from './middleware/firm-context.js';
 import { apiRoutes } from './routes/index.js';
 
 const app = new Hono();
@@ -33,12 +35,28 @@ app.onError((err, c) => {
 });
 
 // ---------------------------------------------------------------------------
-// API routes — mounted at /api
-// NOTE: Auth middleware is NOT added here yet.
-//       Plan 01-02 adds Supabase JWT verification middleware before all /api/* routes.
-//       Routes currently use adminDb as a temporary stand-in.
+// API routes — mounted at /api with auth protection
+//
+// Auth middleware strategy:
+//   - authMiddleware: applied to ALL /api/* routes — verifies Supabase JWT
+//   - firmContextMiddleware: applied only to data routes (deals, events, watchlists)
+//     NOT applied to /api/auth/* — onboarding endpoints are called by first-time
+//     users who may not yet have a firm_id in their JWT
 // ---------------------------------------------------------------------------
-app.route('/api', apiRoutes);
+const api = app.basePath('/api');
+
+// Require valid JWT on all API routes
+api.use('/*', authMiddleware);
+
+// Require firm context on data routes only
+api.use('/deals/*', firmContextMiddleware);
+api.use('/events/*', firmContextMiddleware);
+api.use('/watchlists/*', firmContextMiddleware);
+
+// Mount routes
+api.route('/deals', apiRoutes.deals);
+api.route('/events', apiRoutes.events);
+api.route('/watchlists', apiRoutes.watchlists);
 
 // ---------------------------------------------------------------------------
 // Server startup
