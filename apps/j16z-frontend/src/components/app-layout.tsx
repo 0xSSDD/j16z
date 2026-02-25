@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { CommandPalette } from "@/components/command-palette";
+import { createClient } from "@/lib/supabase/client";
 import {
   Inbox,
   Settings as SettingsIcon,
@@ -170,7 +171,9 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
     router.push("/login");
   };
 
