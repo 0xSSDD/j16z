@@ -33,12 +33,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. A user from Firm A cannot see deals, events, or watchlists belonging to Firm B even with a valid JWT (cross-tenant isolation CI test passes)
   5. The frontend, with `NEXT_PUBLIC_USE_MOCK_DATA=false`, connects to the real backend and returns empty arrays from live database tables rather than mock data
   6. Landing page CTA properly routes to Supabase auth (sign up / login); authenticated users land in `/app/inbox`
-**Plans**: TBD
+**Plans**: 3 plans in 3 waves
 
 Plans:
-- [ ] 01-01: Hono API service scaffold (`apps/api/`) with Drizzle schema, all domain tables, and `firm_id` scoping
-- [ ] 01-02: BullMQ + Upstash Redis setup; Supabase auth middleware; frontend connected to real API
-- [ ] 01-03: Cross-tenant isolation test as blocking CI gate; auth flows (signup, magic link, logout, session persistence)
+- [ ] 01-01-PLAN.md — Hono API scaffold + Drizzle schema with all 13+ domain tables, firm_id scoping, RLS policies, soft deletes (Wave 1)
+- [ ] 01-02-PLAN.md — Supabase JWT auth middleware, BullMQ + Upstash Redis queue setup, frontend api.ts wiring with JWT passthrough, Next.js auth middleware (Wave 2, depends on 01-01)
+- [ ] 01-03-PLAN.md — Login page (magic link primary), onboarding flow, seed data, cross-tenant isolation CI gate test, custom access token hook (Wave 3, depends on 01-02)
 
 ### Phase 2: SEC EDGAR Ingestion
 **Goal**: The system automatically polls EDGAR every 15 minutes, stores raw filings before extraction, and deal board shows real filing metadata even before LLM extraction runs
