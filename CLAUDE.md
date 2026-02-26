@@ -6,6 +6,64 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 J16Z is an M&A (Mergers & Acquisitions) Intelligence Platform — a SaaS terminal for tracking deals, regulatory events, litigation, and intelligence sources. Built as a pnpm monorepo.
 
+### Product Vision (MVP)
+
+The platform tracks public M&A deals end-to-end and turns raw regulatory, legal, and market data into **analyst-ready and client-ready outputs** for merger-arb / event-driven and policy-focused firms.
+
+**End outputs j16z must produce:**
+- **Deal board** — all tracked deals with spreads, probabilities, regulatory/litigation status, key dates
+- **Deal card** — per-deal terms, clauses, event timeline, spreads, qualitative notes
+- **Alerts** — email, Slack, webhook on material events
+- **Daily/weekly email digests** — summarising changes and interesting deals
+- **Research drafts** — memo skeletons analysts can edit into institutional notes
+- **Structured data feeds** — CSV/API for firms to pipe into internal systems
+
+### Data Sources
+
+- **SEC EDGAR** (mandatory) — M&A filings: 8-K, S-4, DEFM14A, 13D/13G
+- **CourtListener** (mandatory) — litigation: merger challenges, shareholder suits, antitrust cases
+- **FTC/DOJ Antitrust** (essential) — enforcement actions, HSR second requests, press releases
+- **Market Data API** (paid/freemium) — spreads, implied consideration computation
+- **Curated RSS/News** (optional) — law-firm alerts, specialist newsletters, blogs
+
+### Domain Model (Key Entities)
+
+`Company`, `Deal`, `DealClause`, `Filing`, `CourtCase`, `DocketEntry`, `AgencyEvent`, `MarketSnapshot`, `NewsItem`, `Event`, `User`, `Watchlist`, `AlertRule`
+
+**Deal statuses:** ANNOUNCED, REGULATORY_REVIEW, LITIGATION, TERMINATED, CLOSED, UNKNOWN
+
+**Event types:** FILING, COURT, AGENCY, SPREAD, NEWS — each with sub_types and materiality_score (0-100)
+
+**Analyst fields on Deal:** `p_close_base`, `p_break_regulatory`, `p_break_litigation`, `spread_entry_threshold`, `size_bucket`
+
+### Redesign Architecture (Rehaul)
+
+Navigation was consolidated from 9 items to 4: **Inbox, Deals, Watchlists, Settings**.
+
+**Inbox** (default home) — unified event feed sorted by materiality, with CourtListener-style side panel for event detail without page navigation. Replaces old Dashboard + Live Monitor + Notifications.
+
+**Deals** — deal board with grid/list views + deal card with sticky metrics header, event timeline, key terms, probabilities, spread history.
+
+**Watchlists** — coverage management + attached RSS feeds.
+
+**Settings** — consolidated config: Alert Rules, Integrations (Slack/Email/Webhooks), RSS Feeds, Team, API Keys.
+
+### Materiality Scoring System
+
+Events scored 0-100 with adjustments:
+- **CRITICAL (>70):** Email + Slack immediate — FTC complaints (95), injunctions (90), second requests (85), S-4 filings (80)
+- **WARNING (50-70):** Slack only same day — motions (70), 8-K amendments (60), regulatory approvals (60)
+- **INFO (<50):** Inbox only — docket entries (50), routine filings (40), spread moves (<5%), news (10-40)
+
+**Adjustments:** +20 if <30 days to outside_date, +15 if p_close <40%, +10 if litigation >3 cases, -25 if analyst previously marked "not material"
+
+### Key UX Patterns
+
+- **Side panel (CourtListener pattern):** Event detail slides in from right, preserving inbox context
+- **Materiality badges:** Color-coded dots (red/orange/yellow) for instant scan prioritization
+- **Unread indicators:** Filled vs hollow dots for new vs read events
+- **Inline deal context:** Spread and deal info visible on event cards without clicking through
+
 ## Commands
 
 ```bash

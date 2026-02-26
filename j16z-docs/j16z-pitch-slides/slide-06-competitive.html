@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Competitive Landscape</title>
+  <link rel="stylesheet" href="shared.css">
+</head>
+<body class="col bg-surface" style="width: 960px; height: 540px;">
+  <div style="width: 920px; margin: 0 20px; padding-top: 32px;" class="fit">
+    <p class="text-8xl text-primary" style="margin: 0; font-weight: 700;">06</p>
+    <h1 class="text-4xl" style="margin: 12px 0 0 0;">Competitive Landscape</h1>
+  </div>
+
+  <div class="row fill-height gap-lg" style="padding: 20px 40px;">
+    <div class="col gap" style="flex: 1;">
+      <div class="rounded p-4" style="background: var(--color-secondary); border-left: 3px solid var(--color-muted-foreground);">
+        <p class="text-sm" style="margin: 0 0 6px 0; font-weight: 700;">Bloomberg / Refinitiv</p>
+        <p style="margin: 0; font-size: 12px; line-height: 1.4; color: var(--color-muted-foreground);">$20K-$32K/user. Strong on quotes and news, but lack AI clause extraction, integrated litigation/FTC coverage, and deal-level event feeds. No predictive analytics.</p>
+      </div>
+
+      <div class="rounded p-4" style="background: var(--color-secondary); border-left: 3px solid var(--color-muted-foreground);">
+        <p class="text-sm" style="margin: 0 0 6px 0; font-weight: 700;">AlphaSense / AI Search</p>
+        <p style="margin: 0; font-size: 12px; line-height: 1.4; color: var(--color-muted-foreground);">Company-level search, not deal-specific clause extraction. Missing 24/7 litigation monitoring and predictive models. Not building deal-specific data moat.</p>
+      </div>
+
+      <div class="rounded p-4" style="background: var(--color-secondary); border-left: 3px solid var(--color-muted-foreground);">
+        <p class="text-sm" style="margin: 0 0 6px 0; font-weight: 700;">DIY Bots / In-House</p>
+        <p style="margin: 0; font-size: 12px; line-height: 1.4; color: var(--color-muted-foreground);">Brittle to API changes, single engineer dependency, high miss-rate on legal events. No ML improvement loop. Can't compete with j16z's training data scale.</p>
+      </div>
+    </div>
+
+    <div class="col" style="flex: 1;">
+      <p class="text-lg" style="margin: 0 0 16px 0; font-weight: 700;">j16z's Competitive Moat</p>
+
+      <div class="col gap" style="margin-top: 8px;">
+        <div class="rounded p-4" style="background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);">
+          <p class="text-sm" style="margin: 0 0 6px 0; font-weight: 700;">AI Data Flywheel</p>
+          <p style="margin: 0; font-size: 12px; line-height: 1.4;">Each deal monitored generates unique training data on clause patterns and event materiality. More users → more deals → better AI → better product for everyone.</p>
+        </div>
+
+        <div class="rounded p-4" style="background: var(--color-secondary);">
+          <p class="text-sm text-primary" style="margin: 0 0 4px 0; font-weight: 700;">Deal-Native Product</p>
+          <p style="margin: 0; font-size: 12px; line-height: 1.4;">Built from ground up around deal card and event stream, not retrofitted from generic terminal</p>
+        </div>
+
+        <div class="rounded p-4" style="background: var(--color-secondary);">
+          <p class="text-sm text-primary" style="margin: 0 0 4px 0; font-weight: 700;">Value Pricing</p>
+          <p style="margin: 0; font-size: 12px; line-height: 1.4;">$18K-$24K/analyst undercuts Bloomberg while delivering AI capabilities they don't address</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
