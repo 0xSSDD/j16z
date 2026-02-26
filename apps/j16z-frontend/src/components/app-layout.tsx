@@ -171,10 +171,12 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
     }
   };
 
-  const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/login");
+  const handleLogout = () => {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/auth/signout';
+    document.body.appendChild(form);
+    form.submit();
   };
 
   return (

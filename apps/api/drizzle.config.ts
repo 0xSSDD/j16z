@@ -6,9 +6,11 @@ export default defineConfig({
   out: './drizzle',
   dialect: 'postgresql',
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
+    url: process.env.SUPABASE_DB_URL_SERVICE_ROLE!,
   },
   entities: {
-    roles: true,
+    roles: {
+      provider: 'supabase',
+    },
   },
 });
