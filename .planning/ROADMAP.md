@@ -13,8 +13,8 @@ The frontend shell is built and running on mock data. The entire backend, ingest
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Backend Foundation + Auth** - Database schema, Hono API skeleton, Supabase auth, multi-tenant isolation gate (3/3 plans complete) (completed 2026-02-26, verified 6/6 criteria)
-- [ ] **Phase 2: SEC EDGAR Ingestion** - Poll, ingest, and store EDGAR filings; flip frontend to real data
-- [ ] **Phase 3: LLM Extraction Pipeline** - Clause extraction with citation verification; real deal cards and scored Inbox
+- [x] **Phase 2: SEC EDGAR Ingestion** - Poll, ingest, and store EDGAR filings; flip frontend to real data (4/4 plans complete) (completed 2026-03-01)
+- [ ] **Phase 3: LLM Extraction Pipeline** - Clause extraction with citation verification; real deal cards and scored Inbox (3 plans, 3 waves)
 - [ ] **Phase 4: CourtListener, FTC/DOJ, and RSS Ingestion** - All secondary data sources; complete event coverage
 - [ ] **Phase 5: Alert Delivery + Market Data** - Email and Slack alerts on scored events; spread display on deal board
 - [ ] **Phase 6: Digests + Deal Memo Editor** - Daily/weekly digests; memo editor seeded with live deal terms
@@ -52,9 +52,9 @@ Plans:
 **Plans**: 3 plans in 3 waves
 
 Plans:
-- [ ] 02-01-PLAN.md — EDGAR HTTP client with User-Agent enforcement and token bucket rate limiter (9 req/s); schema migration (filings → global table, remove firm_id); CIK resolver; BullMQ cron scheduler (*/15 * * * *); unit tests (Wave 1)
-- [ ] 02-02-PLAN.md — Two-stage ingestion: edgar_poll handler (CIK-based + EFTS broad scan), edgar_download handler (HTML-to-text), deal matcher, event factory (global filings → firm-scoped events); worker dispatcher wiring; unit tests (Wave 2)
-- [ ] 02-03-PLAN.md — Hono filings endpoints (/api/filings); frontend Filing type + api.ts functions (no mock fallback); deal board filing count badge; deal card filing rows with EDGAR source links (Wave 3)
+- [x] 02-01-PLAN.md — EDGAR HTTP client with User-Agent enforcement and token bucket rate limiter (9 req/s); schema migration (filings → global table, remove firm_id); CIK resolver; BullMQ cron scheduler (*/15 * * * *); unit tests (Wave 1) — COMPLETE
+- [x] 02-02-PLAN.md — Two-stage ingestion: edgar_poll handler (CIK-based + EFTS broad scan), edgar_download handler (HTML-to-text), deal matcher, event factory (global filings → firm-scoped events); worker dispatcher wiring; unit tests (Wave 2) — COMPLETE
+- [x] 02-03-PLAN.md — Hono filings endpoints (/api/filings); frontend Filing type + api.ts functions (no mock fallback); deal board filing count badge; deal card filing rows with EDGAR source links (Wave 3) — COMPLETE
 
 ### Phase 3: LLM Extraction Pipeline
 **Goal**: Raw EDGAR filings are automatically processed into structured deal terms and clauses with verbatim source citations; deal cards show real extracted data and the Inbox shows real materiality-scored events
