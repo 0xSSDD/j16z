@@ -10,6 +10,9 @@ import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { NewsSection } from "@/components/news-section";
 import { AlertConfigModal } from "@/components/alert-config-modal";
 import { formatDate } from "@/lib/date-utils";
+import { getFilings } from "@/lib/api";
+import type { Filing } from "@/lib/types";
+import { ExternalLink } from "lucide-react";
 
 interface DealCardProps {
   dealId: string;
@@ -27,6 +30,22 @@ export function DealCard({ dealId }: DealCardProps) {
   const [eventTypeFilter, setEventTypeFilter] = React.useState<string[]>([]);
   const [isAlertModalOpen, setIsAlertModalOpen] = React.useState(false);
   const [isExportOpen, setIsExportOpen] = React.useState(false);
+  const [filings, setFilings] = React.useState<Filing[]>([]);
+
+  // Fetch filings for this deal (real data only — no mock fallback)
+  React.useEffect(() => {
+    if (!dealId) return;
+    async function fetchFilings() {
+      try {
+        const data = await getFilings(dealId);
+        setFilings(data);
+      } catch {
+        // Backend not running or no filings — stay empty
+        setFilings([]);
+      }
+    }
+    fetchFilings();
+  }, [dealId]);
 
   const exportDealCSV = () => {
     if (!deal) return;
@@ -138,6 +157,20 @@ export function DealCard({ dealId }: DealCardProps) {
   const filteredEvents = eventTypeFilter.length > 0
     ? events.filter((e) => eventTypeFilter.includes(e.type))
     : events;
+
+  // Filing type badge color coding
+  const getFilingBadgeClass = (filingType: string): string => {
+    if (['S-4', 'S-4/A', 'DEFM14A', 'PREM14A'].includes(filingType)) {
+      return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+    }
+    if (['SC TO-T', 'SC TO-T/A', 'SC TO-I', 'SC TO-I/A', 'SC 14D9', 'SC 14D9/A'].includes(filingType)) {
+      return 'bg-orange-500/10 text-orange-400 border-orange-500/20';
+    }
+    if (['8-K', '8-K/A'].includes(filingType)) {
+      return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+    }
+    return 'bg-surface text-text-muted border-border';
+  };
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-7xl mx-auto">
@@ -320,6 +353,43 @@ export function DealCard({ dealId }: DealCardProps) {
         <NewsSection dealId={dealId} />
       </CollapsibleSection>
       </div>
+
+      {/* Recent Filings */}
+      {filings.length > 0 && (
+        <CollapsibleSection title="Recent Filings" defaultOpen={true}>
+          <div className="space-y-2">
+            {filings.slice(0, 5).map((filing) => (
+              <div key={filing.id} className="flex items-center gap-3 p-3 bg-surface rounded-md border border-border">
+                <span
+                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-mono font-medium border ${getFilingBadgeClass(filing.filingType)}`}
+                >
+                  {filing.filingType}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs text-text-main font-mono truncate">
+                    {filing.filerName ?? filing.filerCik}
+                  </div>
+                  <div className="text-xs text-text-muted font-mono">
+                    {formatDate(filing.filedDate)}
+                    {filing.rawContent === null && (
+                      <span className="ml-2 text-text-dim">· Pending</span>
+                    )}
+                  </div>
+                </div>
+                <a
+                  href={filing.rawUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-indigo-400 hover:text-indigo-300 text-xs underline shrink-0"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  View on EDGAR
+                </a>
+              </div>
+            ))}
+          </div>
+        </CollapsibleSection>
+      )}
 
       {/* Regulatory & Litigation */}
       <div id="section-5">

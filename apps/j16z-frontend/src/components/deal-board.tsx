@@ -5,6 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { Deal } from "@/lib/types";
 import { MOCK_DEALS } from "@/lib/constants";
+import { getFilings } from "@/lib/api";
 import { DataTable } from "@/components/ui/data-table";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { FilterChips } from "@/components/ui/filter-chips";
@@ -28,6 +29,27 @@ export function DealBoard() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [pageSize, setPageSize] = React.useState(20);
   const [currentPage, setCurrentPage] = React.useState(1);
+  const [filingCounts, setFilingCounts] = React.useState<Record<string, number>>({});
+
+  // Fetch filing counts for real data mode
+  React.useEffect(() => {
+    // Only fetch filing counts in real data mode
+    if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true') return;
+
+    async function fetchCounts() {
+      const counts: Record<string, number> = {};
+      for (const deal of deals) {
+        try {
+          const filings = await getFilings(deal.id);
+          counts[deal.id] = filings.length;
+        } catch {
+          counts[deal.id] = 0;
+        }
+      }
+      setFilingCounts(counts);
+    }
+    fetchCounts();
+  }, [deals]);
 
   // Filter options
   const spreadOptions = [
@@ -81,6 +103,22 @@ export function DealBoard() {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => <StatusBadge status={row.original.status} />,
+    },
+    {
+      id: 'filings',
+      header: 'Filings',
+      cell: ({ row }) => {
+        const count = filingCounts[row.original.id] ?? 0;
+        if (count === 0) return <span className="text-text-dim text-xs">--</span>;
+        return (
+          <div className="flex items-center gap-1.5">
+            <span className="inline-flex items-center justify-center rounded-full bg-indigo-500/10 px-2 py-0.5 text-xs font-medium text-indigo-400 border border-indigo-500/20">
+              {count}
+            </span>
+            <span className="text-xs text-text-muted">SEC</span>
+          </div>
+        );
+      },
     },
     {
       accessorKey: "currentSpread",
