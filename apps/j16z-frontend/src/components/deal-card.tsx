@@ -10,27 +10,148 @@ import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { NewsSection } from "@/components/news-section";
 import { AlertConfigModal } from "@/components/alert-config-modal";
 import { formatDate } from "@/lib/date-utils";
-import { getFilings } from "@/lib/api";
-import type { Filing } from "@/lib/types";
-import { ExternalLink } from "lucide-react";
+import { getClauses, getFilings } from "@/lib/api";
+import type { Clause, ClauseType, Filing } from "@/lib/types";
+import { AlertTriangle, CheckCircle, ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
 
 interface DealCardProps {
   dealId: string;
+}
+
+// Clause category groupings — mirrors s4_defm14a.py _group_clauses_by_category()
+const CLAUSE_CATEGORIES: Record<string, ClauseType[]> = {
+  'Termination Provisions': ['TERMINATION_FEE', 'REVERSE_TERMINATION_FEE', 'TICKING_FEE'],
+  'Conditions': ['REGULATORY_EFFORTS', 'LITIGATION_CONDITION', 'FINANCING_CONDITION', 'HELL_OR_HIGH_WATER'],
+  'Protective Provisions': ['MAE', 'GO_SHOP', 'NO_SHOP', 'MATCHING_RIGHTS', 'SPECIFIC_PERFORMANCE'],
+  'Other': ['OTHER'],
+};
+
+// Group clauses by analyst-facing category
+function groupClausesByCategory(clauses: Clause[]): Record<string, Clause[]> {
+  const result: Record<string, Clause[]> = {};
+  for (const [category, types] of Object.entries(CLAUSE_CATEGORIES)) {
+    const matches = clauses.filter((c) => types.includes(c.type));
+    if (matches.length > 0) {
+      result[category] = matches;
+    }
+  }
+  return result;
+}
+
+// Single clause card with collapsible verbatim quote
+function ClauseCard({ clause }: { clause: Clause }) {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+
+  // Display text: prefer summary, fall back to value (mock compat), then verbatimText first 120 chars
+  const displayText = clause.summary ?? clause.value ?? (clause.verbatimText?.slice(0, 120));
+
+  // Source attribution: prefer extractedAt + filingId, fall back to legacy fields
+  const sourceAttr = clause.extractedAt
+    ? `Extracted ${formatDate(clause.extractedAt)}`
+    : clause.sourceFilingType
+      ? `${clause.sourceFilingType} ${clause.sourceSection ?? ''}`.trim()
+      : null;
+
+  // Provenance URL for EDGAR source link
+  const sourceHref = clause.sourceUrl ?? '#';
+
+  const isLowConfidence = typeof clause.confidenceScore === 'number' && clause.confidenceScore < 0.5;
+
+  return (
+    <div className="p-3 bg-surface rounded-md border border-border">
+      {/* Clause header */}
+      <div className="flex items-start gap-2 mb-1">
+        <span className="text-xs font-mono font-medium text-primary-500 uppercase flex-1">
+          {clause.title ?? clause.type.replace(/_/g, ' ')}
+        </span>
+        {/* Low-confidence warning */}
+        {isLowConfidence && (
+          <AlertTriangle
+            className="h-3.5 w-3.5 text-yellow-500 shrink-0 mt-0.5"
+            aria-label="Low confidence extraction"
+          />
+        )}
+        {/* Analyst-verified badge */}
+        {clause.analystVerified && (
+          <CheckCircle
+            className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5"
+            aria-label="Analyst verified"
+          />
+        )}
+      </div>
+
+      {/* Summary / value */}
+      {displayText && (
+        <div className="text-sm text-text-main font-mono mb-1">{displayText}</div>
+      )}
+
+      {/* Source attribution row */}
+      {(sourceAttr || sourceHref !== '#') && (
+        <div className="flex items-center gap-2 mt-1">
+          {sourceAttr && (
+            <span className="text-xs text-text-muted font-mono">{sourceAttr}</span>
+          )}
+          {sourceHref !== '#' && (
+            <a
+              href={sourceHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 font-mono"
+            >
+              <ExternalLink className="h-3 w-3" />
+              View on EDGAR
+            </a>
+          )}
+        </div>
+      )}
+
+      {/* Collapsible verbatim quote (per locked decision: collapsed by default) */}
+      {clause.verbatimText && clause.verbatimText !== displayText && (
+        <div className="mt-2">
+          <button
+            onClick={() => setIsExpanded((prev) => !prev)}
+            className="flex items-center gap-1 text-xs text-text-muted hover:text-text-main font-mono transition-colors"
+          >
+            {isExpanded ? (
+              <ChevronDown className="h-3 w-3" />
+            ) : (
+              <ChevronRight className="h-3 w-3" />
+            )}
+            {isExpanded ? 'Hide' : 'Show'} verbatim quote
+          </button>
+          {isExpanded && (
+            <div className="mt-2 p-2 bg-background border border-border rounded text-xs text-text-muted font-mono leading-relaxed whitespace-pre-wrap">
+              {clause.verbatimText}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function DealCard({ dealId }: DealCardProps) {
   const router = useRouter();
   const deal = MOCK_DEALS.find((d) => d.id === dealId);
   const events = MOCK_EVENTS.filter((e) => e.dealId === dealId);
-  const clauses = MOCK_CLAUSES.filter((c) => c.dealId === dealId);
   const marketSnapshots = MOCK_MARKET_SNAPSHOTS.filter((s) => s.dealId === dealId);
 
+  const [clauses, setClauses] = React.useState<Clause[]>([]);
   const [pCloseBase, setPCloseBase] = React.useState(deal?.p_close_base || 0);
   const [spreadThreshold, setSpreadThreshold] = React.useState(deal?.spread_entry_threshold || 0);
   const [eventTypeFilter, setEventTypeFilter] = React.useState<string[]>([]);
   const [isAlertModalOpen, setIsAlertModalOpen] = React.useState(false);
   const [isExportOpen, setIsExportOpen] = React.useState(false);
   const [filings, setFilings] = React.useState<Filing[]>([]);
+
+  // Fetch clauses from real API (falls back to mock data via getClauses when USE_MOCK_DATA=true)
+  React.useEffect(() => {
+    if (!dealId) return;
+    getClauses(dealId).then(setClauses).catch(() => {
+      // Fall back to mock data on error for development
+      setClauses(MOCK_CLAUSES.filter((c) => c.dealId === dealId));
+    });
+  }, [dealId]);
 
   // Fetch filings for this deal (real data only — no mock fallback)
   React.useEffect(() => {
@@ -249,36 +370,37 @@ export function DealCard({ dealId }: DealCardProps) {
         </div>
       </div>
 
-      {/* Deal Terms */}
+      {/* Deal Terms — grouped by category with collapsible verbatim quotes */}
       <div id="section-1">
       <CollapsibleSection title="Deal Terms" defaultOpen={true}>
-        {clauses.length > 0 ? (
-          <div className="space-y-3">
-            {clauses.map((clause) => (
-              <div key={clause.id} className="flex items-start gap-4 p-3 bg-surface rounded-md">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-mono font-medium text-primary-500 uppercase">
-                      {clause.type.replace(/_/g, " ")}
-                    </span>
-                    <span className="text-xs font-mono text-text-muted">
-                      {clause.sourceFilingType} {clause.sourceSection}
-                    </span>
-                  </div>
-                  <div className="text-sm text-text-main font-mono">{clause.value}</div>
-                </div>
-                <a
-                  href={clause.sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-primary-500 hover:text-primary-600 font-mono"
-                >
-                  →
-                </a>
+        {clauses.length > 0 ? (() => {
+          const grouped = groupClausesByCategory(clauses);
+          const categoryNames = Object.keys(grouped);
+          if (categoryNames.length === 0) {
+            // Ungrouped fallback (mock data with legacy shape)
+            return (
+              <div className="space-y-3">
+                {clauses.map((clause) => <ClauseCard key={clause.id} clause={clause} />)}
               </div>
-            ))}
-          </div>
-        ) : (
+            );
+          }
+          return (
+            <div className="space-y-6">
+              {categoryNames.map((category) => (
+                <div key={category}>
+                  <h4 className="text-xs font-mono font-semibold text-text-muted uppercase tracking-wider mb-3 border-b border-border pb-1">
+                    {category}
+                  </h4>
+                  <div className="space-y-3">
+                    {grouped[category].map((clause) => (
+                      <ClauseCard key={clause.id} clause={clause} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })() : (
           <p className="text-sm text-text-muted font-mono">No deal terms available.</p>
         )}
       </CollapsibleSection>

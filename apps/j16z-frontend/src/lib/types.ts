@@ -90,18 +90,44 @@ export interface Event {
   content?: string;
   sourceUrl: string;
   sourceType: SourceType;
+  // DB-stored materiality score from Python extraction pipeline (EXTRACT-07)
+  // 0 = not set (pre-extraction events); falls back to client-side calculation
+  materialityScore?: number;
 }
 
-export type ClauseType = 'TERMINATION_FEE' | 'REVERSE_TERMINATION_FEE' | 'MAE' | 'REGULATORY_EFFORTS' | 'LITIGATION_CONDITION' | 'FINANCING_CONDITION';
+export type ClauseType =
+  | 'TERMINATION_FEE'
+  | 'REVERSE_TERMINATION_FEE'
+  | 'MAE'
+  | 'REGULATORY_EFFORTS'
+  | 'LITIGATION_CONDITION'
+  | 'FINANCING_CONDITION'
+  | 'GO_SHOP'
+  | 'TICKING_FEE'
+  | 'HELL_OR_HIGH_WATER'
+  | 'SPECIFIC_PERFORMANCE'
+  | 'NO_SHOP'
+  | 'MATCHING_RIGHTS'
+  | 'OTHER';
 
 export interface Clause {
   id: string;
   dealId: string;
+  // New extraction fields (populated by Python LangExtract pipeline)
+  filingId?: string;
   type: ClauseType;
-  value: string;
-  sourceFilingType: string;
-  sourceSection: string;
-  sourceUrl: string;
+  title?: string;
+  summary?: string;
+  verbatimText?: string;
+  sourceLocation?: string; // "start_pos:end_pos" format
+  extractedAt?: string;
+  confidenceScore?: number | null;
+  analystVerified?: boolean;
+  // Legacy fields for backward compatibility with mock data
+  value?: string;
+  sourceFilingType?: string;
+  sourceSection?: string;
+  sourceUrl?: string;
 }
 
 export interface MarketSnapshot {

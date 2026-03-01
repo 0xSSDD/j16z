@@ -61,7 +61,23 @@ export function InboxTimeline({
         const rawEvents = await getAllEvents();
 
         // Enrich events with severity scores
+        // EXTRACT-07: Use DB-stored materialityScore when available (set by Python pipeline).
+        // Fall back to client-side calculation for pre-extraction events (materialityScore == 0 or undefined).
         const enriched = rawEvents.map((event) => {
+          const hasMaterialityScore = typeof event.materialityScore === 'number' && event.materialityScore > 0;
+
+          if (hasMaterialityScore) {
+            // Use DB-stored values — no client-side re-computation needed
+            return {
+              ...event,
+              severityScore: event.materialityScore as number,
+              severityLevel: event.severity,
+              severityBadge: event.severity === 'CRITICAL' ? '🔴' : event.severity === 'WARNING' ? '🟡' : '🟢',
+              isRead: false, // TODO: Get from localStorage
+            };
+          }
+
+          // Fallback: compute client-side for pre-extraction events
           const { score, level, badge } = calculateSeverityWithLevel({
             type: event.type as EventType,
             subtype: event.subtype,
