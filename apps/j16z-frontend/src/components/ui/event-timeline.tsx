@@ -25,10 +25,10 @@ const EventIcon = ({ type }: { type: Event["type"] }) => {
 };
 
 export function EventTimeline({ events }: EventTimelineProps) {
-  const materialityColors = {
-    HIGH: "border-red-500 bg-red-500/10",
-    MEDIUM: "border-yellow-500 bg-yellow-500/10",
-    LOW: "border-zinc-500 bg-zinc-500/10",
+  const severityColors: Record<string, string> = {
+    CRITICAL: "border-red-500 bg-red-500/10",
+    WARNING: "border-yellow-500 bg-yellow-500/10",
+    INFO: "border-zinc-500 bg-zinc-500/10",
   };
 
   return (
@@ -37,7 +37,7 @@ export function EventTimeline({ events }: EventTimelineProps) {
         <div key={event.id} className="flex gap-4">
           <div className="flex flex-col items-center">
             <div
-              className={`w-10 h-10 rounded-full border-2 flex items-center justify-center ${materialityColors[event.materiality]}`}
+              className={`w-10 h-10 rounded-full border-2 flex items-center justify-center ${severityColors[event.severity] ?? severityColors.INFO}`}
             >
               <EventIcon type={event.type} />
             </div>
@@ -59,9 +59,9 @@ export function EventTimeline({ events }: EventTimelineProps) {
                     })}
                   </span>
                   <span
-                    className={`px-2 py-0.5 rounded text-xs font-mono font-medium ${materialityColors[event.materiality]}`}
+                    className={`px-2 py-0.5 rounded text-xs font-mono font-medium ${severityColors[event.severity] ?? severityColors.INFO}`}
                   >
-                    {event.materiality}
+                    {event.severity}
                   </span>
                   <span className="px-2 py-0.5 rounded text-xs font-mono bg-secondary text-muted-foreground">
                     {event.subtype}

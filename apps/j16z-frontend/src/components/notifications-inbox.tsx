@@ -82,14 +82,14 @@ export function NotificationsInbox() {
                     </span>
                     <span
                       className={`px-2 py-0.5 rounded text-xs font-mono ${
-                        event.materiality === "HIGH"
+                        event.severity === "CRITICAL"
                           ? "bg-red-500/10 text-red-500"
-                          : event.materiality === "MEDIUM"
+                          : event.severity === "WARNING"
                           ? "bg-yellow-500/10 text-yellow-500"
                           : "bg-surface text-text-muted"
                       }`}
                     >
-                      {event.materiality}
+                      {event.severity}
                     </span>
                     <span className="px-2 py-0.5 rounded text-xs font-mono bg-surfaceHighlight text-text-muted">
                       {event.type}
