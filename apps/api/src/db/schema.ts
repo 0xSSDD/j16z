@@ -187,11 +187,20 @@ export const filings = pgTable('filings', {
   rawContent: text('raw_content'), // nullable — stores raw filing text
   extracted: boolean('extracted').notNull().default(false),
   status: text('status').notNull().default('active'), // 'pending_review' | 'active' | 'dismissed'
+  // Phase 3 LLM extraction results — populated by Python langextract service
+  headlineSummary: text('headline_summary'), // nullable — 2-3 sentence analyst summary for Inbox/feed
+  sectionSummary: text('section_summary'), // nullable — expandable section-level summary (S-4/DEFM14A)
   ...timestamps, // PRESERVE — provides createdAt, updatedAt, deletedAt (required by 02-03 queries)
 });
 
 // ---------------------------------------------------------------------------
 // clauses — extracted deal clauses from filings
+//
+// ClauseType values (stored as text — no Postgres enum, intentionally flexible):
+//   TERMINATION_FEE, REVERSE_TERMINATION_FEE, MAE, REGULATORY_EFFORTS,
+//   LITIGATION_CONDITION, FINANCING_CONDITION,
+//   GO_SHOP, TICKING_FEE, HELL_OR_HIGH_WATER, SPECIFIC_PERFORMANCE,
+//   NO_SHOP, MATCHING_RIGHTS, OTHER
 // ---------------------------------------------------------------------------
 export const clauses = pgTable(
   'clauses',
@@ -206,12 +215,15 @@ export const clauses = pgTable(
     filingId: uuid('filing_id')
       .references(() => filings.id)
       .notNull(),
-    type: text('type').notNull(), // ClauseType
+    type: text('type').notNull(), // ClauseType — see comment above for valid values
     title: text('title').notNull(),
     summary: text('summary').notNull(),
     verbatimText: text('verbatim_text').notNull(),
     sourceLocation: text('source_location').notNull(),
     extractedAt: timestamp('extracted_at', { withTimezone: true }).notNull(),
+    // Phase 3 LLM extraction quality fields
+    confidenceScore: numeric('confidence_score'), // nullable — 0-1 float from LangExtract alignment_status
+    analystVerified: boolean('analyst_verified').notNull().default(false), // true = analyst correction, never overwrite
     ...timestamps,
   },
   () => firmIsolationPolicies(),
