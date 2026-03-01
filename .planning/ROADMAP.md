@@ -66,12 +66,12 @@ Plans:
   3. Inbox shows real materiality-scored events derived from ingested filings, sortable by score
   4. System handles a 500-page S-4 filing without timing out (chunking and parallel processing confirmed working)
   5. LLM model version is pinned (not aliased); nightly regression test runs against 20 known-good filings and fails CI on any extraction delta
-**Plans**: TBD
+**Plans**: 3 plans in 3 waves
 
 Plans:
-- [ ] 03-01: `apps/langextract/` Python service with Google LangExtract; Zod schemas for `ExtractedClause`; BullMQ extraction worker
-- [ ] 03-02: Few-shot M&A extraction prompts; chunking strategy for long filings (S-4, DEFM14A); verbatim citation validator
-- [ ] 03-03: Materiality scoring at insertion time (port scoring logic to DB columns); real Inbox events; regression test harness
+- [ ] 03-01-PLAN.md — DB schema expansion (confidenceScore, analystVerified, summary columns); `apps/langextract/` Python service scaffold with BullMQ worker, psycopg3 DB utilities, pnpm shim; Node.js llm_extract job enqueue from edgar_download (Wave 1)
+- [ ] 03-02-PLAN.md — Per-filing-type LangExtract pipelines (S-4/DEFM14A, 8-K, 13D/13G) with few-shot JSONL examples; post-extraction analyst summary generation via Gemini with risk flags and delta-awareness (Wave 2)
+- [ ] 03-03-PLAN.md — Materiality scoring Python port matching TypeScript logic; frontend ClauseType expansion + real clause display with grouped categories and collapsed verbatim quotes; regression test harness with golden file structure (Wave 3)
 
 ### Phase 4: CourtListener, FTC/DOJ, and RSS Ingestion
 **Goal**: All three secondary data sources are live; the Inbox shows litigation events, agency actions, and news items alongside EDGAR events with full materiality scoring
