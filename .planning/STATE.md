@@ -99,5 +99,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 02-03-PLAN.md (filings API endpoint, frontend Filing type, deal board badge, deal card filing rows, inbox source link wiring)
-Resume file: None — continue with 02-04-PLAN.md
+Stopped at: Phase 3 context gathered — ready for planning
+Resume file: .planning/phases/03-llm-extraction-pipeline/03-CONTEXT.md
