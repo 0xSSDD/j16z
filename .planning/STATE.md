@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-last_updated: "2026-03-01T13:25:53.163Z"
+status: in_progress
+last_updated: "2026-03-01T22:00:00Z"
 progress:
-  total_phases: 2
+  total_phases: 7
   completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 9
+  completed_plans: 7
 ---
 
 # Project State
@@ -18,33 +18,34 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Analysts spend 3-5 hours/day trolling fragmented sources. j16z turns that into a push-button workflow — live data in, analyst-ready intelligence out.
-**Current focus:** Phase 2 — SEC EDGAR Ingestion
+**Current focus:** Phase 3 — LLM Extraction Pipeline
 
 ## Current Position
 
-Phase: 2 of 7 (SEC EDGAR Ingestion)
-Plan: 3 of 4 (02-03 complete)
-Status: In progress — plan 02-03 complete, ready for 02-04
-Last activity: 2026-03-01 — Plan 02-03 complete (filings API endpoint, frontend Filing type, deal board badge, deal card filing rows, inbox source link wiring)
+Phase: 3 of 7 (LLM Extraction Pipeline)
+Plan: 1 of 3 (03-01 complete)
+Status: In progress — plan 03-01 complete, ready for 03-02
+Last activity: 2026-03-01 — Plan 03-01 complete (DB schema expansion, Python langextract scaffold, Node.js to Python job wiring)
 
-Progress: [█████░░░░░] 38%
+Progress: [███████░░░] 43%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: ~8 min
-- Total execution time: ~42 min
+- Total plans completed: 7
+- Average duration: ~9 min
+- Total execution time: ~49 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan | Status |
 |-------|-------|-------|----------|--------|
 | 01-backend-foundation-auth | 3 | 24 min | 8 min | COMPLETE |
-| 02-sec-edgar-ingestion | 3 | 52 min | 17 min | IN PROGRESS |
+| 02-sec-edgar-ingestion | 3 | 52 min | 17 min | COMPLETE |
+| 03-llm-extraction-pipeline | 1 | 7 min | 7 min | IN PROGRESS |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (6 min), 01-03 (12 min), 02-01 (4 min), 02-02 (18 min), 02-03 (30 min)
+- Last 5 plans: 01-03 (12 min), 02-01 (4 min), 02-02 (18 min), 02-03 (30 min), 03-01 (7 min)
 - Trend: consistent ~14 min/plan average
 
 *Updated after each plan completion*
@@ -83,6 +84,9 @@ Recent decisions affecting current work:
 - [02-03]: Global table routes (filings) scope via firm's deal ownership: get dealIds WHERE firmId, then inArray(filings.dealId, dealIds)
 - [02-03]: No mock fallback for filing API functions — return empty array when USE_MOCK_DATA=true (CONTEXT.md locked decision)
 - [02-03]: Inbox source link fix is global — event.sourceUrl replaces href="#" for all event types; FILING shows "View on SEC EDGAR" text
+- [03-01]: Python mock patching target is db.fetch_filing_content (not worker.fetch_filing_content) because worker.py uses lazy local imports inside process(); patch at source module
+- [03-01]: Raw content excluded from llm_extract job payload — Python worker fetches from DB via filingId to avoid 400-800KB Redis payloads
+- [03-01]: psycopg3 chosen over supabase-py for Python DB writes — consistent with adminDb service-role pattern; direct Postgres on DATABASE_URL
 
 ### Pending Todos
 
@@ -99,5 +103,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Phase 3 context gathered — ready for planning
-Resume file: .planning/phases/03-llm-extraction-pipeline/03-CONTEXT.md
+Stopped at: Completed 03-01-PLAN.md — extraction infrastructure scaffold
+Resume file: .planning/phases/03-llm-extraction-pipeline/03-02-PLAN.md
