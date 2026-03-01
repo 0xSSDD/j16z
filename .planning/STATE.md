@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-03-01T22:00:00Z"
+last_updated: "2026-03-01T22:09:00Z"
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 9
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 ## Current Position
 
 Phase: 3 of 7 (LLM Extraction Pipeline)
-Plan: 1 of 3 (03-01 complete)
-Status: In progress — plan 03-01 complete, ready for 03-02
-Last activity: 2026-03-01 — Plan 03-01 complete (DB schema expansion, Python langextract scaffold, Node.js to Python job wiring)
+Plan: 2 of 3 (03-02 complete)
+Status: In progress — plan 03-02 complete, ready for 03-03
+Last activity: 2026-03-01 — Plan 03-02 complete (S-4/DEFM14A + 8-K + 13D/13G extraction pipelines, few-shot examples, analyst summary generation)
 
-Progress: [███████░░░] 43%
+Progress: [███████░░░] 47%
 
 ## Performance Metrics
 
@@ -42,10 +42,10 @@ Progress: [███████░░░] 43%
 |-------|-------|-------|----------|--------|
 | 01-backend-foundation-auth | 3 | 24 min | 8 min | COMPLETE |
 | 02-sec-edgar-ingestion | 3 | 52 min | 17 min | COMPLETE |
-| 03-llm-extraction-pipeline | 1 | 7 min | 7 min | IN PROGRESS |
+| 03-llm-extraction-pipeline | 2 | 15 min | 7.5 min | IN PROGRESS |
 
 **Recent Trend:**
-- Last 5 plans: 01-03 (12 min), 02-01 (4 min), 02-02 (18 min), 02-03 (30 min), 03-01 (7 min)
+- Last 5 plans: 02-01 (4 min), 02-02 (18 min), 02-03 (30 min), 03-01 (7 min), 03-02 (8 min)
 - Trend: consistent ~14 min/plan average
 
 *Updated after each plan completion*
@@ -87,6 +87,9 @@ Recent decisions affecting current work:
 - [03-01]: Python mock patching target is db.fetch_filing_content (not worker.fetch_filing_content) because worker.py uses lazy local imports inside process(); patch at source module
 - [03-01]: Raw content excluded from llm_extract job payload — Python worker fetches from DB via filingId to avoid 400-800KB Redis payloads
 - [03-01]: psycopg3 chosen over supabase-py for Python DB writes — consistent with adminDb service-role pattern; direct Postgres on DATABASE_URL
+- [03-02]: AlignmentStatus enum in langextract 1.1.1 uses MATCH_EXACT/MATCH_GREATER/MATCH_LESSER/MATCH_FUZZY — RESEARCH.md incorrectly documented ALIGNED/APPROXIMATE/FAILED; confidence ladder: EXACT=0.9, GREATER/LESSER=0.7, FUZZY=0.6, null=0.3
+- [03-02]: lx.extract() returns AnnotatedDocument (single text) or list[AnnotatedDocument] (multiple); pipeline normalises to list before iterating
+- [03-02]: google.generativeai package is deprecated (FutureWarning); google.genai is the replacement — flagged for future migration, not blocking since pyproject.toml pins google-generativeai>=0.8.0
 
 ### Pending Todos
 
@@ -103,5 +106,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 03-01-PLAN.md — extraction infrastructure scaffold
-Resume file: .planning/phases/03-llm-extraction-pipeline/03-02-PLAN.md
+Stopped at: Completed 03-02-PLAN.md — extraction pipelines, few-shot examples, analyst summaries
+Resume file: .planning/phases/03-llm-extraction-pipeline/03-03-PLAN.md

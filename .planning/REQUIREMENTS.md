@@ -58,11 +58,11 @@ Requirements for production MVP. Each maps to roadmap phases.
 ### LangExtract (AI Extraction Pipeline)
 
 - [x] **EXTRACT-01**: Python extraction service runs in monorepo at `apps/langextract/` using Google's LangExtract library
-- [ ] **EXTRACT-02**: System extracts termination fees, MAE clauses, regulatory covenants, and litigation terms from SEC filings
-- [ ] **EXTRACT-03**: Every extracted field maps to exact source location in original document (source grounding)
-- [ ] **EXTRACT-04**: Extraction uses few-shot examples trained on M&A document patterns
+- [x] **EXTRACT-02**: System extracts termination fees, MAE clauses, regulatory covenants, and litigation terms from SEC filings
+- [x] **EXTRACT-03**: Every extracted field maps to exact source location in original document (source grounding)
+- [x] **EXTRACT-04**: Extraction uses few-shot examples trained on M&A document patterns
 - [x] **EXTRACT-05**: System handles long filings (500+ page S-4s) via chunking and parallel processing
-- [ ] **EXTRACT-06**: System generates 2-3 sentence analyst-facing summaries of filings and docket entries
+- [x] **EXTRACT-06**: System generates 2-3 sentence analyst-facing summaries of filings and docket entries
 - [ ] **EXTRACT-07**: Materiality scoring runs at extraction time; scores stored as DB columns
 
 ### Alerts
@@ -169,11 +169,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EDGAR-05 | Phase 2 | Complete |
 | EDGAR-06 | Phase 2 | Complete |
 | EXTRACT-01 | Phase 3 | Complete |
-| EXTRACT-02 | Phase 3 | Pending |
-| EXTRACT-03 | Phase 3 | Pending |
-| EXTRACT-04 | Phase 3 | Pending |
+| EXTRACT-02 | Phase 3 | Complete |
+| EXTRACT-03 | Phase 3 | Complete |
+| EXTRACT-04 | Phase 3 | Complete |
 | EXTRACT-05 | Phase 3 | Complete |
-| EXTRACT-06 | Phase 3 | Pending |
+| EXTRACT-06 | Phase 3 | Complete |
 | EXTRACT-07 | Phase 3 | Pending |
 | COURT-01 | Phase 4 | Pending |
 | COURT-02 | Phase 4 | Pending |
