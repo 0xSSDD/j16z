@@ -49,12 +49,12 @@ Plans:
   2. Each ingested filing is stored as a raw document in the database before any extraction runs (two-stage ingestion confirmed)
   3. Deal board shows newly ingested filings with source links pointing to the EDGAR document within 15 minutes of SEC publication
   4. Rate limiting enforces fewer than 10 requests/second with the correct `User-Agent` header on every outbound EDGAR request
-**Plans**: TBD
+**Plans**: 3 plans in 3 waves
 
 Plans:
-- [ ] 02-01: EDGAR HTTP client with `User-Agent` enforcement and 10 req/sec token bucket; poller BullMQ cron job
-- [ ] 02-02: Raw filing storage (8-K, S-4, DEFM14A, 13D/13G) with deduplication by accession number; extraction job enqueue
-- [ ] 02-03: Hono endpoints for filings; frontend deal board connected to real filing data with EDGAR source links
+- [ ] 02-01-PLAN.md — EDGAR HTTP client with User-Agent enforcement and token bucket rate limiter (9 req/s); schema migration (filings → global table, remove firm_id); CIK resolver; BullMQ cron scheduler (*/15 * * * *); unit tests (Wave 1)
+- [ ] 02-02-PLAN.md — Two-stage ingestion: edgar_poll handler (CIK-based + EFTS broad scan), edgar_download handler (HTML-to-text), deal matcher, event factory (global filings → firm-scoped events); worker dispatcher wiring; unit tests (Wave 2)
+- [ ] 02-03-PLAN.md — Hono filings endpoints (/api/filings); frontend Filing type + api.ts functions (no mock fallback); deal board filing count badge; deal card filing rows with EDGAR source links (Wave 3)
 
 ### Phase 3: LLM Extraction Pipeline
 **Goal**: Raw EDGAR filings are automatically processed into structured deal terms and clauses with verbatim source citations; deal cards show real extracted data and the Inbox shows real materiality-scored events
