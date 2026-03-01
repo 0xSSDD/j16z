@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 ## Current Position
 
 Phase: 2 of 7 (SEC EDGAR Ingestion)
-Plan: 2 of 4 (02-02 complete)
-Status: In progress — plan 02-02 complete, ready for 02-03
-Last activity: 2026-03-01 — Plan 02-02 complete (two-stage ingestion: poll handler, download handler, deal matcher, event factory, 37 unit tests)
+Plan: 3 of 4 (02-03 complete)
+Status: In progress — plan 02-03 complete, ready for 02-04
+Last activity: 2026-03-01 — Plan 02-03 complete (filings API endpoint, frontend Filing type, deal board badge, deal card filing rows, inbox source link wiring)
 
-Progress: [████░░░░░░] 25%
+Progress: [█████░░░░░] 38%
 
 ## Performance Metrics
 
@@ -28,11 +28,11 @@ Progress: [████░░░░░░] 25%
 | Phase | Plans | Total | Avg/Plan | Status |
 |-------|-------|-------|----------|--------|
 | 01-backend-foundation-auth | 3 | 24 min | 8 min | COMPLETE |
-| 02-sec-edgar-ingestion | 2 | 22 min | 11 min | IN PROGRESS |
+| 02-sec-edgar-ingestion | 3 | 52 min | 17 min | IN PROGRESS |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (6 min), 01-02 (6 min), 01-03 (12 min), 02-01 (4 min), 02-02 (18 min)
-- Trend: consistent ~7-11 min/plan average
+- Last 5 plans: 01-02 (6 min), 01-03 (12 min), 02-01 (4 min), 02-02 (18 min), 02-03 (30 min)
+- Trend: consistent ~14 min/plan average
 
 *Updated after each plan completion*
 
@@ -66,6 +66,10 @@ Recent decisions affecting current work:
 - [02-02]: Test date sensitivity: poll handler filters by sinceDate (30 days ago); test fixtures must use recent dates
 - [02-02]: resetMockChains() pattern: vi.clearAllMocks() removes implementations; must re-establish Drizzle mock chains in each beforeEach
 - [02-02]: Dual-shape mockFrom: getLastPollDate uses .from().orderBy().limit(), pollTrackedCiks uses .from().where() — mockFrom returns {where, orderBy} to support both
+- [02-03]: GET /api/filings/unmatched registered before /:id route — Hono matches routes in registration order; unmatched would otherwise be treated as an ID lookup
+- [02-03]: Global table routes (filings) scope via firm's deal ownership: get dealIds WHERE firmId, then inArray(filings.dealId, dealIds)
+- [02-03]: No mock fallback for filing API functions — return empty array when USE_MOCK_DATA=true (CONTEXT.md locked decision)
+- [02-03]: Inbox source link fix is global — event.sourceUrl replaces href="#" for all event types; FILING shows "View on SEC EDGAR" text
 
 ### Pending Todos
 
@@ -82,5 +86,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 02-02-PLAN.md (two-stage ingestion: poll handler, download handler, deal matcher, event factory)
-Resume file: None — continue with 02-03-PLAN.md
+Stopped at: Completed 02-03-PLAN.md (filings API endpoint, frontend Filing type, deal board badge, deal card filing rows, inbox source link wiring)
+Resume file: None — continue with 02-04-PLAN.md

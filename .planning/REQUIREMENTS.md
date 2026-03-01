@@ -31,7 +31,7 @@ Requirements for production MVP. Each maps to roadmap phases.
 - [x] **EDGAR-03**: System includes proper user-agent header to avoid EDGAR IP blocks
 - [x] **EDGAR-04**: System rate-limits requests to <10/sec per SEC policy
 - [x] **EDGAR-05**: Raw filing content stored before extraction (two-stage ingestion)
-- [ ] **EDGAR-06**: User can view source filing via link to EDGAR document
+- [x] **EDGAR-06**: User can view source filing via link to EDGAR document
 
 ### CourtListener Integration
 
@@ -167,7 +167,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EDGAR-03 | Phase 2 | Complete |
 | EDGAR-04 | Phase 2 | Complete |
 | EDGAR-05 | Phase 2 | Complete |
-| EDGAR-06 | Phase 2 | Pending |
+| EDGAR-06 | Phase 2 | Complete |
 | EXTRACT-01 | Phase 3 | Pending |
 | EXTRACT-02 | Phase 3 | Pending |
 | EXTRACT-03 | Phase 3 | Pending |
