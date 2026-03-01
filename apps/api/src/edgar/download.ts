@@ -1,8 +1,9 @@
-import { eq } from 'drizzle-orm';
+import { eq, and, isNull } from 'drizzle-orm';
 import type { Job } from 'bullmq';
 import { adminDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
 import { edgarFetch, buildFilingUrl, buildIndexUrl } from './client.js';
+import { ingestionQueue } from '../queues/ingestion.js';
 
 // ---------------------------------------------------------------------------
 // Stage 2 download handler — fetches filing HTML and converts to plain text.
@@ -67,6 +68,39 @@ export async function handleEdgarDownload(job: Job): Promise<void> {
     .where(eq(schema.filings.id, filingId));
 
   console.log(`[edgar_download] Stored ${plainText.length} chars for filing ${accessionNumber}`);
+
+  // ---------------------------------------------------------------------------
+  // Stage 3: Enqueue LLM extraction job for the Python worker (apps/langextract/)
+  //
+  // NOTE: Do NOT pass rawContent inline — it can be 400-800KB for S-4 filings
+  // and would bloat Redis memory (Pitfall 1 from RESEARCH.md).
+  // The Python worker fetches rawContent from DB via filing_id.
+  // ---------------------------------------------------------------------------
+
+  // Resolve filingType and dealId from the updated filing row
+  const [filingRow] = await adminDb
+    .select({ filingType: schema.filings.filingType, dealId: schema.filings.dealId })
+    .from(schema.filings)
+    .where(eq(schema.filings.id, filingId));
+
+  // Resolve firmIds from the deal's firm ownership
+  const firmIds: string[] = [];
+  if (filingRow?.dealId) {
+    const dealRows = await adminDb
+      .select({ firmId: schema.deals.firmId })
+      .from(schema.deals)
+      .where(and(eq(schema.deals.id, filingRow.dealId), isNull(schema.deals.deletedAt)));
+    firmIds.push(...dealRows.filter((d) => d.firmId).map((d) => d.firmId!));
+  }
+
+  await ingestionQueue.add('llm_extract', {
+    filingId,
+    filingType: filingRow?.filingType ?? null,
+    dealId: filingRow?.dealId ?? null,
+    firmIds,
+  });
+
+  console.log(`[edgar_download] Enqueued llm_extract for filing ${accessionNumber} (${filingRow?.filingType ?? 'unknown type'})`);
 }
 
 /**

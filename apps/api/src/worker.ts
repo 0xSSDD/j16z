@@ -22,11 +22,16 @@ console.log('[j16z-worker] Starting ingestion worker...');
 // ---------------------------------------------------------------------------
 // Job handler registry — maps job names to their handler functions.
 // Phase 2 handlers: edgar_poll, edgar_download.
-// Future handlers (Phase 3+): courtlistener_poll, ftc_poll, llm_extract.
+// Phase 3+ handlers: courtlistener_poll, ftc_poll.
+//
+// llm_extract: Processed by Python worker (apps/langextract/worker.py) — NOT handled here.
+// The Node.js worker's fallback (below) silently warns on unknown job names,
+// so llm_extract jobs enqueued by edgar_download are safely ignored here.
 // ---------------------------------------------------------------------------
 const handlers: Record<string, (job: Job) => Promise<void>> = {
   edgar_poll: handleEdgarPoll,
   edgar_download: handleEdgarDownload,
+  // llm_extract: Processed by Python worker (apps/langextract/worker.py) — NOT handled here
 };
 
 // ---------------------------------------------------------------------------
