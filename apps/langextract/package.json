@@ -1,0 +1,10 @@
+{
+  "name": "@j16z/langextract",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "python worker.py",
+    "test": "pytest tests/",
+    "install:py": "pip install -e '.[dev]'"
+  }
+}
