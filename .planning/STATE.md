@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-last_updated: "2026-03-01T22:09:00Z"
+status: unknown
+last_updated: "2026-03-01T22:20:08.524Z"
 progress:
-  total_phases: 7
-  completed_phases: 2
+  total_phases: 3
+  completed_phases: 3
   total_plans: 9
-  completed_plans: 8
+  completed_plans: 9
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 ## Current Position
 
 Phase: 3 of 7 (LLM Extraction Pipeline)
-Plan: 2 of 3 (03-02 complete)
-Status: In progress — plan 03-02 complete, ready for 03-03
-Last activity: 2026-03-01 — Plan 03-02 complete (S-4/DEFM14A + 8-K + 13D/13G extraction pipelines, few-shot examples, analyst summary generation)
+Plan: 3 of 3 (03-03 complete — Phase 3 DONE)
+Status: Phase 3 complete — ready for Phase 4 (CourtListener Integration)
+Last activity: 2026-03-01 — Plan 03-03 complete (Python materiality scoring, frontend clause display, regression harness)
 
-Progress: [███████░░░] 47%
+Progress: [████████░░] 53%
 
 ## Performance Metrics
 
@@ -42,11 +42,11 @@ Progress: [███████░░░] 47%
 |-------|-------|-------|----------|--------|
 | 01-backend-foundation-auth | 3 | 24 min | 8 min | COMPLETE |
 | 02-sec-edgar-ingestion | 3 | 52 min | 17 min | COMPLETE |
-| 03-llm-extraction-pipeline | 2 | 15 min | 7.5 min | IN PROGRESS |
+| 03-llm-extraction-pipeline | 3 | 21 min | 7 min | COMPLETE |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (4 min), 02-02 (18 min), 02-03 (30 min), 03-01 (7 min), 03-02 (8 min)
-- Trend: consistent ~14 min/plan average
+- Last 5 plans: 02-02 (18 min), 02-03 (30 min), 03-01 (7 min), 03-02 (8 min), 03-03 (6 min)
+- Trend: consistent ~7 min/plan for Phase 3
 
 *Updated after each plan completion*
 
@@ -90,6 +90,8 @@ Recent decisions affecting current work:
 - [03-02]: AlignmentStatus enum in langextract 1.1.1 uses MATCH_EXACT/MATCH_GREATER/MATCH_LESSER/MATCH_FUZZY — RESEARCH.md incorrectly documented ALIGNED/APPROXIMATE/FAILED; confidence ladder: EXACT=0.9, GREATER/LESSER=0.7, FUZZY=0.6, null=0.3
 - [03-02]: lx.extract() returns AnnotatedDocument (single text) or list[AnnotatedDocument] (multiple); pipeline normalises to list before iterating
 - [03-02]: google.generativeai package is deprecated (FutureWarning); google.genai is the replacement — flagged for future migration, not blocking since pyproject.toml pins google-generativeai>=0.8.0
+- [Phase 03-03]: Severity threshold for CRITICAL is >= 70 (not strictly > 70) — matches CLAUDE.md materiality scoring spec and TypeScript severity-scoring.ts behavior
+- [Phase 03-03]: ClauseCard falls back to legacy value field for mock data compatibility; verbatim quote collapsed by default per locked decision
 
 ### Pending Todos
 
@@ -106,5 +108,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 03-02-PLAN.md — extraction pipelines, few-shot examples, analyst summaries
-Resume file: .planning/phases/03-llm-extraction-pipeline/03-03-PLAN.md
+Stopped at: Completed 03-03-PLAN.md — Phase 3 complete (Python materiality scoring, frontend clause display, regression harness)
+Resume file: .planning/phases/04-court-listener-integration/ (Phase 4 next)

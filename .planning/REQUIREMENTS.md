@@ -63,7 +63,7 @@ Requirements for production MVP. Each maps to roadmap phases.
 - [x] **EXTRACT-04**: Extraction uses few-shot examples trained on M&A document patterns
 - [x] **EXTRACT-05**: System handles long filings (500+ page S-4s) via chunking and parallel processing
 - [x] **EXTRACT-06**: System generates 2-3 sentence analyst-facing summaries of filings and docket entries
-- [ ] **EXTRACT-07**: Materiality scoring runs at extraction time; scores stored as DB columns
+- [x] **EXTRACT-07**: Materiality scoring runs at extraction time; scores stored as DB columns
 
 ### Alerts
 
@@ -174,7 +174,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXTRACT-04 | Phase 3 | Complete |
 | EXTRACT-05 | Phase 3 | Complete |
 | EXTRACT-06 | Phase 3 | Complete |
-| EXTRACT-07 | Phase 3 | Pending |
+| EXTRACT-07 | Phase 3 | Complete |
 | COURT-01 | Phase 4 | Pending |
 | COURT-02 | Phase 4 | Pending |
 | COURT-03 | Phase 4 | Pending |
