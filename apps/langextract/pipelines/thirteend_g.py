@@ -267,4 +267,32 @@ async def run_13dg_pipeline(
             f"[thirteend_g_pipeline] insert_filing_summary failed for filing {filing_id}"
         )
 
+    # Create Inbox event with DB-stored materiality score (EXTRACT-07)
+    # Note: 13D/13G may not have a deal_id (activist filings without tracked deal)
+    try:
+        from scoring.materiality import calculate_materiality_score, get_severity
+        from db import create_extraction_event
+
+        if deal_id:
+            mat_score = calculate_materiality_score("FILING", "ROUTINE_UPDATE")
+            mat_severity = get_severity(mat_score)
+            event_title = f"SC 13D/13G extraction complete — {len(all_extractions)} items extracted"
+            event_description = headline or f"Extracted {len(all_extractions)} ownership items from SC 13D/13G filing."
+
+            for firm_id in firm_ids:
+                await create_extraction_event(
+                    firm_id=firm_id,
+                    deal_id=deal_id,
+                    title=event_title,
+                    description=event_description,
+                    source_url="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&type=SC+13D",
+                    materiality_score=mat_score,
+                    severity=mat_severity,
+                    sub_type="ROUTINE_UPDATE",
+                )
+    except Exception:
+        logger.exception(
+            f"[thirteend_g_pipeline] create_extraction_event failed for filing {filing_id}"
+        )
+
     logger.info(f"[thirteend_g_pipeline] Completed extraction for filing {filing_id}")

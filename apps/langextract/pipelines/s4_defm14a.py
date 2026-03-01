@@ -305,6 +305,32 @@ async def run_s4_pipeline(
     except Exception:
         logger.exception(f"[s4_pipeline] insert_filing_summary failed for filing {filing_id}")
 
+    # Create Inbox event with DB-stored materiality score (EXTRACT-07)
+    try:
+        from scoring.materiality import calculate_materiality_score, get_severity
+        from db import create_extraction_event
+
+        if deal_id:
+            mat_score = calculate_materiality_score("FILING", "S4_DEFM14A")
+            mat_severity = get_severity(mat_score)
+            event_title = f"S-4/DEFM14A extraction complete — {len(all_extractions)} clauses extracted"
+            event_description = headline or f"Extracted {len(all_extractions)} M&A clauses from S-4/DEFM14A filing."
+            filing_url = f"https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&filenum=&type=S-4&dateb=&owner=include&count=40"
+
+            for firm_id in firm_ids:
+                await create_extraction_event(
+                    firm_id=firm_id,
+                    deal_id=deal_id,
+                    title=event_title,
+                    description=event_description,
+                    source_url=filing_url,
+                    materiality_score=mat_score,
+                    severity=mat_severity,
+                    sub_type="S4_DEFM14A",
+                )
+    except Exception:
+        logger.exception(f"[s4_pipeline] create_extraction_event failed for filing {filing_id}")
+
     logger.info(f"[s4_pipeline] Completed extraction for filing {filing_id}")
 
 
