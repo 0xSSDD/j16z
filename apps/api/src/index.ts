@@ -52,12 +52,14 @@ api.use('/*', authMiddleware);
 // Require firm context on data routes only
 api.use('/deals/*', firmContextMiddleware);
 api.use('/events/*', firmContextMiddleware);
+api.use('/filings/*', firmContextMiddleware);
 api.use('/watchlists/*', firmContextMiddleware);
 
 // Mount routes
 api.route('/auth', apiRoutes.auth);
 api.route('/deals', apiRoutes.deals);
 api.route('/events', apiRoutes.events);
+api.route('/filings', apiRoutes.filings);
 api.route('/watchlists', apiRoutes.watchlists);
 
 // ---------------------------------------------------------------------------
