@@ -5,6 +5,7 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { authMiddleware } from './middleware/auth.js';
 import { firmContextMiddleware } from './middleware/firm-context.js';
+import { registerSchedules } from './queues/scheduler.js';
 import { apiRoutes } from './routes/index.js';
 
 const app = new Hono();
@@ -68,6 +69,11 @@ serve(
     console.log(`[j16z-api] Server running on http://localhost:${info.port}`);
   },
 );
+
+// Register recurring job schedules (idempotent — safe on restart)
+registerSchedules().catch((err) => {
+  console.error('[j16z-api] Failed to register schedules:', err.message);
+});
 
 // Export app type for potential Hono RPC client usage
 export type AppType = typeof app;
