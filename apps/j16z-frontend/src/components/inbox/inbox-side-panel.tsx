@@ -111,6 +111,20 @@ export function InboxSidePanel({ eventId, onClose }: InboxSidePanelProps) {
             <span>Event Type:</span>
             <span className="text-text-main">{event.type}</span>
           </div>
+          {event.type === 'FILING' && (
+            <>
+              <div className="flex items-center gap-2 text-xs text-text-muted">
+                <span>Filing Type:</span>
+                <span className="inline-flex items-center rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-400 border border-amber-500/20">
+                  {event.subtype}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-text-muted">
+                <span>Source:</span>
+                <span className="text-text-main">SEC EDGAR</span>
+              </div>
+            </>
+          )}
           {event.dealId && (
             <div className="flex items-center gap-2 text-xs text-text-muted">
               <span>Deal:</span>
@@ -139,11 +153,13 @@ export function InboxSidePanel({ eventId, onClose }: InboxSidePanelProps) {
         <div className="border-t border-border pt-4">
           <h3 className="text-sm font-bold text-text-main mb-3">SOURCE</h3>
           <a
-            href="#"
+            href={event.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-2 rounded-md border border-border bg-surfaceHighlight px-3 py-2 text-sm text-text-main transition-colors hover:border-primary-500/30 hover:bg-surfaceHighlight"
           >
             <ExternalLink className="h-4 w-4" />
-            View Source Document
+            {event.type === 'FILING' ? 'View on SEC EDGAR' : 'View Source Document'}
           </a>
         </div>
 
