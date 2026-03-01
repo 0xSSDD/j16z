@@ -136,14 +136,15 @@ async function pollTrackedCiks(since: Date): Promise<FilingMetadata[]> {
         const accessionNumber = recent.accessionNumber[i];
         const primaryDocument = recent.primaryDocument[i] ?? '';
 
-        allFilings.push({
+        const filingEntry: FilingMetadata = {
           accessionNumber,
           filingType,
           filedDate,
           primaryDocument,
           filerCik: cik,
-          filerName,
-        });
+        };
+        if (filerName) filingEntry.filerName = filerName;
+        allFilings.push(filingEntry);
       }
     } catch (err) {
       console.error(`[edgar_poll] Failed to poll CIK ${cik}:`, err);
@@ -182,14 +183,17 @@ async function broadScanForNewDeals(since: Date): Promise<FilingMetadata[]> {
       return [];
     }
 
-    return parsed.data.hits.hits.map((hit) => ({
-      accessionNumber: hit._source.accession_no,
-      filingType: hit._source.form_type,
-      filedDate: hit._source.file_date,
-      primaryDocument: '', // Will be resolved via index endpoint during download
-      filerCik: '', // Not always in EFTS; resolved during download
-      filerName: hit._source.entity_name,
-    }));
+    return parsed.data.hits.hits.map((hit): FilingMetadata => {
+      const entry: FilingMetadata = {
+        accessionNumber: hit._source.accession_no,
+        filingType: hit._source.form_type,
+        filedDate: hit._source.file_date,
+        primaryDocument: '', // Will be resolved via index endpoint during download
+        filerCik: '', // Not always in EFTS; resolved during download
+      };
+      if (hit._source.entity_name) entry.filerName = hit._source.entity_name;
+      return entry;
+    });
   } catch (err) {
     console.error('[edgar_poll] EFTS broad scan failed:', err);
     return []; // Non-fatal — CIK-based poll is the primary mechanism

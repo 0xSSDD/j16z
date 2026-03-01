@@ -6,26 +6,41 @@
  * IMPORTANT: Do NOT import this file from src/index.ts.
  * The Queue (enqueueing) lives in the API server; the Worker (processing)
  * lives here and is started independently.
+ *
+ * IMPORTANT: Do NOT import registerSchedules here — scheduler lives in API
+ * server only (src/index.ts). Importing from worker would cause duplicate
+ * cron job registration on every worker restart.
  */
 import 'dotenv/config';
-import { Worker } from 'bullmq';
+import { Worker, type Job } from 'bullmq';
 import { redisConnection } from './queues/connection.js';
+import { handleEdgarPoll } from './edgar/poll.js';
+import { handleEdgarDownload } from './edgar/download.js';
 
 console.log('[j16z-worker] Starting ingestion worker...');
 
 // ---------------------------------------------------------------------------
-// Ingestion worker — processes jobs from the ingestion queue.
-// Actual ingestion logic (EDGAR polling, CourtListener, etc.) is added in Phase 2.
+// Job handler registry — maps job names to their handler functions.
+// Phase 2 handlers: edgar_poll, edgar_download.
+// Future handlers (Phase 3+): courtlistener_poll, ftc_poll, llm_extract.
+// ---------------------------------------------------------------------------
+const handlers: Record<string, (job: Job) => Promise<void>> = {
+  edgar_poll: handleEdgarPoll,
+  edgar_download: handleEdgarDownload,
+};
+
+// ---------------------------------------------------------------------------
+// Ingestion worker — dispatches jobs from the ingestion queue to handlers.
 // ---------------------------------------------------------------------------
 const worker = new Worker(
   'ingestion',
-  async (job) => {
-    console.log(`[j16z-worker] Processing job ${job.id} (${job.name}):`, job.data);
-    // Phase 2 will implement handlers for each job type:
-    //   - edgar_poll: Fetch new M&A filings from SEC EDGAR
-    //   - courtlistener_poll: Fetch case docket updates
-    //   - ftc_poll: Fetch FTC enforcement actions
-    //   - llm_extract: Run LLM extraction on a filing document
+  async (job: Job) => {
+    const handler = handlers[job.name];
+    if (!handler) {
+      console.warn(`[j16z-worker] No handler for job type: ${job.name}`);
+      return;
+    }
+    await handler(job);
   },
   {
     connection: redisConnection,
