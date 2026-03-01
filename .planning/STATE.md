@@ -10,29 +10,29 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 ## Current Position
 
 Phase: 2 of 7 (SEC EDGAR Ingestion)
-Plan: 1 of 4 (02-01 complete)
-Status: In progress — plan 02-01 complete, ready for 02-02
-Last activity: 2026-03-01 — Plan 02-01 complete (EDGAR client, rate limiter, schema migration, BullMQ cron)
+Plan: 2 of 4 (02-02 complete)
+Status: In progress — plan 02-02 complete, ready for 02-03
+Last activity: 2026-03-01 — Plan 02-02 complete (two-stage ingestion: poll handler, download handler, deal matcher, event factory, 37 unit tests)
 
-Progress: [███░░░░░░░] 18%
+Progress: [████░░░░░░] 25%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 8 min
-- Total execution time: 24 min
+- Total plans completed: 4
+- Average duration: ~8 min
+- Total execution time: ~42 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan | Status |
 |-------|-------|-------|----------|--------|
 | 01-backend-foundation-auth | 3 | 24 min | 8 min | COMPLETE |
-| 02-sec-edgar-ingestion | 1 | 4 min | 4 min | IN PROGRESS |
+| 02-sec-edgar-ingestion | 2 | 22 min | 11 min | IN PROGRESS |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (6 min), 01-02 (6 min), 01-03 (12 min), 02-01 (4 min)
-- Trend: consistent ~7 min/plan average
+- Last 5 plans: 01-01 (6 min), 01-02 (6 min), 01-03 (12 min), 02-01 (4 min), 02-02 (18 min)
+- Trend: consistent ~7-11 min/plan average
 
 *Updated after each plan completion*
 
@@ -62,6 +62,10 @@ Recent decisions affecting current work:
 - [02-01]: deals.firmId made nullable — auto-discovered deals have source='auto_edgar' and firmId=null until claimed
 - [02-01]: RateLimiter at 9 tokens/sec (not 10) — 10% headroom below SEC's stated 10/sec limit
 - [02-01]: registerSchedules called from index.ts NOT worker.ts — prevents duplicate cron job registration on worker restarts
+- [02-02]: Columnar zip-transpose: Submissions API returns arrays indexed by position; must loop by index (not treat as row objects)
+- [02-02]: Test date sensitivity: poll handler filters by sinceDate (30 days ago); test fixtures must use recent dates
+- [02-02]: resetMockChains() pattern: vi.clearAllMocks() removes implementations; must re-establish Drizzle mock chains in each beforeEach
+- [02-02]: Dual-shape mockFrom: getLastPollDate uses .from().orderBy().limit(), pollTrackedCiks uses .from().where() — mockFrom returns {where, orderBy} to support both
 
 ### Pending Todos
 
@@ -78,5 +82,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 02-01-PLAN.md (EDGAR HTTP client, rate limiter, schema migration, BullMQ cron)
-Resume file: None — continue with 02-02-PLAN.md
+Stopped at: Completed 02-02-PLAN.md (two-stage ingestion: poll handler, download handler, deal matcher, event factory)
+Resume file: None — continue with 02-03-PLAN.md
