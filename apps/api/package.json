@@ -21,11 +21,14 @@
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.44.2",
     "hono": "^4.7.4",
+    "html-to-text": "^9.0.5",
     "jose": "^5.10.0",
+    "limiter": "^3.0.0",
     "postgres": "^3.4.5",
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@types/html-to-text": "^9.0.4",
     "@types/node": "^24.10.1",
     "drizzle-kit": "^0.30.5",
     "tsx": "^4.19.3",

@@ -55,12 +55,13 @@ describe('Schema exports (structural — offline)', () => {
 });
 
 describe('firm_id isolation (structural — offline)', () => {
+  // filings is EXCLUDED — it is a global/shared table (no firm_id, no RLS)
+  // per CONTEXT.md locked decision: global ingestion stream, firm-scoped events created on match
   const tablesWithFirmId = [
     'firmMembers',
     'invites',
     'deals',
     'events',
-    'filings',
     'clauses',
     'marketSnapshots',
     'newsItems',
@@ -78,6 +79,11 @@ describe('firm_id isolation (structural — offline)', () => {
 
   it('firms table does NOT have firm_id (it is the root tenant)', () => {
     const table = schema.firms as Record<string, unknown>;
+    expect(table).not.toHaveProperty('firmId');
+  });
+
+  it('filings table does NOT have firm_id (global ingestion stream — CONTEXT.md locked decision)', () => {
+    const table = schema.filings as Record<string, unknown>;
     expect(table).not.toHaveProperty('firmId');
   });
 });

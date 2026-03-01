@@ -111,8 +111,7 @@ export const deals = pgTable(
   {
     id: uuid('id').defaultRandom().primaryKey(),
     firmId: uuid('firm_id')
-      .references(() => firms.id)
-      .notNull(),
+      .references(() => firms.id), // NOW NULLABLE — auto-discovered deals have no firm until claimed
     symbol: text('symbol').notNull(),
     acquirer: text('acquirer').notNull(),
     target: text('target').notNull(),
@@ -135,6 +134,9 @@ export const deals = pgTable(
     spreadEntryThreshold: numeric('spread_entry_threshold'),
     sizeBucket: text('size_bucket'),
     isStarter: boolean('is_starter').notNull().default(false),
+    acquirerCik: text('acquirer_cik'), // nullable — auto-resolved via SEC company_tickers.json
+    targetCik: text('target_cik'), // nullable — auto-resolved via SEC company_tickers.json
+    source: text('source'), // nullable — 'auto_edgar' for auto-created deals, null for user-created
     ...timestamps,
   },
   () => firmIsolationPolicies(),
@@ -167,28 +169,26 @@ export const events = pgTable(
 );
 
 // ---------------------------------------------------------------------------
-// filings — SEC EDGAR filings linked to deals
+// filings — SEC EDGAR filings (global/shared table — no firm_id, no RLS)
+//
+// Global ingestion stream: All filings are ingested into this table regardless
+// of firm. Firm-scoped Event records are created when a filing matches a firm's
+// deals (via watchlist). This is a CONTEXT.md locked decision.
 // ---------------------------------------------------------------------------
-export const filings = pgTable(
-  'filings',
-  {
-    id: uuid('id').defaultRandom().primaryKey(),
-    firmId: uuid('firm_id')
-      .references(() => firms.id)
-      .notNull(),
-    dealId: uuid('deal_id').references(() => deals.id),
-    accessionNumber: text('accession_number').notNull().unique(),
-    filingType: text('filing_type').notNull(), // e.g. '8-K', 'S-4', 'DEFM14A'
-    filerName: text('filer_name').notNull(),
-    filerCik: text('filer_cik').notNull(),
-    filedDate: date('filed_date').notNull(),
-    rawUrl: text('raw_url').notNull(),
-    rawContent: text('raw_content'), // nullable — stores raw filing text
-    extracted: boolean('extracted').notNull().default(false),
-    ...timestamps,
-  },
-  () => firmIsolationPolicies(),
-);
+export const filings = pgTable('filings', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  dealId: uuid('deal_id').references(() => deals.id),
+  accessionNumber: text('accession_number').notNull().unique(),
+  filingType: text('filing_type').notNull(), // e.g. '8-K', 'S-4', 'DEFM14A'
+  filerName: text('filer_name'), // nullable — EFTS broad scan results may not have entity name immediately
+  filerCik: text('filer_cik').notNull(),
+  filedDate: date('filed_date').notNull(),
+  rawUrl: text('raw_url').notNull(),
+  rawContent: text('raw_content'), // nullable — stores raw filing text
+  extracted: boolean('extracted').notNull().default(false),
+  status: text('status').notNull().default('active'), // 'pending_review' | 'active' | 'dismissed'
+  ...timestamps, // PRESERVE — provides createdAt, updatedAt, deletedAt (required by 02-03 queries)
+});
 
 // ---------------------------------------------------------------------------
 // clauses — extracted deal clauses from filings
