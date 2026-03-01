@@ -9,7 +9,7 @@
  */
 
 import { MOCK_CLAUSES, MOCK_DEALS, MOCK_EVENTS, MOCK_MARKET_SNAPSHOTS } from './constants';
-import type { Clause, Deal, Event, MarketSnapshot, NewsItem } from './types';
+import type { Clause, Deal, Event, Filing, MarketSnapshot, NewsItem } from './types';
 
 const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
@@ -189,4 +189,43 @@ export async function deleteDeal(id: string): Promise<void> {
   }
 
   await authFetch(`/api/deals/${id}`, { method: 'DELETE' });
+}
+
+/**
+ * Get filings for a specific deal
+ * NOTE: No mock data fallback — filings require real backend
+ */
+export async function getFilings(dealId: string): Promise<Filing[]> {
+  if (USE_MOCK_DATA) {
+    return []; // No mock filings — real data only
+  }
+
+  const response = await authFetch(`/api/filings/deal/${dealId}`);
+  return response.json();
+}
+
+/**
+ * Get all filings for the firm's deals
+ * NOTE: No mock data fallback — filings require real backend
+ */
+export async function getAllFilings(): Promise<Filing[]> {
+  if (USE_MOCK_DATA) {
+    return []; // No mock filings — real data only
+  }
+
+  const response = await authFetch('/api/filings');
+  return response.json();
+}
+
+/**
+ * Get filing count for a specific deal (for deal board badge)
+ * NOTE: No mock data fallback — filings require real backend
+ */
+export async function getFilingCount(dealId: string): Promise<number> {
+  if (USE_MOCK_DATA) {
+    return 0;
+  }
+
+  const filings = await getFilings(dealId);
+  return filings.length;
 }

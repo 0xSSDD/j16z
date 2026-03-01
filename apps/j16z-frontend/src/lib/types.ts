@@ -124,3 +124,43 @@ export interface NewsItem {
   url: string;
   tags: string[];
 }
+
+// Filing types for EDGAR ingestion
+export type FilingType =
+  | '8-K'
+  | '8-K/A'
+  | 'S-4'
+  | 'S-4/A'
+  | 'DEFM14A'
+  | 'SC 13D'
+  | 'SC 13D/A'
+  | 'SC 13G'
+  | 'SC 13G/A'
+  | 'SC TO-T'
+  | 'SC TO-T/A'
+  | 'SC TO-I'
+  | 'SC TO-I/A'
+  | 'PREM14A'
+  | 'SC 14D9'
+  | 'SC 14D9/A';
+export type FilingStatus = 'active' | 'pending_review' | 'dismissed';
+
+export interface Filing {
+  id: string;
+  dealId: string | null;
+  accessionNumber: string;
+  filingType: FilingType;
+  filerName: string | null;
+  filerCik: string;
+  filedDate: string;
+  rawUrl: string;
+  rawContent: string | null; // null = content pending (download in progress)
+  extracted: boolean;
+  status: FilingStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DealWithFilings extends Deal {
+  filingCount?: number;
+}
