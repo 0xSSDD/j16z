@@ -26,10 +26,10 @@ Requirements for production MVP. Each maps to roadmap phases.
 
 ### SEC EDGAR Ingestion
 
-- [ ] **EDGAR-01**: System polls SEC EDGAR full-text search API on schedule (every 15 min) for tracked CIKs
+- [x] **EDGAR-01**: System polls SEC EDGAR full-text search API on schedule (every 15 min) for tracked CIKs
 - [ ] **EDGAR-02**: System ingests and stores 8-K, S-4, DEFM14A, and 13D/13G filings
-- [ ] **EDGAR-03**: System includes proper user-agent header to avoid EDGAR IP blocks
-- [ ] **EDGAR-04**: System rate-limits requests to <10/sec per SEC policy
+- [x] **EDGAR-03**: System includes proper user-agent header to avoid EDGAR IP blocks
+- [x] **EDGAR-04**: System rate-limits requests to <10/sec per SEC policy
 - [ ] **EDGAR-05**: Raw filing content stored before extraction (two-stage ingestion)
 - [ ] **EDGAR-06**: User can view source filing via link to EDGAR document
 
@@ -162,10 +162,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-04 | Phase 1 | Complete |
 | AUTH-05 | Phase 1 | Complete |
 | AUTH-06 | Phase 1 | Complete |
-| EDGAR-01 | Phase 2 | Pending |
+| EDGAR-01 | Phase 2 | Complete |
 | EDGAR-02 | Phase 2 | Pending |
-| EDGAR-03 | Phase 2 | Pending |
-| EDGAR-04 | Phase 2 | Pending |
+| EDGAR-03 | Phase 2 | Complete |
+| EDGAR-04 | Phase 2 | Complete |
 | EDGAR-05 | Phase 2 | Pending |
 | EDGAR-06 | Phase 2 | Pending |
 | EXTRACT-01 | Phase 3 | Pending |

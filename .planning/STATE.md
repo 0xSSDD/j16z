@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 ## Current Position
 
 Phase: 2 of 7 (SEC EDGAR Ingestion)
-Plan: 0 of TBD (phase not yet planned)
-Status: Ready to plan — Phase 1 complete and verified
-Last activity: 2026-02-26 — Phase 1 verified (6/6 success criteria, 11/11 requirements, cross-tenant test passing)
+Plan: 1 of 4 (02-01 complete)
+Status: In progress — plan 02-01 complete, ready for 02-02
+Last activity: 2026-03-01 — Plan 02-01 complete (EDGAR client, rate limiter, schema migration, BullMQ cron)
 
-Progress: [██░░░░░░░░] 14%
+Progress: [███░░░░░░░] 18%
 
 ## Performance Metrics
 
@@ -28,10 +28,11 @@ Progress: [██░░░░░░░░] 14%
 | Phase | Plans | Total | Avg/Plan | Status |
 |-------|-------|-------|----------|--------|
 | 01-backend-foundation-auth | 3 | 24 min | 8 min | COMPLETE |
+| 02-sec-edgar-ingestion | 1 | 4 min | 4 min | IN PROGRESS |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (6 min), 01-02 (6 min), 01-03 (12 min)
-- Trend: consistent ~8 min/plan average
+- Last 5 plans: 01-01 (6 min), 01-02 (6 min), 01-03 (12 min), 02-01 (4 min)
+- Trend: consistent ~7 min/plan average
 
 *Updated after each plan completion*
 
@@ -56,6 +57,11 @@ Recent decisions affecting current work:
 - [01-03]: seed.ts accepts userId param: watchlist.createdBy and watchlistDeal.addedBy use real user ID (system UUID placeholder removed)
 - [01-03]: Cross-tenant test uses SUPABASE_ANON_KEY with SERVICE_ROLE_KEY fallback for signInWithPassword — anon key is correct for user-facing auth
 - [01-03]: Health test uses dynamic import with null-check guard — passes in CI without a live server
+- [02-01]: filings table is global (no firm_id, no RLS) — firm-scoped Event records created when filing matches a firm's deals
+- [02-01]: SC TO-T/SC TO-I used as EDGAR form codes — SC TO is not valid; CONTEXT.md shorthand maps to these two codes
+- [02-01]: deals.firmId made nullable — auto-discovered deals have source='auto_edgar' and firmId=null until claimed
+- [02-01]: RateLimiter at 9 tokens/sec (not 10) — 10% headroom below SEC's stated 10/sec limit
+- [02-01]: registerSchedules called from index.ts NOT worker.ts — prevents duplicate cron job registration on worker restarts
 
 ### Pending Todos
 
@@ -71,6 +77,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-26
-Stopped at: Phase 1 complete and verified. Ready to plan Phase 2 (SEC EDGAR Ingestion).
-Resume file: None — clean phase transition
+Last session: 2026-03-01
+Stopped at: Completed 02-01-PLAN.md (EDGAR HTTP client, rate limiter, schema migration, BullMQ cron)
+Resume file: None — continue with 02-02-PLAN.md
