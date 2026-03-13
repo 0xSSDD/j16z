@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: LLM Extraction Pipeline** - Clause extraction with citation verification; real deal cards and scored Inbox (3 plans, 3 waves) (completed 2026-03-01)
 - [x] **Phase 4: CourtListener, FTC/DOJ, and RSS Ingestion** - All secondary data sources; complete event coverage (3 plans, 2 waves) (completed 2026-03-13)
 - [x] **Phase 5: Alert Delivery + Market Data** - Email and Slack alerts on scored events; spread display on deal board (3/3 plans complete) (completed 2026-03-13)
-- [ ] **Phase 6: Digests + Deal Memo Editor** - Daily/weekly digests; memo editor seeded with live deal terms
+- [ ] **Phase 6: Digests + Deal Memo Editor** - Daily/weekly digests; memo editor seeded with live deal terms (3 plans, 2 waves)
 - [ ] **Phase 7: Frontend Refinement + Exports** - v1 completeness: deal page tabs, landing page polish, CSV/API exports
 
 ## Phase Details
@@ -116,11 +116,12 @@ Plans:
   2. Analyst receives a weekly email digest Friday at 5:00 PM ET summarizing all deal changes; user can suppress weekend digests in Settings
   3. User can create a deal memo from a template pre-filled with live deal terms, spreads, events, and timeline from the actual deal
   4. User can edit the memo freeform with a rich text editor after template scaffolding, pull in live deal data, and see an edit history trail
-**Plans**: TBD
+**Plans**: 3 plans in 2 waves
 
 Plans:
-- [ ] 06-01: Digest BullMQ cron jobs (daily 07:00 UTC, weekly Friday); react-email templates matching j16z brand
-- [ ] 06-02: Memo editor UI — template scaffold with live deal data pull-in; rich text editing; edit history tracking
+- [ ] 06-01-PLAN.md — Digest schema + BullMQ cron (daily 8 AM ET, weekly Friday 5 PM ET); react-email templates (dark Aurora palette); digest preference CRUD API + Settings Digests tab (Wave 1)
+- [ ] 06-02-PLAN.md — Memo schema (memos + snapshots) + CRUD API with optimistic concurrency; tiptap editor with deal-data scaffold; deal card Memo tab (Wave 1)
+- [ ] 06-03-PLAN.md — Per-section live data refresh; snapshot panel (create/browse/restore/compare); memo export (.docx + .pdf) (Wave 2)
 
 ### Phase 7: Frontend Refinement + Exports
 **Goal**: The product is pilot-ready with polished deal page navigation, a landing page that conveys craft, and structured data exports for firms that need to pipe data into internal models
@@ -151,5 +152,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 3. LLM Extraction Pipeline | 3/3 | Complete   | 2026-03-01 |
 | 4. CourtListener, FTC/DOJ, RSS | 3/3 | Complete    | 2026-03-13 |
 | 5. Alert Delivery + Market Data | 3/3 | Complete | 2026-03-13 |
-| 6. Digests + Deal Memo Editor | 0/2 | Not started | - |
+| 6. Digests + Deal Memo Editor | 0/3 | Not started | - |
 | 7. Frontend Refinement + Exports | 0/3 | Not started | - |
