@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Backend Foundation + Auth** - Database schema, Hono API skeleton, Supabase auth, multi-tenant isolation gate (3/3 plans complete) (completed 2026-02-26, verified 6/6 criteria)
 - [x] **Phase 2: SEC EDGAR Ingestion** - Poll, ingest, and store EDGAR filings; flip frontend to real data (4/4 plans complete) (completed 2026-03-01)
 - [x] **Phase 3: LLM Extraction Pipeline** - Clause extraction with citation verification; real deal cards and scored Inbox (3 plans, 3 waves) (completed 2026-03-01)
-- [ ] **Phase 4: CourtListener, FTC/DOJ, and RSS Ingestion** - All secondary data sources; complete event coverage
+- [ ] **Phase 4: CourtListener, FTC/DOJ, and RSS Ingestion** - All secondary data sources; complete event coverage (3 plans, 2 waves)
 - [ ] **Phase 5: Alert Delivery + Market Data** - Email and Slack alerts on scored events; spread display on deal board
 - [ ] **Phase 6: Digests + Deal Memo Editor** - Daily/weekly digests; memo editor seeded with live deal terms
 - [ ] **Phase 7: Frontend Refinement + Exports** - v1 completeness: deal page tabs, landing page polish, CSV/API exports
@@ -69,9 +69,9 @@ Plans:
 **Plans**: 3 plans in 3 waves
 
 Plans:
-- [ ] 03-01-PLAN.md — DB schema expansion (confidenceScore, analystVerified, summary columns); `apps/langextract/` Python service scaffold with BullMQ worker, psycopg3 DB utilities, pnpm shim; Node.js llm_extract job enqueue from edgar_download (Wave 1)
-- [ ] 03-02-PLAN.md — Per-filing-type LangExtract pipelines (S-4/DEFM14A, 8-K, 13D/13G) with few-shot JSONL examples; post-extraction analyst summary generation via Gemini with risk flags and delta-awareness (Wave 2)
-- [ ] 03-03-PLAN.md — Materiality scoring Python port matching TypeScript logic; frontend ClauseType expansion + real clause display with grouped categories and collapsed verbatim quotes; regression test harness with golden file structure (Wave 3)
+- [x] 03-01-PLAN.md — DB schema expansion (confidenceScore, analystVerified, summary columns); `apps/langextract/` Python service scaffold with BullMQ worker, psycopg3 DB utilities, pnpm shim; Node.js llm_extract job enqueue from edgar_download (Wave 1) — COMPLETE 2026-03-01
+- [x] 03-02-PLAN.md — Per-filing-type LangExtract pipelines (S-4/DEFM14A, 8-K, 13D/13G) with few-shot JSONL examples; post-extraction analyst summary generation via Gemini with risk flags and delta-awareness (Wave 2) — COMPLETE 2026-03-01
+- [x] 03-03-PLAN.md — Materiality scoring Python port matching TypeScript logic; frontend ClauseType expansion + real clause display with grouped categories and collapsed verbatim quotes; regression test harness with golden file structure (Wave 3) — COMPLETE 2026-03-01
 
 ### Phase 4: CourtListener, FTC/DOJ, and RSS Ingestion
 **Goal**: All three secondary data sources are live; the Inbox shows litigation events, agency actions, and news items alongside EDGAR events with full materiality scoring
@@ -83,19 +83,19 @@ Plans:
   3. User can attach RSS feeds (law firm alerts, specialist newsletters) to a watchlist and see relevant news items appear in deal event timelines
   4. Settings > Integrations shows last-sync timestamps for CourtListener and FTC/DOJ sources; PACER credential health visible with expiry warning 30 days in advance
   5. Canary monitor alerts when FTC/DOJ RSS item count drops (feed format change detected)
-**Plans**: TBD
+**Plans**: 3 plans in 2 waves
 
 Plans:
-- [ ] 04-01: CourtListener webhook endpoint + fallback polling; PACER credential health check; docket entries as scored events
-- [ ] 04-02: FTC/DOJ RSS poller with canary monitor; agency event matching to tracked deals; HTML scraper for enforcement actions
-- [ ] 04-03: RSS/news feed poller; watchlist-attached feeds; news items scored and surfaced in deal event timeline
+- [ ] 04-01-PLAN.md — CourtListener types, poller, webhook handler, event factory; webhook Hono endpoint (pre-auth); scheduler + worker wiring (Wave 1)
+- [ ] 04-02-PLAN.md — Canary monitor for FTC/DOJ RSS feeds; PACER credential health check; integrations health endpoint source display name mapping (Wave 1)
+- [ ] 04-03-PLAN.md — Frontend IntegrationsTab wiring with displayName + PACER warning; RSS keyword-based materiality scoring; CourtListener unit tests (Wave 2)
 
 ### Phase 5: Alert Delivery + Market Data
 **Goal**: Analysts receive email and Slack notifications on material events within minutes; deal board shows live spread data with a data-age indicator
 **Depends on**: Phase 3 (scored events in DB required for alert evaluation); Phase 4 recommended for full event coverage
 **Requirements**: ALERT-01, ALERT-02, ALERT-03, ALERT-04, ALERT-05, ALERT-06, MKT-01, MKT-02, MKT-03, MKT-04
 **Success Criteria** (what must be TRUE):
-  1. User receives an email alert within 5 minutes of a CRITICAL event (score ≥70) being ingested and scored
+  1. User receives an email alert within 5 minutes of a CRITICAL event (score >=70) being ingested and scored
   2. User receives a Slack alert for WARNING events (score 50-70); INFO events (score <50) appear in Inbox only with no push notification
   3. User can configure alert thresholds and delivery channels (email, Slack, webhook) per deal in Settings > Alert Rules
   4. Deal board shows gross spread and annualized spread for tracked tickers with a color-coded data-age badge (green <5 min, yellow 5-30 min, red >30 min)
@@ -147,7 +147,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Backend Foundation + Auth | 3/3 | Complete   | 2026-02-25 |
-| 2. SEC EDGAR Ingestion | 2/3 | In Progress|  |
+| 2. SEC EDGAR Ingestion | 3/3 | Complete   | 2026-03-01 |
 | 3. LLM Extraction Pipeline | 3/3 | Complete   | 2026-03-01 |
 | 4. CourtListener, FTC/DOJ, RSS | 0/3 | Not started | - |
 | 5. Alert Delivery + Market Data | 0/3 | Not started | - |
