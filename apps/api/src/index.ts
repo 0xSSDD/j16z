@@ -65,6 +65,7 @@ api.use('/events/*', firmContextMiddleware);
 api.use('/filings/*', firmContextMiddleware);
 api.use('/rss-feeds/*', firmContextMiddleware);
 api.use('/watchlists/*', firmContextMiddleware);
+api.use('/market-snapshots/*', firmContextMiddleware);
 
 // Mount routes
 api.route('/auth', apiRoutes.auth);
@@ -74,6 +75,7 @@ api.route('/filings', apiRoutes.filings);
 api.route('/integrations', apiRoutes.integrations);
 api.route('/rss-feeds', apiRoutes.rssFeeds);
 api.route('/watchlists', apiRoutes.watchlists);
+api.route('/market-snapshots', apiRoutes.marketSnapshots);
 
 // ---------------------------------------------------------------------------
 // Server startup

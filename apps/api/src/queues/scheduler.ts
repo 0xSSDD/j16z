@@ -13,6 +13,7 @@ export const SCHEDULE_CONFIG = {
   doj_civil_rss: process.env.CRON_DOJ_CIVIL_RSS ?? '0 */6 * * *',
   rss_poll: process.env.CRON_RSS_POLL ?? '*/30 * * * *',
   courtlistener_poll: process.env.CRON_COURTLISTENER_POLL ?? '*/30 * * * *',
+  market_data_poll: process.env.CRON_MARKET_DATA_POLL ?? '*/5 * * * *',
 } satisfies Record<string, string>;
 
 /**
@@ -134,6 +135,22 @@ export async function registerSchedules(): Promise<void> {
     );
 
     console.log(`[j16z-api] Registered courtlistener_poll schedule (${SCHEDULE_CONFIG.courtlistener_poll})`);
+
+    // Market data poll — every 5 minutes during market hours
+    await queue.upsertJobScheduler(
+      'market-data-poll-schedule',
+      { pattern: SCHEDULE_CONFIG.market_data_poll },
+      {
+        name: 'market_data_poll',
+        data: { triggeredBy: 'cron' },
+        opts: {
+          attempts: 3,
+          backoff: { type: 'exponential', delay: 5000 },
+        },
+      },
+    );
+
+    console.log(`[j16z-api] Registered market_data_poll schedule (${SCHEDULE_CONFIG.market_data_poll})`);
   } finally {
     await queue.close();
   }
