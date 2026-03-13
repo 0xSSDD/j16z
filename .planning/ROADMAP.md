@@ -133,12 +133,12 @@ Plans:
   3. First-time user sees an onboarding flow with orderable sidebar; keyboard shortcuts work for core navigation and actions
   4. User can export deal data as CSV and access structured data via REST API with an API key
   5. OpenAPI spec is generated and accessible at `/docs` for the REST API
-**Plans**: TBD
+**Plans**: 3 plans in 1 wave
 
 Plans:
-- [ ] 07-01: Deal page tab structure (eToro-style) + CourtListener sidebar pattern for event detail
-- [ ] 07-02: Landing page polish (Linear x Harvey) + first-time user flow + keyboard shortcut refinement
-- [ ] 07-03: CSV export endpoint + REST API with API key auth + OpenAPI spec generation
+- [ ] 07-01-PLAN.md — Deal page tab structure (Radix Tabs, eToro-style) + CourtListener event sidebar + keyboard shortcuts (1-5, j/k, Enter/Esc) (Wave 1)
+- [ ] 07-02-PLAN.md — Landing page polish (Linear x Harvey aesthetic, 6 sections, problem-first messaging, beta pricing) (Wave 1)
+- [ ] 07-03-PLAN.md — CSV export button + api_keys table + public REST API (/v1/*) with OpenAPIHono + Scalar docs (Wave 1)
 
 ## Progress
 
