@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: SEC EDGAR Ingestion** - Poll, ingest, and store EDGAR filings; flip frontend to real data (4/4 plans complete) (completed 2026-03-01)
 - [x] **Phase 3: LLM Extraction Pipeline** - Clause extraction with citation verification; real deal cards and scored Inbox (3 plans, 3 waves) (completed 2026-03-01)
 - [x] **Phase 4: CourtListener, FTC/DOJ, and RSS Ingestion** - All secondary data sources; complete event coverage (3 plans, 2 waves) (completed 2026-03-13)
-- [ ] **Phase 5: Alert Delivery + Market Data** - Email and Slack alerts on scored events; spread display on deal board
+- [ ] **Phase 5: Alert Delivery + Market Data** - Email and Slack alerts on scored events; spread display on deal board (3 plans, 2 waves)
 - [ ] **Phase 6: Digests + Deal Memo Editor** - Daily/weekly digests; memo editor seeded with live deal terms
 - [ ] **Phase 7: Frontend Refinement + Exports** - v1 completeness: deal page tabs, landing page polish, CSV/API exports
 
@@ -100,12 +100,12 @@ Plans:
   3. User can configure alert thresholds and delivery channels (email, Slack, webhook) per deal in Settings > Alert Rules
   4. Deal board shows gross spread and annualized spread for tracked tickers with a color-coded data-age badge (green <5 min, yellow 5-30 min, red >30 min)
   5. Spread history is stored with timestamps enabling spread chart rendering on deal cards
-**Plans**: TBD
+**Plans**: 3 plans in 2 waves
 
 Plans:
-- [ ] 05-01: `alert-worker` BullMQ worker evaluating AlertRules against scored events; Resend email delivery for CRITICAL events
-- [ ] 05-02: Slack incoming webhook delivery for WARNING+ events; webhook delivery endpoint; `notification_log` table for dedup/audit
-- [ ] 05-03: Market data API poller (spread + price); implied consideration computation; spread display with data-age indicator
+- [ ] 05-01-PLAN.md — Schema migration (notification_log, webhookSecret, exchangeRatio); alert types; alert worker evaluating AlertRules; Resend email + Slack Block Kit + HMAC webhook delivery handlers with dedup (Wave 1)
+- [ ] 05-02-PLAN.md — Alpha Vantage quote adapter with vendor-agnostic interface; spread calculator (gross/annualized/implied); market data poller with market-hours awareness; market-snapshots API endpoints; scheduler registration (Wave 1)
+- [ ] 05-03-PLAN.md — Alert rule CRUD API; event-factory alert_evaluate wiring across all pipelines; frontend AlertRulesTab real API wiring; deal board spread display with DataAgeBadge (Wave 2)
 
 ### Phase 6: Digests + Deal Memo Editor
 **Goal**: Analysts receive a curated morning email summary of overnight deal activity; analysts can create deal memos seeded with live terms and edit them freeform
