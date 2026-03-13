@@ -53,7 +53,7 @@ Requirements for production MVP. Each maps to roadmap phases.
 - [x] **MKT-01**: System polls market data API for spread and price data on tracked deal tickers
 - [x] **MKT-02**: System computes implied consideration and gross/annualized spread
 - [x] **MKT-03**: Market snapshots stored with timestamps for spread history charting
-- [ ] **MKT-04**: Spread display shows last-updated timestamp (data-age indicator)
+- [x] **MKT-04**: Spread display shows last-updated timestamp (data-age indicator)
 
 ### LangExtract (AI Extraction Pipeline)
 
@@ -70,8 +70,8 @@ Requirements for production MVP. Each maps to roadmap phases.
 - [x] **ALERT-01**: System sends email alerts on events with materiality score >70 (CRITICAL)
 - [x] **ALERT-02**: System sends Slack alerts on events with materiality score >70 (CRITICAL)
 - [x] **ALERT-03**: System sends Slack-only alerts on events with materiality score 50-70 (WARNING)
-- [ ] **ALERT-04**: User can configure alert thresholds per deal (override global defaults)
-- [ ] **ALERT-05**: User can configure delivery channels (email, Slack, webhook) per alert rule
+- [x] **ALERT-04**: User can configure alert thresholds per deal (override global defaults)
+- [x] **ALERT-05**: User can configure delivery channels (email, Slack, webhook) per alert rule
 - [x] **ALERT-06**: Webhook delivery for firms with internal systems
 
 ### Digests
@@ -190,13 +190,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ALERT-01 | Phase 5 | Complete |
 | ALERT-02 | Phase 5 | Complete |
 | ALERT-03 | Phase 5 | Complete |
-| ALERT-04 | Phase 5 | Pending |
-| ALERT-05 | Phase 5 | Pending |
+| ALERT-04 | Phase 5 | Complete |
+| ALERT-05 | Phase 5 | Complete |
 | ALERT-06 | Phase 5 | Complete |
 | MKT-01 | Phase 5 | Complete |
 | MKT-02 | Phase 5 | Complete |
 | MKT-03 | Phase 5 | Complete |
-| MKT-04 | Phase 5 | Pending |
+| MKT-04 | Phase 5 | Complete |
 | DIGEST-01 | Phase 6 | Pending |
 | DIGEST-02 | Phase 6 | Pending |
 | DIGEST-03 | Phase 6 | Pending |

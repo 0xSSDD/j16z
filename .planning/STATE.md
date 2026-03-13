@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-03-13T21:01:00Z"
+last_updated: "2026-03-13T21:12:00Z"
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 15
-  completed_plans: 14
+  completed_plans: 15
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 
 ## Current Position
 
-Phase: 5 of 7 (Alert Delivery + Market Data) — IN PROGRESS
-Plan: 2 of 3 (05-02 complete — market data subsystem: quote adapter, spread calculator, poller, API)
-Status: Plan 05-02 COMPLETE — Alpha Vantage adapter, spread calculator, market data poller, snapshot API; ready for Plan 05-03 (Alert Rules + Frontend)
-Last activity: 2026-03-13 — Plan 05-02 complete (quote adapter, spread calculator, market poller, snapshot endpoints)
+Phase: 5 of 7 (Alert Delivery + Market Data) — COMPLETE
+Plan: 3 of 3 (05-03 complete — alert rule CRUD API, alert_evaluate wiring, frontend AlertRulesTab, DataAgeBadge)
+Status: Phase 5 COMPLETE — all 3 plans done; alert worker, market data, and frontend wiring all operational; ready for Phase 6 (Digests + Deal Memo Editor)
+Last activity: 2026-03-13 — Plan 05-03 complete (alert rules CRUD, event-factory wiring, AlertRulesTab, DataAgeBadge)
 
-Progress: [██████████████] 73%
+Progress: [████████████████████] 100%
 
 ## Performance Metrics
 
@@ -44,11 +44,11 @@ Progress: [██████████████] 73%
 | 02-sec-edgar-ingestion | 3 | 52 min | 17 min | COMPLETE |
 | 03-llm-extraction-pipeline | 3 | 21 min | 7 min | COMPLETE |
 | 04-courtlistener-ftcdoj-rss | 3 | 14 min | 5 min | COMPLETE |
-| 05-alert-delivery-market-data | 2/3 | 9 min | 5 min | IN PROGRESS |
+| 05-alert-delivery-market-data | 3/3 | 17 min | 6 min | COMPLETE |
 
 **Recent Trend:**
-- Last 5 plans: 03-03 (6 min), 04-01 (4 min), 04-03 (5 min), 05-01 (5 min), 05-02 (4 min)
-- Trend: consistent ~4-6 min/plan for backend integrations
+- Last 5 plans: 04-01 (4 min), 04-03 (5 min), 05-01 (5 min), 05-02 (4 min), 05-03 (8 min)
+- Trend: consistent ~4-8 min/plan; 05-03 slightly longer due to full-stack scope (API + frontend)
 
 *Updated after each plan completion*
 
@@ -112,6 +112,11 @@ Recent decisions affecting current work:
 - [05-02]: acquirerPrice placeholder uses target quote price — separate acquirer ticker quote deferred
 - [05-02]: Deals with null firmId (auto-discovered) skip marketSnapshot insert but still get deal price column updates
 - [05-02]: Market hours uses Intl.DateTimeFormat for timezone-safe ET detection without external library
+- [05-03]: Alert rule CRUD uses adminDb with explicit firmId WHERE clauses (defense-in-depth, consistent with other routes)
+- [05-03]: webhookSecret returned only on POST creation response, never on GET/PATCH — one-time visibility
+- [05-03]: All event factories use .returning({ id }) to get event ID for alert_evaluate enqueue
+- [05-03]: DataAgeBadge uses Intl.DateTimeFormat for timezone-safe ET market hours (same pattern as backend)
+- [05-03]: getLatestMarketSnapshot maps backend grossSpread to frontend spread field name
 
 ### Pending Todos
 
@@ -128,5 +133,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-13
-Stopped at: Completed 05-02-PLAN.md — market data subsystem (quote adapter, spread calculator, poller, API)
-Resume file: .planning/phases/05-alert-delivery-market-data/ (Phase 5: Plan 03 — Alert Rules + Frontend)
+Stopped at: Completed 05-03-PLAN.md — alert rules CRUD, event-factory wiring, AlertRulesTab, DataAgeBadge (Phase 5 COMPLETE)
+Resume file: .planning/phases/06-digests-deal-memo-editor/ (Phase 6: Digests + Deal Memo Editor)
