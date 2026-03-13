@@ -41,8 +41,8 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
 
   return (
     <div className="w-full">
-      <div className="rounded-md border border-border bg-background">
-        <table className="w-full">
+      <div className="rounded-md border border-border bg-background overflow-x-auto">
+        <table className="w-full min-w-[800px]">
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id} className="border-b border-border">
