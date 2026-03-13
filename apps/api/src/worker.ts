@@ -12,10 +12,15 @@
  * cron job registration on every worker restart.
  */
 import 'dotenv/config';
-import { Worker, type Job } from 'bullmq';
-import { redisConnection } from './queues/connection.js';
-import { handleEdgarPoll } from './edgar/poll.js';
+import { type Job, Worker } from 'bullmq';
+import { handleFtcPoll } from './agency/ftc-poller.js';
+import { handleDojAntitrustRss, handleDojCivilRss, handleFtcCompetitionRss } from './agency/rss-pollers.js';
+import { handleCourtListenerPoll } from './courtlistener/poller.js';
+import { handleCourtListenerWebhook } from './courtlistener/webhook.js';
 import { handleEdgarDownload } from './edgar/download.js';
+import { handleEdgarPoll } from './edgar/poll.js';
+import { redisConnection } from './queues/connection.js';
+import { handleRssPoll } from './rss/poller.js';
 
 console.log('[j16z-worker] Starting ingestion worker...');
 
@@ -31,6 +36,13 @@ console.log('[j16z-worker] Starting ingestion worker...');
 const handlers: Record<string, (job: Job) => Promise<void>> = {
   edgar_poll: handleEdgarPoll,
   edgar_download: handleEdgarDownload,
+  ftc_poll: handleFtcPoll,
+  ftc_competition_rss: handleFtcCompetitionRss,
+  doj_antitrust_rss: handleDojAntitrustRss,
+  doj_civil_rss: handleDojCivilRss,
+  rss_poll: handleRssPoll,
+  courtlistener_poll: handleCourtListenerPoll,
+  courtlistener_webhook: handleCourtListenerWebhook,
   // llm_extract: Processed by Python worker (apps/langextract/worker.py) — NOT handled here
 };
 

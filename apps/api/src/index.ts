@@ -28,6 +28,16 @@ app.use(
 app.get('/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
 // ---------------------------------------------------------------------------
+// Webhook routes — registered BEFORE api.basePath('/api') and authMiddleware.
+//
+// CRITICAL: Must be registered here on the root app so CourtListener webhook
+// push notifications are NOT blocked by authMiddleware. If authMiddleware runs
+// first, CourtListener receives 401, retries 7 times, then auto-disables the
+// subscription webhook.
+// ---------------------------------------------------------------------------
+app.route('/api/webhooks', apiRoutes.webhooks);
+
+// ---------------------------------------------------------------------------
 // Global error handler — returns structured JSON error instead of plain text
 // ---------------------------------------------------------------------------
 app.onError((err, c) => {
@@ -53,6 +63,7 @@ api.use('/*', authMiddleware);
 api.use('/deals/*', firmContextMiddleware);
 api.use('/events/*', firmContextMiddleware);
 api.use('/filings/*', firmContextMiddleware);
+api.use('/rss-feeds/*', firmContextMiddleware);
 api.use('/watchlists/*', firmContextMiddleware);
 
 // Mount routes
@@ -60,17 +71,16 @@ api.route('/auth', apiRoutes.auth);
 api.route('/deals', apiRoutes.deals);
 api.route('/events', apiRoutes.events);
 api.route('/filings', apiRoutes.filings);
+api.route('/integrations', apiRoutes.integrations);
+api.route('/rss-feeds', apiRoutes.rssFeeds);
 api.route('/watchlists', apiRoutes.watchlists);
 
 // ---------------------------------------------------------------------------
 // Server startup
 // ---------------------------------------------------------------------------
-serve(
-  { fetch: app.fetch, port: Number(process.env.PORT ?? 3001) },
-  (info) => {
-    console.log(`[j16z-api] Server running on http://localhost:${info.port}`);
-  },
-);
+serve({ fetch: app.fetch, port: Number(process.env.PORT ?? 3001) }, (info) => {
+  console.log(`[j16z-api] Server running on http://localhost:${info.port}`);
+});
 
 // Register recurring job schedules (idempotent — safe on restart)
 registerSchedules().catch((err) => {
@@ -79,3 +89,6 @@ registerSchedules().catch((err) => {
 
 // Export app type for potential Hono RPC client usage
 export type AppType = typeof app;
+
+// Export app as default for dynamic imports in tests
+export default app;
