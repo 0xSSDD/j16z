@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Backend Foundation + Auth** - Database schema, Hono API skeleton, Supabase auth, multi-tenant isolation gate (3/3 plans complete) (completed 2026-02-26, verified 6/6 criteria)
 - [x] **Phase 2: SEC EDGAR Ingestion** - Poll, ingest, and store EDGAR filings; flip frontend to real data (4/4 plans complete) (completed 2026-03-01)
 - [x] **Phase 3: LLM Extraction Pipeline** - Clause extraction with citation verification; real deal cards and scored Inbox (3 plans, 3 waves) (completed 2026-03-01)
-- [ ] **Phase 4: CourtListener, FTC/DOJ, and RSS Ingestion** - All secondary data sources; complete event coverage (3 plans, 2 waves)
+- [x] **Phase 4: CourtListener, FTC/DOJ, and RSS Ingestion** - All secondary data sources; complete event coverage (3 plans, 2 waves) (completed 2026-03-13)
 - [ ] **Phase 5: Alert Delivery + Market Data** - Email and Slack alerts on scored events; spread display on deal board
 - [ ] **Phase 6: Digests + Deal Memo Editor** - Daily/weekly digests; memo editor seeded with live deal terms
 - [ ] **Phase 7: Frontend Refinement + Exports** - v1 completeness: deal page tabs, landing page polish, CSV/API exports
@@ -88,7 +88,7 @@ Plans:
 Plans:
 - [x] 04-01-PLAN.md — CourtListener types, poller, webhook handler, event factory; webhook Hono endpoint (pre-auth); scheduler + worker wiring (Wave 1) — COMPLETE 2026-03-13
 - [x] 04-02-PLAN.md — Canary monitor for FTC/DOJ RSS feeds; PACER credential health check; integrations health endpoint source display name mapping (Wave 1) — COMPLETE 2026-03-13
-- [ ] 04-03-PLAN.md — Frontend IntegrationsTab wiring with displayName + PACER warning; RSS keyword-based materiality scoring; CourtListener unit tests (Wave 2)
+- [x] 04-03-PLAN.md — Frontend IntegrationsTab wiring with displayName + PACER warning; RSS keyword-based materiality scoring; CourtListener unit tests (Wave 2) — COMPLETE 2026-03-13
 
 ### Phase 5: Alert Delivery + Market Data
 **Goal**: Analysts receive email and Slack notifications on material events within minutes; deal board shows live spread data with a data-age indicator
@@ -149,7 +149,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 1. Backend Foundation + Auth | 3/3 | Complete   | 2026-02-25 |
 | 2. SEC EDGAR Ingestion | 3/3 | Complete   | 2026-03-01 |
 | 3. LLM Extraction Pipeline | 3/3 | Complete   | 2026-03-01 |
-| 4. CourtListener, FTC/DOJ, RSS | 2/3 | In progress | - |
+| 4. CourtListener, FTC/DOJ, RSS | 3/3 | Complete    | 2026-03-13 |
 | 5. Alert Delivery + Market Data | 0/3 | Not started | - |
 | 6. Digests + Deal Memo Editor | 0/2 | Not started | - |
 | 7. Frontend Refinement + Exports | 0/3 | Not started | - |

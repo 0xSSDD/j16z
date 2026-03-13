@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 
 ## Current Position
 
-Phase: 4 of 7 (CourtListener, FTC/DOJ, RSS Ingestion)
-Plan: 2 of 3 (04-02 complete — FTC/DOJ canary monitor + integrations health)
-Status: Phase 4 in progress — 04-01 done, 04-02 done, 04-03 (frontend integrations tab + RSS scoring) next
-Last activity: 2026-03-13 — Plan 04-02 complete (FTC/DOJ canary monitor, PACER health, source display names)
+Phase: 4 of 7 (CourtListener, FTC/DOJ, RSS Ingestion) — COMPLETE
+Plan: 3 of 3 (04-03 complete — frontend IntegrationsTab wiring + RSS keyword scoring + CourtListener unit tests)
+Status: Phase 4 COMPLETE — all 3 plans done; ready for Phase 5 (Alert Delivery + Market Data)
+Last activity: 2026-03-13 — Plan 04-03 complete (frontend integrations wiring, PACER warning, RSS keyword scoring, CourtListener unit tests)
 
-Progress: [█████████░] 57%
+Progress: [██████████] 64%
 
 ## Performance Metrics
 
@@ -43,7 +43,7 @@ Progress: [█████████░] 57%
 | 01-backend-foundation-auth | 3 | 24 min | 8 min | COMPLETE |
 | 02-sec-edgar-ingestion | 3 | 52 min | 17 min | COMPLETE |
 | 03-llm-extraction-pipeline | 3 | 21 min | 7 min | COMPLETE |
-| 04-courtlistener-ftcdoj-rss | 2+ | 6 min | 3 min | IN PROGRESS |
+| 04-courtlistener-ftcdoj-rss | 3 | 14 min | 5 min | COMPLETE |
 
 **Recent Trend:**
 - Last 5 plans: 03-01 (7 min), 03-02 (8 min), 03-03 (6 min), 04-01 (4 min)
@@ -100,6 +100,9 @@ Recent decisions affecting current work:
 - [04-02]: Canary baseline stored in ingestion_status.metadata jsonb (no separate table); 2-consecutive-zero threshold prevents weekend/holiday false positives
 - [04-02]: PACER_PASSWORD_LAST_CHANGED env var only for credential rotation date — no PACER credentials in DB
 - [04-02]: SOURCE_DISPLAY_NAMES mapping kept local to integrations.ts (not shared constant) — only used in one place
+- [04-03]: IntegrationHealthResponse wraps existing IntegrationHealth[] — backward-compatible, no change to individual source record shape
+- [04-03]: scoreRssItem capped at 70 — RSS news items cannot reach CRITICAL tier alone; CRITICAL reserved for COURT/AGENCY events
+- [04-03]: Mock INTEGRATION_HEALTH already had CourtListener entry — no change needed to mock array
 
 ### Pending Todos
 
@@ -116,5 +119,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-13
-Stopped at: Completed 04-02-PLAN.md — FTC/DOJ canary monitor + PACER health + integrations display names
-Resume file: .planning/phases/04-courtlistener-ftcdoj-rss-ingestion/04-03-PLAN.md (frontend IntegrationsTab + RSS scoring + CourtListener tests)
+Stopped at: Completed 04-03-PLAN.md — frontend IntegrationsTab wiring + RSS keyword scoring + CourtListener unit tests
+Resume file: .planning/phases/05-alerts-notifications/ (Phase 5: Alert Delivery + Market Data)
