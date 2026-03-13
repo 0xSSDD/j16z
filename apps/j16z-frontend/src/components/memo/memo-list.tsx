@@ -3,7 +3,7 @@
 import type { JSONContent } from '@tiptap/react';
 import { FileText, Lock, Plus, Users } from 'lucide-react';
 import * as React from 'react';
-import { createMemo, getClauses, getDeal, getEvents, getMemos } from '@/lib/api';
+import { createMemo, getClauses, getDeal, getEvents, getMemos, updateMemo } from '@/lib/api';
 import { formatDate } from '@/lib/date-utils';
 import type { Memo } from '@/lib/types';
 import { MemoEditor } from './memo-editor';
@@ -25,6 +25,7 @@ export function MemoList({ dealId }: MemoListProps) {
   const [view, setView] = React.useState<View>('list');
   const [activeMemo, setActiveMemo] = React.useState<Memo | null>(null);
   const [activeVersion, setActiveVersion] = React.useState(1);
+  const [togglingVisibility, setTogglingVisibility] = React.useState(false);
 
   // Create flow states
   const [isCreating, setIsCreating] = React.useState(false);
@@ -101,6 +102,25 @@ export function MemoList({ dealId }: MemoListProps) {
   };
 
   // -------------------------------------------------------------------------
+  // Visibility toggle
+  // -------------------------------------------------------------------------
+  const handleToggleVisibility = async () => {
+    if (!activeMemo) return;
+    setTogglingVisibility(true);
+    const newVisibility = activeMemo.visibility === 'private' ? 'firm' : 'private';
+    try {
+      await updateMemo(activeMemo.id, { visibility: newVisibility, version: activeVersion });
+      const updated = { ...activeMemo, visibility: newVisibility as 'private' | 'firm' };
+      setActiveMemo(updated);
+      setMemos((prev) => prev.map((m) => (m.id === activeMemo.id ? updated : m)));
+    } catch (err) {
+      console.error('Failed to update visibility:', err);
+    } finally {
+      setTogglingVisibility(false);
+    }
+  };
+
+  // -------------------------------------------------------------------------
   // Render: Editor view
   // -------------------------------------------------------------------------
   if (view === 'editor' && activeMemo) {
@@ -115,19 +135,34 @@ export function MemoList({ dealId }: MemoListProps) {
             ← Back to memos
           </button>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-text-muted font-mono">
+            {/* Visibility toggle */}
+            <button
+              type="button"
+              onClick={handleToggleVisibility}
+              disabled={togglingVisibility}
+              title={
+                activeMemo.visibility === 'private'
+                  ? 'Private — click to make visible to firm'
+                  : 'Visible to firm — click to make private'
+              }
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:border-amber-500/40 hover:text-amber-400"
+              style={{
+                borderColor: activeMemo.visibility === 'firm' ? 'rgb(245 158 11 / 0.3)' : undefined,
+                color: activeMemo.visibility === 'firm' ? 'rgb(251 191 36)' : undefined,
+              }}
+            >
               {activeMemo.visibility === 'firm' ? (
-                <span className="flex items-center gap-1">
+                <>
                   <Users className="h-3 w-3" />
                   Firm
-                </span>
+                </>
               ) : (
-                <span className="flex items-center gap-1">
+                <>
                   <Lock className="h-3 w-3" />
                   Private
-                </span>
+                </>
               )}
-            </span>
+            </button>
             <span className="text-xs text-text-dim font-mono">v{activeVersion}</span>
           </div>
         </div>
@@ -135,6 +170,7 @@ export function MemoList({ dealId }: MemoListProps) {
         <MemoEditor
           initialContent={activeMemo.content as JSONContent}
           memoId={activeMemo.id}
+          dealId={dealId}
           version={activeVersion}
           onVersionChange={handleVersionChange}
         />
