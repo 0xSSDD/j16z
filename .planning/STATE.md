@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-13T22:29:06.898Z"
+last_updated: "2026-03-13T22:45:09Z"
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 18
-  completed_plans: 18
+  total_plans: 21
+  completed_plans: 20
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Analysts spend 3-5 hours/day trolling fragmented sources. j16z turns that into a push-button workflow — live data in, analyst-ready intelligence out.
-**Current focus:** Phase 6 — Digests + Deal Memo Editor
+**Current focus:** Phase 7 — Frontend Refinement + Exports
 
 ## Current Position
 
-Phase: 6 of 6 (Digests + Deal Memo Editor) — COMPLETE
-Plan: 3 of 3 (06-03 complete — section refresh, snapshot panel, visibility toggle, .docx/.pdf export)
-Status: Phase 6 COMPLETE — all 3 plans done; ready for Phase 7 (Frontend Refinement + Exports)
-Last activity: 2026-03-14 — Plan 06-03 complete (section refresh, snapshot panel with diff compare, memo export)
+Phase: 7 of 7 (Frontend Refinement + Exports) — IN PROGRESS
+Plan: 1 of 3 (07-01 complete — deal page tab structure, event sidebar, keyboard shortcuts)
+Status: Phase 7 in progress — 1/3 plans done; next: 07-02 (landing page polish)
+Last activity: 2026-03-14 — Plan 07-01 complete (Radix Tabs deal card, CourtListener-style event sidebar, keyboard shortcuts)
 
-Progress: [████████████████████] 100% (19/19 plans complete across 6 complete phases)
+Progress: [████████████████████] 100% (20/21 plans — Phase 7 plan 1 done)
 
 ## Performance Metrics
 
@@ -130,6 +130,10 @@ Recent decisions affecting current work:
 - [06-03]: Section refresh uses TextSelection.near from @tiptap/pm/state (not editor.state.selection.constructor.near) to avoid TypeScript error on Function type
 - [06-03]: SectionRefreshBar groups all 4 refresh buttons in secondary toolbar row (simpler than floating per-heading buttons)
 - [06-03]: Snapshot panel opens as inline sidebar (w-72) rather than overlay drawer — keeps editor and history visible simultaneously
+- [07-01]: DealEventSidePanel receives pre-loaded events array — deal card already has events, no redundant API call
+- [07-01]: Sidebar is fixed position (right-0 top-0) with main content pr-[400px] offset — simpler than flex-based split
+- [07-01]: j/k keyboard navigation only when activeTab === 'events' — avoids conflict with global nav shortcuts
+- [07-01]: @radix-ui/react-tabs chosen over shadcn Tabs — direct data-[state=active] styling without wrapper abstraction
 
 ### Pending Todos
 
@@ -146,5 +150,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-14
-Stopped at: Completed 06-03-PLAN.md — section refresh, snapshot panel, visibility toggle, memo export (.docx + .pdf)
-Resume file: Phase 6 complete. Next: Phase 7 (Frontend Refinement + Exports)
+Stopped at: Completed 07-01-PLAN.md — Radix Tabs deal card, CourtListener-style event sidebar, keyboard shortcuts
+Resume file: Phase 7 in progress. Next: 07-02 (landing page polish)

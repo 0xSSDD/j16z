@@ -136,7 +136,7 @@ Plans:
 **Plans**: 3 plans in 1 wave
 
 Plans:
-- [ ] 07-01-PLAN.md — Deal page tab structure (Radix Tabs, eToro-style) + CourtListener event sidebar + keyboard shortcuts (1-5, j/k, Enter/Esc) (Wave 1)
+- [x] 07-01-PLAN.md — Deal page tab structure (Radix Tabs, eToro-style) + CourtListener event sidebar + keyboard shortcuts (1-5, j/k, Enter/Esc) (Wave 1) — COMPLETE 2026-03-14
 - [ ] 07-02-PLAN.md — Landing page polish (Linear x Harvey aesthetic, 6 sections, problem-first messaging, beta pricing) (Wave 1)
 - [ ] 07-03-PLAN.md — CSV export button + api_keys table + public REST API (/v1/*) with OpenAPIHono + Scalar docs (Wave 1)
 
@@ -153,4 +153,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. CourtListener, FTC/DOJ, RSS | 3/3 | Complete    | 2026-03-13 |
 | 5. Alert Delivery + Market Data | 3/3 | Complete | 2026-03-13 |
 | 6. Digests + Deal Memo Editor | 3/3 | Complete | 2026-03-14 |
-| 7. Frontend Refinement + Exports | 0/3 | Not started | - |
+| 7. Frontend Refinement + Exports | 1/3 | In Progress | - |

@@ -90,11 +90,11 @@ Requirements for production MVP. Each maps to roadmap phases.
 
 ### Frontend Refinement
 
-- [ ] **UI-01**: Deal page uses eToro-style tab structure (Terms, Events, Spread History, News/Research, Reg & Litigation)
-- [ ] **UI-02**: Event detail uses CourtListener sidebar pattern on deal page (no arrow navigation)
+- [x] **UI-01**: Deal page uses eToro-style tab structure (Terms, Events, Spread History, News/Research, Reg & Litigation)
+- [x] **UI-02**: Event detail uses CourtListener sidebar pattern on deal page (no arrow navigation)
 - [ ] **UI-03**: Landing page polished to Linear x Harvey aesthetic — conveys "deal intelligence, made faster"
-- [ ] **UI-04**: First-time user flow with orderable sidebar (first item is default, burger icon)
-- [ ] **UI-05**: Keyboard shortcuts refined for core navigation and actions (post-core)
+- [x] **UI-04**: First-time user flow with orderable sidebar (first item is default, burger icon)
+- [x] **UI-05**: Keyboard shortcuts refined for core navigation and actions (post-core)
 
 ### RSS & News
 
@@ -205,11 +205,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MEMO-02 | Phase 6 | Pending |
 | MEMO-03 | Phase 6 | Pending |
 | MEMO-04 | Phase 6 | Pending |
-| UI-01 | Phase 7 | Pending |
-| UI-02 | Phase 7 | Pending |
+| UI-01 | Phase 7 | Complete |
+| UI-02 | Phase 7 | Complete |
 | UI-03 | Phase 7 | Pending |
-| UI-04 | Phase 7 | Pending |
-| UI-05 | Phase 7 | Pending |
+| UI-04 | Phase 7 | Complete |
+| UI-05 | Phase 7 | Complete |
 | EXPORT-01 | Phase 7 | Pending |
 | EXPORT-02 | Phase 7 | Pending |
 | EXPORT-03 | Phase 7 | Pending |
