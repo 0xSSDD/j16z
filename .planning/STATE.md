@@ -8,7 +8,7 @@ progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 21
-  completed_plans: 20
+  completed_plans: 21
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 ## Current Position
 
 Phase: 7 of 7 (Frontend Refinement + Exports) — IN PROGRESS
-Plan: 1 of 3 (07-01 complete — deal page tab structure, event sidebar, keyboard shortcuts)
-Status: Phase 7 in progress — 1/3 plans done; next: 07-02 (landing page polish)
-Last activity: 2026-03-14 — Plan 07-01 complete (Radix Tabs deal card, CourtListener-style event sidebar, keyboard shortcuts)
+Plan: 2 of 3 (07-02 complete — landing page polish, problem-first messaging, 6 sections)
+Status: Phase 7 in progress — 2/3 plans done; next: 07-03 (CSV export + public REST API + OpenAPI docs)
+Last activity: 2026-03-14 — Plan 07-02 complete (landing page rewrite with Linear x Harvey aesthetic)
 
-Progress: [████████████████████] 100% (20/21 plans — Phase 7 plan 1 done)
+Progress: [████████████████████] 100% (21/22 plans — Phase 7 plan 2 done)
 
 ## Performance Metrics
 
@@ -134,6 +134,8 @@ Recent decisions affecting current work:
 - [07-01]: Sidebar is fixed position (right-0 top-0) with main content pr-[400px] offset — simpler than flex-based split
 - [07-01]: j/k keyboard navigation only when activeTab === 'events' — avoids conflict with global nav shortcuts
 - [07-01]: @radix-ui/react-tabs chosen over shadcn Tabs — direct data-[state=active] styling without wrapper abstraction
+- [07-02]: Landing page uses 4 rendered React mockup components (InboxMockup, DealCardMockup, AlertMockup, MemoMockup) in Feature Showcase — not static screenshots; existing hero components (PolymarketCard, SearchResultsCard, SynthesisTerminal) updated with Kroger/Albertsons M&A content
+- [07-02]: Beta pricing section shows "reach out for pricing" with mailto CTA — no tier grid (per locked plan decision)
 
 ### Pending Todos
 
@@ -150,5 +152,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-14
-Stopped at: Completed 07-01-PLAN.md — Radix Tabs deal card, CourtListener-style event sidebar, keyboard shortcuts
-Resume file: Phase 7 in progress. Next: 07-02 (landing page polish)
+Stopped at: Completed 07-02-PLAN.md — Landing page rewrite, problem-first messaging, 6 sections, Linear x Harvey aesthetic
+Resume file: Phase 7 in progress. Next: 07-03 (CSV export + public REST API + OpenAPI docs)
