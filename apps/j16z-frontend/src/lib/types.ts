@@ -229,3 +229,29 @@ export interface DigestPreferences {
   weeklyEnabled: boolean;
   suppressWeekend: boolean;
 }
+
+// ---------------------------------------------------------------------------
+// Memos — analyst-authored deal memos (tiptap JSON content)
+// ---------------------------------------------------------------------------
+
+export interface Memo {
+  id: string;
+  dealId: string;
+  title: string;
+  content: Record<string, unknown>; // tiptap JSON
+  createdBy: string;
+  visibility: 'private' | 'firm';
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MemoSnapshot {
+  id: string;
+  memoId: string;
+  name: string;
+  content: Record<string, unknown>; // tiptap JSON
+  version: number;
+  createdBy: string;
+  createdAt: string;
+}

@@ -18,6 +18,8 @@ import type {
   Event,
   Filing,
   MarketSnapshot,
+  Memo,
+  MemoSnapshot,
   NewsItem,
 } from './types';
 
@@ -586,6 +588,151 @@ export async function updateDigestPreferences(prefs: DigestPreferences): Promise
 // ---------------------------------------------------------------------------
 // Market Snapshots API (latest snapshot for deal board)
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Memos API
+// ---------------------------------------------------------------------------
+
+/**
+ * Get memos for a deal (list view — no content field).
+ * Returns empty array when NEXT_PUBLIC_USE_MOCK_DATA=true (no mock memos).
+ */
+export async function getMemos(dealId: string): Promise<Memo[]> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return [];
+  }
+
+  const response = await authFetch(`/api/memos?dealId=${dealId}`);
+  return response.json();
+}
+
+/**
+ * Get a single memo with full content.
+ */
+export async function getMemo(id: string): Promise<Memo> {
+  if (USE_MOCK_DATA) {
+    throw new Error('Memos not available in mock mode');
+  }
+
+  const response = await authFetch(`/api/memos/${id}`);
+  return response.json();
+}
+
+/**
+ * Create a new memo.
+ */
+export async function createMemo(data: {
+  dealId: string;
+  title: string;
+  content: Record<string, unknown>;
+  visibility?: string;
+}): Promise<Memo> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    return {
+      id: `memo-${Date.now()}`,
+      dealId: data.dealId,
+      title: data.title,
+      content: data.content,
+      createdBy: 'user-1',
+      visibility: (data.visibility as 'private' | 'firm') ?? 'private',
+      version: 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
+  const response = await authFetch('/api/memos', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  return response.json();
+}
+
+/**
+ * Update memo content/title/visibility (auto-save target).
+ */
+export async function updateMemo(
+  id: string,
+  data: { content?: Record<string, unknown>; title?: string; visibility?: string; version: number },
+): Promise<Memo> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    throw new Error('Memos not available in mock mode');
+  }
+
+  const response = await authFetch(`/api/memos/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+  return response.json();
+}
+
+/**
+ * Soft-delete a memo.
+ */
+export async function deleteMemo(id: string): Promise<void> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    return;
+  }
+
+  await authFetch(`/api/memos/${id}`, { method: 'DELETE' });
+}
+
+/**
+ * Create a named snapshot of a memo at its current state.
+ */
+export async function createMemoSnapshot(memoId: string, name: string): Promise<MemoSnapshot> {
+  if (USE_MOCK_DATA) {
+    throw new Error('Memos not available in mock mode');
+  }
+
+  const response = await authFetch(`/api/memos/${memoId}/snapshots`, {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+  });
+  return response.json();
+}
+
+/**
+ * List snapshots for a memo (no content field).
+ */
+export async function getMemoSnapshots(memoId: string): Promise<MemoSnapshot[]> {
+  if (USE_MOCK_DATA) {
+    return [];
+  }
+
+  const response = await authFetch(`/api/memos/${memoId}/snapshots`);
+  return response.json();
+}
+
+/**
+ * Get a single snapshot with full content.
+ */
+export async function getMemoSnapshot(memoId: string, snapshotId: string): Promise<MemoSnapshot> {
+  if (USE_MOCK_DATA) {
+    throw new Error('Memos not available in mock mode');
+  }
+
+  const response = await authFetch(`/api/memos/${memoId}/snapshots/${snapshotId}`);
+  return response.json();
+}
+
+/**
+ * Restore memo content from a named snapshot.
+ */
+export async function restoreMemoSnapshot(memoId: string, snapshotId: string): Promise<Memo> {
+  if (USE_MOCK_DATA) {
+    throw new Error('Memos not available in mock mode');
+  }
+
+  const response = await authFetch(`/api/memos/${memoId}/snapshots/${snapshotId}/restore`, {
+    method: 'POST',
+  });
+  return response.json();
+}
 
 export async function getLatestMarketSnapshot(dealId: string): Promise<MarketSnapshot | null> {
   if (USE_MOCK_DATA) {

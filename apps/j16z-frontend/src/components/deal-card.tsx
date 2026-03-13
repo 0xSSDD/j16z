@@ -1,18 +1,19 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useRouter } from "next/navigation";
-import { MOCK_DEALS, MOCK_EVENTS, MOCK_CLAUSES, MOCK_MARKET_SNAPSHOTS } from "@/lib/constants";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { SpreadChart } from "@/components/ui/spread-chart";
-import { EventTimeline } from "@/components/ui/event-timeline";
-import { CollapsibleSection } from "@/components/ui/collapsible-section";
-import { NewsSection } from "@/components/news-section";
-import { AlertConfigModal } from "@/components/alert-config-modal";
-import { formatDate } from "@/lib/date-utils";
-import { getClauses, getFilings } from "@/lib/api";
-import type { Clause, ClauseType, Filing } from "@/lib/types";
-import { AlertTriangle, CheckCircle, ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
+import { AlertTriangle, CheckCircle, ChevronDown, ChevronRight, ExternalLink, FileText } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
+import { AlertConfigModal } from '@/components/alert-config-modal';
+import { MemoList } from '@/components/memo/memo-list';
+import { NewsSection } from '@/components/news-section';
+import { CollapsibleSection } from '@/components/ui/collapsible-section';
+import { EventTimeline } from '@/components/ui/event-timeline';
+import { SpreadChart } from '@/components/ui/spread-chart';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { getClauses, getFilings } from '@/lib/api';
+import { MOCK_CLAUSES, MOCK_DEALS, MOCK_EVENTS, MOCK_MARKET_SNAPSHOTS } from '@/lib/constants';
+import { formatDate } from '@/lib/date-utils';
+import type { Clause, ClauseType, Filing } from '@/lib/types';
 
 interface DealCardProps {
   dealId: string;
@@ -21,9 +22,9 @@ interface DealCardProps {
 // Clause category groupings — mirrors s4_defm14a.py _group_clauses_by_category()
 const CLAUSE_CATEGORIES: Record<string, ClauseType[]> = {
   'Termination Provisions': ['TERMINATION_FEE', 'REVERSE_TERMINATION_FEE', 'TICKING_FEE'],
-  'Conditions': ['REGULATORY_EFFORTS', 'LITIGATION_CONDITION', 'FINANCING_CONDITION', 'HELL_OR_HIGH_WATER'],
+  Conditions: ['REGULATORY_EFFORTS', 'LITIGATION_CONDITION', 'FINANCING_CONDITION', 'HELL_OR_HIGH_WATER'],
   'Protective Provisions': ['MAE', 'GO_SHOP', 'NO_SHOP', 'MATCHING_RIGHTS', 'SPECIFIC_PERFORMANCE'],
-  'Other': ['OTHER'],
+  Other: ['OTHER'],
 };
 
 // Group clauses by analyst-facing category
@@ -43,7 +44,7 @@ function ClauseCard({ clause }: { clause: Clause }) {
   const [isExpanded, setIsExpanded] = React.useState(false);
 
   // Display text: prefer summary, fall back to value (mock compat), then verbatimText first 120 chars
-  const displayText = clause.summary ?? clause.value ?? (clause.verbatimText?.slice(0, 120));
+  const displayText = clause.summary ?? clause.value ?? clause.verbatimText?.slice(0, 120);
 
   // Source attribution: prefer extractedAt + filingId, fall back to legacy fields
   const sourceAttr = clause.extractedAt
@@ -73,24 +74,17 @@ function ClauseCard({ clause }: { clause: Clause }) {
         )}
         {/* Analyst-verified badge */}
         {clause.analystVerified && (
-          <CheckCircle
-            className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5"
-            aria-label="Analyst verified"
-          />
+          <CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" aria-label="Analyst verified" />
         )}
       </div>
 
       {/* Summary / value */}
-      {displayText && (
-        <div className="text-sm text-text-main font-mono mb-1">{displayText}</div>
-      )}
+      {displayText && <div className="text-sm text-text-main font-mono mb-1">{displayText}</div>}
 
       {/* Source attribution row */}
       {(sourceAttr || sourceHref !== '#') && (
         <div className="flex items-center gap-2 mt-1">
-          {sourceAttr && (
-            <span className="text-xs text-text-muted font-mono">{sourceAttr}</span>
-          )}
+          {sourceAttr && <span className="text-xs text-text-muted font-mono">{sourceAttr}</span>}
           {sourceHref !== '#' && (
             <a
               href={sourceHref}
@@ -112,11 +106,7 @@ function ClauseCard({ clause }: { clause: Clause }) {
             onClick={() => setIsExpanded((prev) => !prev)}
             className="flex items-center gap-1 text-xs text-text-muted hover:text-text-main font-mono transition-colors"
           >
-            {isExpanded ? (
-              <ChevronDown className="h-3 w-3" />
-            ) : (
-              <ChevronRight className="h-3 w-3" />
-            )}
+            {isExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
             {isExpanded ? 'Hide' : 'Show'} verbatim quote
           </button>
           {isExpanded && (
@@ -143,14 +133,17 @@ export function DealCard({ dealId }: DealCardProps) {
   const [isAlertModalOpen, setIsAlertModalOpen] = React.useState(false);
   const [isExportOpen, setIsExportOpen] = React.useState(false);
   const [filings, setFilings] = React.useState<Filing[]>([]);
+  const [activeTab, setActiveTab] = React.useState<'overview' | 'memo'>('overview');
 
   // Fetch clauses from real API (falls back to mock data via getClauses when USE_MOCK_DATA=true)
   React.useEffect(() => {
     if (!dealId) return;
-    getClauses(dealId).then(setClauses).catch(() => {
-      // Fall back to mock data on error for development
-      setClauses(MOCK_CLAUSES.filter((c) => c.dealId === dealId));
-    });
+    getClauses(dealId)
+      .then(setClauses)
+      .catch(() => {
+        // Fall back to mock data on error for development
+        setClauses(MOCK_CLAUSES.filter((c) => c.dealId === dealId));
+      });
   }, [dealId]);
 
   // Fetch filings for this deal (real data only — no mock fallback)
@@ -170,23 +163,23 @@ export function DealCard({ dealId }: DealCardProps) {
 
   const exportDealCSV = () => {
     if (!deal) return;
-    const headers = ["Field", "Value"];
+    const headers = ['Field', 'Value'];
     const rows = [
-      ["Deal", `${deal.acquirerSymbol} / ${deal.symbol}`],
-      ["Status", deal.status],
-      ["Spread", `${deal.currentSpread.toFixed(1)}%`],
-      ["p_close", `${deal.p_close_base}%`],
-      ["EV", `${deal.ev.toFixed(2)}%`],
-      ["Deal Value", `$${(deal.reportedEquityTakeoverValue / 1e9).toFixed(1)}B`],
-      ["Announced", deal.announcementDate],
-      ["Outside Date", deal.outsideDate],
+      ['Deal', `${deal.acquirerSymbol} / ${deal.symbol}`],
+      ['Status', deal.status],
+      ['Spread', `${deal.currentSpread.toFixed(1)}%`],
+      ['p_close', `${deal.p_close_base}%`],
+      ['EV', `${deal.ev.toFixed(2)}%`],
+      ['Deal Value', `$${(deal.reportedEquityTakeoverValue / 1e9).toFixed(1)}B`],
+      ['Announced', deal.announcementDate],
+      ['Outside Date', deal.outsideDate],
     ];
-    const csv = [headers, ...rows].map((row) => row.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
+    const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
-    a.download = `j16z-deal-${deal.acquirerSymbol}-${deal.symbol}-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `j16z-deal-${deal.acquirerSymbol}-${deal.symbol}-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     setIsExportOpen(false);
   };
@@ -194,11 +187,11 @@ export function DealCard({ dealId }: DealCardProps) {
   const exportDealJSON = () => {
     if (!deal) return;
     const json = JSON.stringify({ deal, events, clauses, marketSnapshots }, null, 2);
-    const blob = new Blob([json], { type: "application/json" });
+    const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
-    a.download = `j16z-deal-${deal.acquirerSymbol}-${deal.symbol}-${new Date().toISOString().split("T")[0]}.json`;
+    a.download = `j16z-deal-${deal.acquirerSymbol}-${deal.symbol}-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     setIsExportOpen(false);
   };
@@ -206,30 +199,28 @@ export function DealCard({ dealId }: DealCardProps) {
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey) {
-        if (e.key === "d") {
+        if (e.key === 'd') {
           e.preventDefault();
           router.push(`/app/deals/${dealId}/draft`);
-        } else if (e.key === "e") {
+        } else if (e.key === 'e') {
           e.preventDefault();
           setIsExportOpen((prev) => !prev);
-        } else if (["1", "2", "3", "4", "5"].includes(e.key)) {
+        } else if (['1', '2', '3', '4', '5'].includes(e.key)) {
           e.preventDefault();
           const sectionId = `section-${e.key}`;
-          document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
+          document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
         }
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [dealId, router]);
 
   const daysUntilOutside = React.useMemo(() => {
     if (!deal) return 0;
-    return Math.ceil(
-      (new Date(deal.outsideDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-    );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return Math.ceil((new Date(deal.outsideDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deal?.outsideDate]);
 
   if (!deal) {
@@ -275,9 +266,7 @@ export function DealCard({ dealId }: DealCardProps) {
     );
   }
 
-  const filteredEvents = eventTypeFilter.length > 0
-    ? events.filter((e) => eventTypeFilter.includes(e.type))
-    : events;
+  const filteredEvents = eventTypeFilter.length > 0 ? events.filter((e) => eventTypeFilter.includes(e.type)) : events;
 
   // Filing type badge color coding
   const getFilingBadgeClass = (filingType: string): string => {
@@ -299,7 +288,7 @@ export function DealCard({ dealId }: DealCardProps) {
       <div className="flex items-start justify-between">
         <div>
           <button
-            onClick={() => router.push("/app/deals")}
+            onClick={() => router.push('/app/deals')}
             className="text-sm text-text-muted hover:text-text-main font-mono mb-2 flex items-center gap-1"
           >
             ← Back to Deals
@@ -309,260 +298,293 @@ export function DealCard({ dealId }: DealCardProps) {
           </h1>
           <div className="flex items-center gap-4 flex-wrap">
             <StatusBadge status={deal.status} />
-            <span className="text-sm text-text-muted font-mono">
-              Announced: {formatDate(deal.announcementDate)}
-            </span>
+            <span className="text-sm text-text-muted font-mono">Announced: {formatDate(deal.announcementDate)}</span>
             <span className="text-sm text-primary-500 font-mono">
-              Outside: {daysUntilOutside > 0 ? `⏱ ${daysUntilOutside}d` : "CLOSED"}
+              Outside: {daysUntilOutside > 0 ? `⏱ ${daysUntilOutside}d` : 'CLOSED'}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Key Metrics Panel */}
-      <div className="grid grid-cols-5 gap-4 p-4 bg-background border border-border rounded-lg">
-        <div>
-          <div className="text-xs text-text-muted font-mono uppercase mb-1">Spread</div>
-          <div className="text-2xl font-mono font-bold text-primary-500">
-            {deal.currentSpread.toFixed(1)}%
-          </div>
-          <div className="text-xs text-text-muted font-mono">↑ 0.3% (24h)</div>
-        </div>
-        <div className="group relative">
-          <div className="text-xs text-text-muted font-mono uppercase mb-1 flex items-center gap-1">
-            p_close_base
-            <span className="text-text-dim opacity-0 group-hover:opacity-100 transition-opacity">✏️</span>
-          </div>
-          <input
-            type="number"
-            value={pCloseBase}
-            onChange={(e) => setPCloseBase(Number(e.target.value))}
-            placeholder="Click to edit"
-            className="text-2xl font-mono font-bold text-text-main bg-transparent border-b border-transparent hover:border-border focus:border-primary-500 outline-none w-20 transition-colors cursor-text"
-          />
-          <span className="text-2xl font-mono font-bold text-text-main">%</span>
-        </div>
-        <div>
-          <div className="text-xs text-text-muted font-mono uppercase mb-1">EV</div>
-          <div className="text-2xl font-mono font-bold text-green-500">
-            {((deal.currentSpread * pCloseBase) / 100).toFixed(2)}%
-          </div>
-        </div>
-        <div>
-          <div className="text-xs text-text-muted font-mono uppercase mb-1">Deal Value</div>
-          <div className="text-2xl font-mono font-bold text-text-main">
-            ${(deal.reportedEquityTakeoverValue / 1e9).toFixed(1)}B
-          </div>
-        </div>
-        <div className="group relative">
-          <div className="text-xs text-text-muted font-mono uppercase mb-1 flex items-center gap-1">
-            Entry Threshold
-            <span className="text-text-dim opacity-0 group-hover:opacity-100 transition-opacity">✏️</span>
-          </div>
-          <input
-            type="number"
-            value={spreadThreshold}
-            onChange={(e) => setSpreadThreshold(Number(e.target.value))}
-            placeholder="Click to edit"
-            className="text-2xl font-mono font-bold text-text-main bg-transparent border-b border-transparent hover:border-border focus:border-primary-500 outline-none w-16 transition-colors cursor-text"
-          />
-          <span className="text-2xl font-mono font-bold text-text-main">%</span>
-        </div>
+      {/* Tab navigation */}
+      <div className="flex items-center gap-0 border-b border-border">
+        <button
+          type="button"
+          onClick={() => setActiveTab('overview')}
+          className={`px-4 py-2 font-mono text-sm border-b-2 transition-colors ${
+            activeTab === 'overview'
+              ? 'border-amber-500 text-amber-400'
+              : 'border-transparent text-text-muted hover:text-text-main'
+          }`}
+        >
+          Overview
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('memo')}
+          className={`flex items-center gap-1.5 px-4 py-2 font-mono text-sm border-b-2 transition-colors ${
+            activeTab === 'memo'
+              ? 'border-amber-500 text-amber-400'
+              : 'border-transparent text-text-muted hover:text-text-main'
+          }`}
+        >
+          <FileText className="h-3.5 w-3.5" />
+          Memo
+        </button>
       </div>
 
-      {/* Deal Terms — grouped by category with collapsible verbatim quotes */}
-      <div id="section-1">
-      <CollapsibleSection title="Deal Terms" defaultOpen={true}>
-        {clauses.length > 0 ? (() => {
-          const grouped = groupClausesByCategory(clauses);
-          const categoryNames = Object.keys(grouped);
-          if (categoryNames.length === 0) {
-            // Ungrouped fallback (mock data with legacy shape)
-            return (
-              <div className="space-y-3">
-                {clauses.map((clause) => <ClauseCard key={clause.id} clause={clause} />)}
-              </div>
-            );
-          }
-          return (
-            <div className="space-y-6">
-              {categoryNames.map((category) => (
-                <div key={category}>
-                  <h4 className="text-xs font-mono font-semibold text-text-muted uppercase tracking-wider mb-3 border-b border-border pb-1">
-                    {category}
-                  </h4>
-                  <div className="space-y-3">
-                    {grouped[category].map((clause) => (
-                      <ClauseCard key={clause.id} clause={clause} />
-                    ))}
-                  </div>
-                </div>
-              ))}
+      {/* Memo tab content */}
+      {activeTab === 'memo' && <MemoList dealId={dealId} />}
+
+      {/* Overview tab content */}
+      {activeTab === 'overview' && (
+        <>
+          {/* Key Metrics Panel */}
+          <div className="grid grid-cols-5 gap-4 p-4 bg-background border border-border rounded-lg">
+            <div>
+              <div className="text-xs text-text-muted font-mono uppercase mb-1">Spread</div>
+              <div className="text-2xl font-mono font-bold text-primary-500">{deal.currentSpread.toFixed(1)}%</div>
+              <div className="text-xs text-text-muted font-mono">↑ 0.3% (24h)</div>
             </div>
-          );
-        })() : (
-          <p className="text-sm text-text-muted font-mono">No deal terms available.</p>
-        )}
-      </CollapsibleSection>
-      </div>
-
-      {/* Events Timeline */}
-      <div id="section-2">
-      <CollapsibleSection title="Events" defaultOpen={true}>
-        <div className="mb-4 flex items-center gap-2 flex-wrap">
-          {["FILING", "COURT", "AGENCY", "SPREAD_MOVE", "NEWS"].map((type) => (
-            <button
-              key={type}
-              onClick={() => {
-                setEventTypeFilter((prev) =>
-                  prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-                );
-              }}
-              className={`px-3 py-1.5 rounded-md font-mono text-xs transition-colors ${
-                eventTypeFilter.includes(type)
-                  ? "bg-primary-500 text-white"
-                  : "bg-surface text-text-muted hover:bg-surfaceHighlight"
-              }`}
-            >
-              {type}
-            </button>
-          ))}
-          {eventTypeFilter.length > 0 && (
-            <button
-              onClick={() => setEventTypeFilter([])}
-              className="text-xs font-mono text-text-muted hover:text-text-main underline"
-            >
-              Clear filters
-            </button>
-          )}
-        </div>
-        {filteredEvents.length > 0 ? (
-          <EventTimeline events={filteredEvents} />
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-sm text-text-muted font-mono mb-2">
-              {eventTypeFilter.length > 0 ? "No events match the selected filters." : "No events recorded yet."}
-            </p>
-            {eventTypeFilter.length === 0 && (
-              <p className="text-xs text-text-dim font-mono">
-                Events will appear here as the deal progresses through regulatory reviews, filings, and court proceedings.
-              </p>
-            )}
-          </div>
-        )}
-      </CollapsibleSection>
-      </div>
-
-      {/* Spread Chart */}
-      <div id="section-3">
-      <CollapsibleSection title="Spread History" defaultOpen={false}>
-        {marketSnapshots.length > 0 ? (
-          <SpreadChart data={marketSnapshots} events={events} />
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-sm text-text-muted font-mono mb-2">No spread history available.</p>
-            <p className="text-xs text-text-dim font-mono">
-              Historical spread data will be displayed here once market snapshots are recorded.
-            </p>
-          </div>
-        )}
-      </CollapsibleSection>
-      </div>
-
-      {/* News & Research */}
-      <div id="section-4">
-      <CollapsibleSection title="News & Research" defaultOpen={false}>
-        <NewsSection dealId={dealId} />
-      </CollapsibleSection>
-      </div>
-
-      {/* Recent Filings */}
-      {filings.length > 0 && (
-        <CollapsibleSection title="Recent Filings" defaultOpen={true}>
-          <div className="space-y-2">
-            {filings.slice(0, 5).map((filing) => (
-              <div key={filing.id} className="flex items-center gap-3 p-3 bg-surface rounded-md border border-border">
-                <span
-                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-mono font-medium border ${getFilingBadgeClass(filing.filingType)}`}
-                >
-                  {filing.filingType}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs text-text-main font-mono truncate">
-                    {filing.filerName ?? filing.filerCik}
-                  </div>
-                  <div className="text-xs text-text-muted font-mono">
-                    {formatDate(filing.filedDate)}
-                    {filing.rawContent === null && (
-                      <span className="ml-2 text-text-dim">· Pending</span>
-                    )}
-                  </div>
-                </div>
-                <a
-                  href={filing.rawUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-indigo-400 hover:text-indigo-300 text-xs underline shrink-0"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  View on EDGAR
-                </a>
+            <div className="group relative">
+              <div className="text-xs text-text-muted font-mono uppercase mb-1 flex items-center gap-1">
+                p_close_base
+                <span className="text-text-dim opacity-0 group-hover:opacity-100 transition-opacity">✏️</span>
               </div>
-            ))}
+              <input
+                type="number"
+                value={pCloseBase}
+                onChange={(e) => setPCloseBase(Number(e.target.value))}
+                placeholder="Click to edit"
+                className="text-2xl font-mono font-bold text-text-main bg-transparent border-b border-transparent hover:border-border focus:border-primary-500 outline-none w-20 transition-colors cursor-text"
+              />
+              <span className="text-2xl font-mono font-bold text-text-main">%</span>
+            </div>
+            <div>
+              <div className="text-xs text-text-muted font-mono uppercase mb-1">EV</div>
+              <div className="text-2xl font-mono font-bold text-green-500">
+                {((deal.currentSpread * pCloseBase) / 100).toFixed(2)}%
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-text-muted font-mono uppercase mb-1">Deal Value</div>
+              <div className="text-2xl font-mono font-bold text-text-main">
+                ${(deal.reportedEquityTakeoverValue / 1e9).toFixed(1)}B
+              </div>
+            </div>
+            <div className="group relative">
+              <div className="text-xs text-text-muted font-mono uppercase mb-1 flex items-center gap-1">
+                Entry Threshold
+                <span className="text-text-dim opacity-0 group-hover:opacity-100 transition-opacity">✏️</span>
+              </div>
+              <input
+                type="number"
+                value={spreadThreshold}
+                onChange={(e) => setSpreadThreshold(Number(e.target.value))}
+                placeholder="Click to edit"
+                className="text-2xl font-mono font-bold text-text-main bg-transparent border-b border-transparent hover:border-border focus:border-primary-500 outline-none w-16 transition-colors cursor-text"
+              />
+              <span className="text-2xl font-mono font-bold text-text-main">%</span>
+            </div>
           </div>
-        </CollapsibleSection>
-      )}
 
-      {/* Regulatory & Litigation */}
-      <div id="section-5">
-      <CollapsibleSection title="Regulatory & Litigation" defaultOpen={false}>
-        <div className="space-y-4">
-          <div>
-            <h4 className="text-sm font-mono font-medium text-text-main mb-2">Regulatory Status</h4>
-            {deal.regulatoryFlags.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {deal.regulatoryFlags.map((flag) => (
-                  <span
-                    key={flag}
-                    className="px-3 py-1.5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-md font-mono text-xs"
+          {/* Deal Terms — grouped by category with collapsible verbatim quotes */}
+          <div id="section-1">
+            <CollapsibleSection title="Deal Terms" defaultOpen={true}>
+              {clauses.length > 0 ? (
+                (() => {
+                  const grouped = groupClausesByCategory(clauses);
+                  const categoryNames = Object.keys(grouped);
+                  if (categoryNames.length === 0) {
+                    // Ungrouped fallback (mock data with legacy shape)
+                    return (
+                      <div className="space-y-3">
+                        {clauses.map((clause) => (
+                          <ClauseCard key={clause.id} clause={clause} />
+                        ))}
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="space-y-6">
+                      {categoryNames.map((category) => (
+                        <div key={category}>
+                          <h4 className="text-xs font-mono font-semibold text-text-muted uppercase tracking-wider mb-3 border-b border-border pb-1">
+                            {category}
+                          </h4>
+                          <div className="space-y-3">
+                            {grouped[category].map((clause) => (
+                              <ClauseCard key={clause.id} clause={clause} />
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()
+              ) : (
+                <p className="text-sm text-text-muted font-mono">No deal terms available.</p>
+              )}
+            </CollapsibleSection>
+          </div>
+
+          {/* Events Timeline */}
+          <div id="section-2">
+            <CollapsibleSection title="Events" defaultOpen={true}>
+              <div className="mb-4 flex items-center gap-2 flex-wrap">
+                {['FILING', 'COURT', 'AGENCY', 'SPREAD_MOVE', 'NEWS'].map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      setEventTypeFilter((prev) =>
+                        prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
+                      );
+                    }}
+                    className={`px-3 py-1.5 rounded-md font-mono text-xs transition-colors ${
+                      eventTypeFilter.includes(type)
+                        ? 'bg-primary-500 text-white'
+                        : 'bg-surface text-text-muted hover:bg-surfaceHighlight'
+                    }`}
                   >
-                    {flag.replace(/_/g, " ")}
-                  </span>
+                    {type}
+                  </button>
+                ))}
+                {eventTypeFilter.length > 0 && (
+                  <button
+                    onClick={() => setEventTypeFilter([])}
+                    className="text-xs font-mono text-text-muted hover:text-text-main underline"
+                  >
+                    Clear filters
+                  </button>
+                )}
+              </div>
+              {filteredEvents.length > 0 ? (
+                <EventTimeline events={filteredEvents} />
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-sm text-text-muted font-mono mb-2">
+                    {eventTypeFilter.length > 0 ? 'No events match the selected filters.' : 'No events recorded yet.'}
+                  </p>
+                  {eventTypeFilter.length === 0 && (
+                    <p className="text-xs text-text-dim font-mono">
+                      Events will appear here as the deal progresses through regulatory reviews, filings, and court
+                      proceedings.
+                    </p>
+                  )}
+                </div>
+              )}
+            </CollapsibleSection>
+          </div>
+
+          {/* Spread Chart */}
+          <div id="section-3">
+            <CollapsibleSection title="Spread History" defaultOpen={false}>
+              {marketSnapshots.length > 0 ? (
+                <SpreadChart data={marketSnapshots} events={events} />
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-sm text-text-muted font-mono mb-2">No spread history available.</p>
+                  <p className="text-xs text-text-dim font-mono">
+                    Historical spread data will be displayed here once market snapshots are recorded.
+                  </p>
+                </div>
+              )}
+            </CollapsibleSection>
+          </div>
+
+          {/* News & Research */}
+          <div id="section-4">
+            <CollapsibleSection title="News & Research" defaultOpen={false}>
+              <NewsSection dealId={dealId} />
+            </CollapsibleSection>
+          </div>
+
+          {/* Recent Filings */}
+          {filings.length > 0 && (
+            <CollapsibleSection title="Recent Filings" defaultOpen={true}>
+              <div className="space-y-2">
+                {filings.slice(0, 5).map((filing) => (
+                  <div
+                    key={filing.id}
+                    className="flex items-center gap-3 p-3 bg-surface rounded-md border border-border"
+                  >
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-mono font-medium border ${getFilingBadgeClass(filing.filingType)}`}
+                    >
+                      {filing.filingType}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs text-text-main font-mono truncate">
+                        {filing.filerName ?? filing.filerCik}
+                      </div>
+                      <div className="text-xs text-text-muted font-mono">
+                        {formatDate(filing.filedDate)}
+                        {filing.rawContent === null && <span className="ml-2 text-text-dim">· Pending</span>}
+                      </div>
+                    </div>
+                    <a
+                      href={filing.rawUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-indigo-400 hover:text-indigo-300 text-xs underline shrink-0"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      View on EDGAR
+                    </a>
+                  </div>
                 ))}
               </div>
-            ) : (
-              <div>
-                <p className="text-sm text-text-muted font-mono mb-1">No regulatory issues identified.</p>
-                <p className="text-xs text-text-dim font-mono">
-                  This deal has no active regulatory reviews or concerns flagged.
-                </p>
-              </div>
-            )}
-          </div>
-          <div>
-            <h4 className="text-sm font-mono font-medium text-text-main mb-2">Litigation</h4>
-            {deal.litigationCount > 0 ? (
-              <p className="text-sm text-text-main font-mono">
-                {deal.litigationCount} active {deal.litigationCount === 1 ? "case" : "cases"}
-              </p>
-            ) : (
-              <div>
-                <p className="text-sm text-text-muted font-mono mb-1">No active litigation.</p>
-                <p className="text-xs text-text-dim font-mono">
-                  This deal currently has no pending legal challenges or shareholder lawsuits.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </CollapsibleSection>
-      </div>
+            </CollapsibleSection>
+          )}
 
-      <AlertConfigModal
-        isOpen={isAlertModalOpen}
-        onClose={() => setIsAlertModalOpen(false)}
-        dealId={dealId}
-      />
+          {/* Regulatory & Litigation */}
+          <div id="section-5">
+            <CollapsibleSection title="Regulatory & Litigation" defaultOpen={false}>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-mono font-medium text-text-main mb-2">Regulatory Status</h4>
+                  {deal.regulatoryFlags.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {deal.regulatoryFlags.map((flag) => (
+                        <span
+                          key={flag}
+                          className="px-3 py-1.5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-md font-mono text-xs"
+                        >
+                          {flag.replace(/_/g, ' ')}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-sm text-text-muted font-mono mb-1">No regulatory issues identified.</p>
+                      <p className="text-xs text-text-dim font-mono">
+                        This deal has no active regulatory reviews or concerns flagged.
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h4 className="text-sm font-mono font-medium text-text-main mb-2">Litigation</h4>
+                  {deal.litigationCount > 0 ? (
+                    <p className="text-sm text-text-main font-mono">
+                      {deal.litigationCount} active {deal.litigationCount === 1 ? 'case' : 'cases'}
+                    </p>
+                  ) : (
+                    <div>
+                      <p className="text-sm text-text-muted font-mono mb-1">No active litigation.</p>
+                      <p className="text-xs text-text-dim font-mono">
+                        This deal currently has no pending legal challenges or shareholder lawsuits.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CollapsibleSection>
+          </div>
+        </> /* end overview tab */
+      )}
+
+      <AlertConfigModal isOpen={isAlertModalOpen} onClose={() => setIsAlertModalOpen(false)} dealId={dealId} />
     </div>
   );
 }
