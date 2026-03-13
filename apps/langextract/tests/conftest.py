@@ -9,10 +9,21 @@ Provides:
 """
 from __future__ import annotations
 
+import os
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
+
+def pytest_configure() -> None:
+    test_database_url = os.environ.get('TEST_DATABASE_URL')
+    if test_database_url and not os.environ.get('DATABASE_URL'):
+        os.environ['DATABASE_URL'] = test_database_url
+
+    test_redis_url = os.environ.get('TEST_REDIS_URL')
+    if test_redis_url and not os.environ.get('REDIS_URL'):
+        os.environ['REDIS_URL'] = test_redis_url
 
 
 # ---------------------------------------------------------------------------
@@ -35,80 +46,80 @@ class MockJob:
 @pytest.fixture
 def s4_job_data() -> dict[str, Any]:
     return {
-        'filing_id': 'filing-uuid-s4-001',
-        'filing_type': 'S-4',
-        'deal_id': 'deal-uuid-001',
-        'firm_ids': ['firm-uuid-001', 'firm-uuid-002'],
+        'filingId': 'filing-uuid-s4-001',
+        'filingType': 'S-4',
+        'dealId': 'deal-uuid-001',
+        'firmIds': ['firm-uuid-001', 'firm-uuid-002'],
     }
 
 
 @pytest.fixture
 def s4a_job_data() -> dict[str, Any]:
     return {
-        'filing_id': 'filing-uuid-s4a-001',
-        'filing_type': 'S-4/A',
-        'deal_id': 'deal-uuid-001',
-        'firm_ids': ['firm-uuid-001'],
+        'filingId': 'filing-uuid-s4a-001',
+        'filingType': 'S-4/A',
+        'dealId': 'deal-uuid-001',
+        'firmIds': ['firm-uuid-001'],
     }
 
 
 @pytest.fixture
 def defm14a_job_data() -> dict[str, Any]:
     return {
-        'filing_id': 'filing-uuid-defm-001',
-        'filing_type': 'DEFM14A',
-        'deal_id': 'deal-uuid-002',
-        'firm_ids': ['firm-uuid-001'],
+        'filingId': 'filing-uuid-defm-001',
+        'filingType': 'DEFM14A',
+        'dealId': 'deal-uuid-002',
+        'firmIds': ['firm-uuid-001'],
     }
 
 
 @pytest.fixture
 def eightk_job_data() -> dict[str, Any]:
     return {
-        'filing_id': 'filing-uuid-8k-001',
-        'filing_type': '8-K',
-        'deal_id': 'deal-uuid-003',
-        'firm_ids': ['firm-uuid-001'],
+        'filingId': 'filing-uuid-8k-001',
+        'filingType': '8-K',
+        'dealId': 'deal-uuid-003',
+        'firmIds': ['firm-uuid-001'],
     }
 
 
 @pytest.fixture
 def eightka_job_data() -> dict[str, Any]:
     return {
-        'filing_id': 'filing-uuid-8ka-001',
-        'filing_type': '8-K/A',
-        'deal_id': 'deal-uuid-003',
-        'firm_ids': ['firm-uuid-001'],
+        'filingId': 'filing-uuid-8ka-001',
+        'filingType': '8-K/A',
+        'dealId': 'deal-uuid-003',
+        'firmIds': ['firm-uuid-001'],
     }
 
 
 @pytest.fixture
 def sc13d_job_data() -> dict[str, Any]:
     return {
-        'filing_id': 'filing-uuid-13d-001',
-        'filing_type': 'SC 13D',
-        'deal_id': None,
-        'firm_ids': ['firm-uuid-001'],
+        'filingId': 'filing-uuid-13d-001',
+        'filingType': 'SC 13D',
+        'dealId': None,
+        'firmIds': ['firm-uuid-001'],
     }
 
 
 @pytest.fixture
 def sc13g_job_data() -> dict[str, Any]:
     return {
-        'filing_id': 'filing-uuid-13g-001',
-        'filing_type': 'SC 13G',
-        'deal_id': None,
-        'firm_ids': ['firm-uuid-001'],
+        'filingId': 'filing-uuid-13g-001',
+        'filingType': 'SC 13G',
+        'dealId': None,
+        'firmIds': ['firm-uuid-001'],
     }
 
 
 @pytest.fixture
 def unrecognized_job_data() -> dict[str, Any]:
     return {
-        'filing_id': 'filing-uuid-other-001',
-        'filing_type': 'UNKNOWN_TYPE',
-        'deal_id': None,
-        'firm_ids': [],
+        'filingId': 'filing-uuid-other-001',
+        'filingType': 'UNKNOWN_TYPE',
+        'dealId': None,
+        'firmIds': [],
     }
 
 

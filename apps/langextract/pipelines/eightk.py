@@ -16,8 +16,9 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TypedDict, cast
 
 import langextract as lx
 from langextract.data import AlignmentStatus, CharInterval, ExampleData, Extraction
@@ -62,6 +63,13 @@ _CLASS_TO_CLAUSE_TYPE = {
     "COMPLETION": "OTHER",
     "OTHER": "OTHER",
 }
+
+
+class HsrEventSpec(TypedDict):
+    sub_type: str
+    score: int
+    title: str
+    description: str
 
 
 # ---------------------------------------------------------------------------
@@ -121,6 +129,61 @@ def get_confidence_score(extraction: Extraction) -> float:
     return 0.6
 
 
+def detect_hsr_event_type(text: str) -> Optional[str]:
+    normalized = text.lower()
+
+    has_second_request = 'second request' in normalized
+    has_waiting_period = 'waiting period' in normalized
+    has_early_termination = 'early termination' in normalized
+    has_expired = 'expired' in normalized
+    has_extended = 'extended' in normalized
+    has_terminated = 'terminated' in normalized
+
+    has_ftc = 'federal trade commission' in normalized
+    has_doj = 'department of justice' in normalized
+    has_review = 'review' in normalized
+    has_investigation = 'investigation' in normalized
+
+    has_hsr_reference = (
+        'hart-scott-rodino' in normalized
+        or 'hsr act' in normalized
+        or 'premerger notification' in normalized
+        or 'additional information and documentary material' in normalized
+        or bool(re.search(r'\bhsr\b', normalized))
+    )
+
+    has_waiting_period_signal = has_waiting_period and (
+        has_extended or has_expired or has_terminated or has_early_termination
+    )
+    has_regulator_review_signal = (has_ftc or has_doj) and (
+        has_review or has_investigation or has_second_request
+    )
+
+    if has_second_request:
+        return 'SECOND_REQUEST'
+    if has_waiting_period and has_early_termination:
+        return 'HSR_EARLY_TERMINATION'
+    if has_waiting_period and has_expired:
+        return 'HSR_WAITING_PERIOD_EXPIRED'
+    if has_regulator_review_signal:
+        return 'HSR_INVESTIGATION'
+    if has_hsr_reference or has_waiting_period_signal:
+        return 'HSR_INVESTIGATION'
+    return None
+
+
+def apply_hsr_confidence_boost(confidence: float, hsr_event_type: Optional[str]) -> float:
+    if hsr_event_type == 'SECOND_REQUEST':
+        return max(confidence, 0.95)
+    if hsr_event_type == 'HSR_EARLY_TERMINATION':
+        return max(confidence, 0.9)
+    if hsr_event_type == 'HSR_WAITING_PERIOD_EXPIRED':
+        return max(confidence, 0.88)
+    if hsr_event_type == 'HSR_INVESTIGATION':
+        return max(confidence, 0.85)
+    return confidence
+
+
 # ---------------------------------------------------------------------------
 # Pipeline
 # ---------------------------------------------------------------------------
@@ -171,12 +234,14 @@ async def run_eightk_pipeline(
 
     all_extractions: list[Extraction] = []
     for doc in result:
-        if hasattr(doc, "extractions"):
-            all_extractions.extend(doc.extractions)
+        extractions = getattr(doc, 'extractions', None)
+        if isinstance(extractions, list) and extractions:
+            all_extractions.extend(cast(list[Extraction], extractions))
 
     logger.info(f"[eightk_pipeline] Extracted {len(all_extractions)} items for filing {filing_id}")
 
-    clause_dicts: list[dict] = []
+    clause_dicts: list[dict[str, object]] = []
+    detected_hsr_event_types: set[str] = set()
 
     for extraction in all_extractions:
         # Map 8-K-specific class to DB clause type
@@ -192,16 +257,24 @@ async def run_eightk_pipeline(
         else:
             source_location = ""
 
+        hsr_event_type = detect_hsr_event_type(extraction.extraction_text)
+        attributes = dict(extraction.attributes or {})
+        if hsr_event_type:
+            attributes['hsr_event_type'] = hsr_event_type
+            extraction.attributes = attributes
+            detected_hsr_event_types.add(hsr_event_type)
+
         confidence = get_confidence_score(extraction)
+        confidence = apply_hsr_confidence_boost(confidence, hsr_event_type)
 
         item_num = ""
-        if extraction.attributes and extraction.attributes.get("item_number"):
-            item_num = f" ({extraction.attributes['item_number']})"
+        if attributes.get('item_number'):
+            item_num = f" ({attributes['item_number']})"
         title = f"8-K {raw_class.replace('_', ' ').title()}{item_num}"
 
         summary = ""
-        if extraction.attributes and extraction.attributes.get("event_type"):
-            summary = str(extraction.attributes["event_type"])
+        if attributes.get('event_type'):
+            summary = str(attributes['event_type'])
         else:
             summary = extraction.extraction_text[:200]
 
@@ -227,7 +300,7 @@ async def run_eightk_pipeline(
         clause_dicts.append({
             "type": raw_class,
             "verbatim_text": extraction.extraction_text,
-            "attributes": extraction.attributes or {},
+            "attributes": attributes,
         })
 
     try:
@@ -276,6 +349,41 @@ async def run_eightk_pipeline(
                     severity=mat_severity,
                     sub_type="8K_AMENDMENT",
                 )
+
+            hsr_event_specs: dict[str, HsrEventSpec] = {
+                'SECOND_REQUEST': {
+                    'sub_type': 'FTC_SECOND_REQUEST',
+                    'score': calculate_materiality_score('AGENCY', 'FTC_SECOND_REQUEST'),
+                    'title': 'FTC second request disclosed in 8-K',
+                    'description': '8-K disclosure indicates the transaction received an HSR second request.',
+                },
+                'HSR_EARLY_TERMINATION': {
+                    'sub_type': 'HSR_EARLY_TERMINATION',
+                    'score': calculate_materiality_score('AGENCY', 'DOJ_PRESS_RELEASE'),
+                    'title': 'HSR waiting period early termination disclosed in 8-K',
+                    'description': '8-K disclosure indicates early termination of the HSR waiting period.',
+                },
+            }
+
+            for hsr_event_type in sorted(detected_hsr_event_types):
+                if hsr_event_type not in hsr_event_specs:
+                    continue
+
+                spec = hsr_event_specs[hsr_event_type]
+                hsr_score = spec['score']
+                hsr_severity = get_severity(hsr_score)
+                for firm_id in firm_ids:
+                    await create_extraction_event(
+                        firm_id=firm_id,
+                        deal_id=deal_id,
+                        title=spec['title'],
+                        description=spec['description'],
+                        source_url='https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&type=8-K',
+                        materiality_score=hsr_score,
+                        severity=hsr_severity,
+                        event_type='AGENCY',
+                        sub_type=spec['sub_type'],
+                    )
     except Exception:
         logger.exception(f"[eightk_pipeline] create_extraction_event failed for filing {filing_id}")
 

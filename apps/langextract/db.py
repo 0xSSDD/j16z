@@ -61,13 +61,16 @@ async def fetch_filing_content(filing_id: str) -> tuple[Optional[str], str]:
     """
     pool = await get_pool()
     async with pool.connection() as conn:
-        row = await conn.fetchrow(
-            'SELECT raw_content, filing_type FROM filings WHERE id = %s',
-            (filing_id,),
-        )
+        async with conn.cursor() as cur:
+            await cur.execute(
+                'SELECT raw_content, filing_type FROM filings WHERE id = %s',
+                (filing_id,),
+            )
+            row = await cur.fetchone()
     if row is None:
         raise ValueError(f'Filing {filing_id} not found')
-    return row['raw_content'], row['filing_type']
+    raw_content, filing_type = row
+    return raw_content, filing_type
 
 
 async def mark_filing_extracted(filing_id: str) -> None:
@@ -171,6 +174,7 @@ async def create_extraction_event(
     source_url: str,
     materiality_score: int,
     severity: str,
+    event_type: str = 'FILING',
     sub_type: str = 'EXTRACTION_COMPLETE',
 ) -> None:
     """
@@ -185,13 +189,14 @@ async def create_extraction_event(
             '''
             INSERT INTO events
               (firm_id, deal_id, type, sub_type, title, description,
-               source, source_url, timestamp, materiality_score, severity,
-               created_at, updated_at)
-            VALUES (%s, %s, 'FILING', %s, %s, %s, 'SEC_EDGAR', %s, NOW(), %s, %s, NOW(), NOW())
+                source, source_url, timestamp, materiality_score, severity,
+                created_at, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, 'SEC_EDGAR', %s, NOW(), %s, %s, NOW(), NOW())
             ''',
             (
                 firm_id,
                 deal_id,
+                event_type,
                 sub_type,
                 title,
                 description,

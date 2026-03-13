@@ -11,7 +11,7 @@
  * IMPORTANT: These tests mock process.env to avoid requiring real Supabase env vars
  * for the JWKS endpoint in the auth middleware module-level side effect.
  */
-import { describe, it, expect, beforeAll, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 // Stub environment variables before importing the app so the auth middleware
 // module-level JWKS URL construction doesn't fail.
@@ -24,7 +24,8 @@ beforeAll(() => {
 describe('GET /health (BACK-01 smoke test)', () => {
   it('returns 200 with status ok', async () => {
     // Import app after env stubs are in place
-    const { default: app } = await import('../index.js').catch(() => ({ default: null }));
+    const mod = await import('../index.js').catch(() => null);
+    const app = mod?.default ?? null;
 
     // If the app module isn't importable in test context (dynamic imports not supported), skip
     if (!app) {
@@ -43,7 +44,8 @@ describe('GET /health (BACK-01 smoke test)', () => {
 
 describe('GET /api/deals without auth', () => {
   it('returns 401 Unauthorized', async () => {
-    const { default: app } = await import('../index.js').catch(() => ({ default: null }));
+    const mod = await import('../index.js').catch(() => null);
+    const app = mod?.default ?? null;
 
     if (!app) {
       console.warn('[health.test] Could not import app — skipping auth gate test');
@@ -57,7 +59,8 @@ describe('GET /api/deals without auth', () => {
 
 describe('GET unknown route', () => {
   it('returns 404 for unknown routes', async () => {
-    const { default: app } = await import('../index.js').catch(() => ({ default: null }));
+    const mod = await import('../index.js').catch(() => null);
+    const app = mod?.default ?? null;
 
     if (!app) {
       console.warn('[health.test] Could not import app — skipping 404 test');

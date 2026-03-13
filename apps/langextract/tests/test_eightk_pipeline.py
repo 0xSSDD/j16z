@@ -23,7 +23,7 @@ def _make_extraction(
     start_pos: int = 50,
     end_pos: int = 150,
     alignment_status: AlignmentStatus = AlignmentStatus.MATCH_EXACT,
-    attributes: dict | None = None,
+    attributes: dict[str, str | list[str]] | None = None,
 ) -> Extraction:
     return Extraction(
         extraction_class=extraction_class,
@@ -222,3 +222,125 @@ async def test_eightk_pipeline_marks_filing_extracted():
         )
 
     mock_mark.assert_called_once_with("test-8k-005")
+
+
+@pytest.mark.asyncio
+async def test_eightk_pipeline_hsr_second_request_sets_attribute():
+    mock_doc = _make_annotated_doc([
+        _make_extraction(
+            'MATERIAL_EVENT',
+            'The Company received a second request from the Federal Trade Commission.',
+            10,
+            95,
+        ),
+    ])
+
+    with patch('langextract.extract') as mock_lx, \
+         patch('db.insert_clause', new_callable=AsyncMock), \
+         patch('db.mark_filing_extracted', new_callable=AsyncMock), \
+         patch('db.insert_filing_summary', new_callable=AsyncMock), \
+         patch('summaries.analyst_summary.generate_headline_summary', new_callable=AsyncMock) as mock_headline:
+
+        mock_lx.return_value = mock_doc
+        mock_headline.return_value = 'HSR second request disclosed.'
+
+        from pipelines.eightk import run_eightk_pipeline
+        await run_eightk_pipeline(
+            filing_id='test-8k-hsr-001',
+            deal_id='deal-hsr-001',
+            firm_ids=['firm-001'],
+            raw_content='sample 8-K text',
+        )
+
+    clauses = mock_headline.call_args.kwargs['clauses']
+    assert clauses[0]['attributes']['hsr_event_type'] == 'SECOND_REQUEST'
+
+
+@pytest.mark.asyncio
+async def test_eightk_pipeline_hsr_early_termination_sets_attribute():
+    mock_doc = _make_annotated_doc([
+        _make_extraction(
+            'MATERIAL_EVENT',
+            'The parties received early termination of the waiting period under the HSR Act.',
+            10,
+            120,
+        ),
+    ])
+
+    with patch('langextract.extract') as mock_lx, \
+         patch('db.insert_clause', new_callable=AsyncMock), \
+         patch('db.mark_filing_extracted', new_callable=AsyncMock), \
+         patch('db.insert_filing_summary', new_callable=AsyncMock), \
+         patch('summaries.analyst_summary.generate_headline_summary', new_callable=AsyncMock) as mock_headline:
+
+        mock_lx.return_value = mock_doc
+        mock_headline.return_value = 'HSR waiting period update.'
+
+        from pipelines.eightk import run_eightk_pipeline
+        await run_eightk_pipeline(
+            filing_id='test-8k-hsr-002',
+            deal_id='deal-hsr-002',
+            firm_ids=['firm-001'],
+            raw_content='sample 8-K text',
+        )
+
+    clauses = mock_headline.call_args.kwargs['clauses']
+    assert clauses[0]['attributes']['hsr_event_type'] == 'HSR_EARLY_TERMINATION'
+
+
+@pytest.mark.asyncio
+async def test_eightk_pipeline_without_hsr_keywords_has_no_hsr_event_type_attribute():
+    mock_doc = _make_annotated_doc([
+        _make_extraction('MATERIAL_EVENT', 'The parties entered into an amendment to the merger agreement.', 10, 90),
+    ])
+
+    with patch('langextract.extract') as mock_lx, \
+         patch('db.insert_clause', new_callable=AsyncMock), \
+         patch('db.mark_filing_extracted', new_callable=AsyncMock), \
+         patch('db.insert_filing_summary', new_callable=AsyncMock), \
+         patch('summaries.analyst_summary.generate_headline_summary', new_callable=AsyncMock) as mock_headline:
+
+        mock_lx.return_value = mock_doc
+        mock_headline.return_value = 'No HSR language found.'
+
+        from pipelines.eightk import run_eightk_pipeline
+        await run_eightk_pipeline(
+            filing_id='test-8k-hsr-003',
+            deal_id='deal-hsr-003',
+            firm_ids=['firm-001'],
+            raw_content='sample 8-K text',
+        )
+
+    clauses = mock_headline.call_args.kwargs['clauses']
+    assert 'hsr_event_type' not in clauses[0]['attributes']
+
+
+@pytest.mark.asyncio
+async def test_eightk_pipeline_hsr_second_request_boosts_confidence():
+    second_request_extraction = _make_extraction(
+        'MATERIAL_EVENT',
+        'The Company received a second request under the Hart-Scott-Rodino Act.',
+        10,
+        120,
+        alignment_status=AlignmentStatus.MATCH_FUZZY,
+    )
+    mock_doc = _make_annotated_doc([second_request_extraction])
+
+    with patch('langextract.extract') as mock_lx, \
+         patch('db.insert_clause', new_callable=AsyncMock) as mock_insert, \
+         patch('db.mark_filing_extracted', new_callable=AsyncMock), \
+         patch('db.insert_filing_summary', new_callable=AsyncMock), \
+         patch('summaries.analyst_summary.generate_headline_summary', new_callable=AsyncMock) as mock_headline:
+
+        mock_lx.return_value = mock_doc
+        mock_headline.return_value = 'HSR second request disclosed.'
+
+        from pipelines.eightk import run_eightk_pipeline
+        await run_eightk_pipeline(
+            filing_id='test-8k-hsr-004',
+            deal_id='deal-hsr-004',
+            firm_ids=['firm-001'],
+            raw_content='sample 8-K text',
+        )
+
+    assert mock_insert.call_args.kwargs['confidence_score'] == 0.95

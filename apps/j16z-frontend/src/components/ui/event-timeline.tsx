@@ -1,34 +1,38 @@
-import { Event } from "@/lib/types";
-import { FileText, Scale, Building2, TrendingUp, Newspaper } from "lucide-react";
+import { FileText, Newspaper, Scale, Shield, TrendingUp } from 'lucide-react';
+import type { Event } from '@/lib/types';
 
 interface EventTimelineProps {
   events: Event[];
 }
 
-const EventIcon = ({ type }: { type: Event["type"] }) => {
-  const iconProps = { className: "h-4 w-4" };
+const EVENT_ICON_CONFIG: Record<string, { icon: typeof FileText; color: string }> = {
+  FILING: { icon: FileText, color: 'text-emerald-400' },
+  COURT: { icon: Scale, color: 'text-violet-400' },
+  AGENCY: { icon: Shield, color: 'text-amber-400' },
+  SPREAD_MOVE: { icon: TrendingUp, color: 'text-cyan-400' },
+  NEWS: { icon: Newspaper, color: 'text-sky-400' },
+};
 
-  switch (type) {
-    case "FILING":
-      return <FileText {...iconProps} />;
-    case "COURT":
-      return <Scale {...iconProps} />;
-    case "AGENCY":
-      return <Building2 {...iconProps} />;
-    case "SPREAD_MOVE":
-      return <TrendingUp {...iconProps} />;
-    case "NEWS":
-      return <Newspaper {...iconProps} />;
-    default:
-      return <FileText {...iconProps} />;
-  }
+const SUBTYPE_LABELS: Record<string, string> = {
+  FTC_SECOND_REQUEST: 'FTC Second Request',
+  HSR_EARLY_TERMINATION: 'HSR Early Termination',
+  FTC_PRESS_RELEASE: 'FTC Press Release',
+  DOJ_PRESS_RELEASE: 'DOJ Press Release',
+  DOJ_CIVIL_CASE: 'DOJ Civil Case',
+  RSS_ARTICLE: 'RSS Article',
+};
+
+const EventIcon = ({ type }: { type: Event['type'] }) => {
+  const config = EVENT_ICON_CONFIG[type] ?? EVENT_ICON_CONFIG.FILING;
+  const Icon = config.icon;
+  return <Icon className={`h-4 w-4 ${config.color}`} />;
 };
 
 export function EventTimeline({ events }: EventTimelineProps) {
   const severityColors: Record<string, string> = {
-    CRITICAL: "border-red-500 bg-red-500/10",
-    WARNING: "border-yellow-500 bg-yellow-500/10",
-    INFO: "border-zinc-500 bg-zinc-500/10",
+    CRITICAL: 'border-red-500 bg-red-500/10',
+    WARNING: 'border-yellow-500 bg-yellow-500/10',
+    INFO: 'border-zinc-500 bg-zinc-500/10',
   };
 
   return (
@@ -41,21 +45,19 @@ export function EventTimeline({ events }: EventTimelineProps) {
             >
               <EventIcon type={event.type} />
             </div>
-            {index < events.length - 1 && (
-              <div className="w-0.5 h-full bg-border mt-2" />
-            )}
+            {index < events.length - 1 && <div className="w-0.5 h-full bg-border mt-2" />}
           </div>
           <div className="flex-1 pb-8">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-mono text-xs text-muted-foreground">
-                    {new Date(event.timestamp).toLocaleString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
+                    {new Date(event.timestamp).toLocaleString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
                     })}
                   </span>
                   <span
@@ -64,15 +66,11 @@ export function EventTimeline({ events }: EventTimelineProps) {
                     {event.severity}
                   </span>
                   <span className="px-2 py-0.5 rounded text-xs font-mono bg-secondary text-muted-foreground">
-                    {event.subtype}
+                    {SUBTYPE_LABELS[event.subtype] ?? event.subtype}
                   </span>
                 </div>
-                <h4 className="font-mono text-sm font-medium text-foreground mb-2">
-                  {event.title}
-                </h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {event.summary}
-                </p>
+                <h4 className="font-mono text-sm font-medium text-foreground mb-2">{event.title}</h4>
+                <p className="text-sm text-muted-foreground leading-relaxed">{event.summary}</p>
                 {event.sourceUrl && (
                   <a
                     href={event.sourceUrl}

@@ -1,18 +1,9 @@
 """
-Worker smoke tests — verify routing and filtering logic without live services.
+Worker unit tests — verify routing and filtering logic without live services.
 
-Tests:
-1. Worker filters edgar_poll and edgar_download jobs (returns without error)
-2. Worker routes S-4 filing to s4_defm14a pipeline
-3. Worker routes DEFM14A filing to s4_defm14a pipeline
-4. Worker routes 8-K filing to eightk pipeline
-5. Worker routes 8-K/A filing to eightk pipeline
-6. Worker routes SC 13D filing to thirteend_g pipeline
-7. Worker routes SC 13G filing to thirteend_g pipeline
-8. Worker logs a warning for unrecognised filing types (no crash)
-
-All tests use mocked pipeline functions and mocked DB — no real Gemini API
-calls, no real Redis or Postgres connections required.
+All tests use mocked pipeline functions and mocked DB — no API key,
+Redis, or Postgres required. For live Gemini extraction tests, see
+test_integration.py.
 """
 from __future__ import annotations
 
@@ -135,10 +126,10 @@ async def test_worker_routes_sc13g_to_thirteend_g_pipeline() -> None:
     job = MockJob(
         name='llm_extract',
         data={
-            'filing_id': 'filing-uuid-13g-001',
-            'filing_type': 'SC 13G',
-            'deal_id': None,
-            'firm_ids': ['firm-uuid-001'],
+            'filingId': 'filing-uuid-13g-001',
+            'filingType': 'SC 13G',
+            'dealId': None,
+            'firmIds': ['firm-uuid-001'],
         },
     )
     with patch('db.fetch_filing_content', new_callable=AsyncMock) as mock_fetch, \
@@ -161,10 +152,10 @@ async def test_worker_skips_when_raw_content_is_none() -> None:
     job = MockJob(
         name='llm_extract',
         data={
-            'filing_id': 'filing-uuid-pending-001',
-            'filing_type': 'S-4',
-            'deal_id': 'deal-uuid-001',
-            'firm_ids': ['firm-uuid-001'],
+            'filingId': 'filing-uuid-pending-001',
+            'filingType': 'S-4',
+            'dealId': 'deal-uuid-001',
+            'firmIds': ['firm-uuid-001'],
         },
     )
     with patch('db.fetch_filing_content', new_callable=AsyncMock) as mock_fetch, \
@@ -184,10 +175,10 @@ async def test_worker_logs_warning_for_unrecognised_filing_type() -> None:
     job = MockJob(
         name='llm_extract',
         data={
-            'filing_id': 'filing-uuid-other-001',
-            'filing_type': 'UNKNOWN_TYPE',
-            'deal_id': None,
-            'firm_ids': [],
+            'filingId': 'filing-uuid-other-001',
+            'filingType': 'UNKNOWN_TYPE',
+            'dealId': None,
+            'firmIds': [],
         },
     )
     with patch('db.fetch_filing_content', new_callable=AsyncMock) as mock_fetch:

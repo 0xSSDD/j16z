@@ -50,10 +50,10 @@ async def process(job, job_token):  # noqa: ANN001
         logger.debug(f'[worker] Skipping job {job.name} (not llm_extract)')
         return
 
-    filing_id: str = job.data.get('filing_id', '')
-    filing_type: str = job.data.get('filing_type', '')
-    deal_id: str | None = job.data.get('deal_id')
-    firm_ids: list[str] = job.data.get('firm_ids', [])
+    filing_id: str = job.data.get('filingId', '')
+    filing_type: str = job.data.get('filingType', '')
+    deal_id: str | None = job.data.get('dealId')
+    firm_ids: list[str] = job.data.get('firmIds', [])
 
     logger.info(
         f'[worker] Processing llm_extract job — filing_id={filing_id} '
@@ -113,7 +113,9 @@ async def main() -> None:
     from bullmq import Worker
 
     redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379')
-    logger.info(f'[worker] Connecting to Redis: {redis_url}')
+    if 'upstash' in redis_url and not redis_url.startswith('rediss://'):
+        logger.warning('[worker] Upstash host detected but REDIS_URL does not use rediss:// scheme — TLS will not be enabled')
+    logger.info(f'[worker] Connecting to Redis: {redis_url.split("@")[-1] if "@" in redis_url else redis_url}')
 
     worker = Worker(
         'ingestion',

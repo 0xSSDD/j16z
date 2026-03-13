@@ -1,10 +1,11 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import { getAllEvents } from "@/lib/api";
-import { calculateSeverityWithLevel, EventType } from "@/lib/severity-scoring";
-import type { Event } from "@/lib/types";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from 'date-fns';
+import { FileText, Newspaper, Scale, Shield, TrendingUp } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { getAllEvents } from '@/lib/api';
+import { calculateSeverityWithLevel, type EventType } from '@/lib/severity-scoring';
+import type { Event } from '@/lib/types';
 
 interface InboxTimelineProps {
   filters: {
@@ -28,14 +29,42 @@ interface EnrichedEvent extends Event {
   isRead: boolean;
 }
 
+const EVENT_TYPE_CONFIG: Record<string, { icon: typeof FileText; color: string; label: string }> = {
+  FILING: { icon: FileText, color: 'text-emerald-400', label: 'Filing' },
+  COURT: { icon: Scale, color: 'text-violet-400', label: 'Court' },
+  AGENCY: { icon: Shield, color: 'text-amber-400', label: 'Agency' },
+  SPREAD_MOVE: { icon: TrendingUp, color: 'text-cyan-400', label: 'Spread' },
+  NEWS: { icon: Newspaper, color: 'text-sky-400', label: 'News' },
+};
+
+const SUBTYPE_LABELS: Record<string, string> = {
+  FTC_SECOND_REQUEST: 'FTC Second Request',
+  HSR_EARLY_TERMINATION: 'HSR Early Termination',
+  FTC_PRESS_RELEASE: 'FTC Press Release',
+  DOJ_PRESS_RELEASE: 'DOJ Press Release',
+  DOJ_CIVIL_CASE: 'DOJ Civil Case',
+  RSS_ARTICLE: 'RSS Article',
+  'FTC Second Request': 'FTC Second Request',
+  'Preliminary Injunction Denied': 'Injunction Denied',
+  '8-K Amendment': '8-K Amendment',
+  'Spread Widening': 'Spread Widening',
+  'Analyst Note': 'Analyst Note',
+  'Deal Termination': 'Deal Termination',
+  'UK CMA Provisional Findings': 'UK CMA Findings',
+  'State AG Lawsuit Filed': 'State AG Lawsuit',
+  'S-4 Amendment': 'S-4 Amendment',
+  'DOJ Trial Begins': 'DOJ Trial',
+  'EU Phase II Investigation': 'EU Phase II',
+};
+
 // Helper function to get severity order for sorting
 const getSeverityOrder = (severity: string): number => {
   switch (severity) {
-    case "CRITICAL":
+    case 'CRITICAL':
       return 3;
-    case "WARNING":
+    case 'WARNING':
       return 2;
-    case "INFO":
+    case 'INFO':
       return 1;
     default:
       return 0;
@@ -46,7 +75,7 @@ export function InboxTimeline({
   filters,
   selectedEventId,
   onEventSelect,
-  searchQuery = "",
+  searchQuery = '',
   selectedIndex = 0,
   onIndexChange,
 }: InboxTimelineProps) {
@@ -96,8 +125,8 @@ export function InboxTimeline({
 
         // Sort by severity (descending), then timestamp (descending)
         enriched.sort((a, b) => {
-          const aSeverity = a.severityLevel || a.severity || "INFO";
-          const bSeverity = b.severityLevel || b.severity || "INFO";
+          const aSeverity = a.severityLevel || a.severity || 'INFO';
+          const bSeverity = b.severityLevel || b.severity || 'INFO';
 
           if (getSeverityOrder(bSeverity) !== getSeverityOrder(aSeverity)) {
             return getSeverityOrder(bSeverity) - getSeverityOrder(aSeverity);
@@ -107,7 +136,7 @@ export function InboxTimeline({
 
         setEvents(enriched);
       } catch (error) {
-        console.error("Failed to load events:", error);
+        console.error('Failed to load events:', error);
       } finally {
         setLoading(false);
       }
@@ -157,7 +186,7 @@ export function InboxTimeline({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowDown") {
+      if (e.key === 'ArrowDown') {
         e.preventDefault();
         const newIndex = Math.min(selectedIndex + 1, filteredEvents.length - 1);
         if (onIndexChange) onIndexChange(newIndex);
@@ -165,10 +194,10 @@ export function InboxTimeline({
           onEventSelect(filteredEvents[newIndex].id);
           setTimeout(() => {
             const element = document.getElementById(`event-${filteredEvents[newIndex].id}`);
-            element?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            element?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           }, 0);
         }
-      } else if (e.key === "ArrowUp") {
+      } else if (e.key === 'ArrowUp') {
         e.preventDefault();
         const newIndex = Math.max(selectedIndex - 1, 0);
         if (onIndexChange) onIndexChange(newIndex);
@@ -176,14 +205,14 @@ export function InboxTimeline({
           onEventSelect(filteredEvents[newIndex].id);
           setTimeout(() => {
             const element = document.getElementById(`event-${filteredEvents[newIndex].id}`);
-            element?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            element?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           }, 0);
         }
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [selectedIndex, onIndexChange, onEventSelect, filteredEvents]);
 
   if (loading) {
@@ -191,10 +220,7 @@ export function InboxTimeline({
       <div className="flex-1 overflow-y-auto border-r border-border p-4">
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div
-              key={i}
-              className="h-20 animate-pulse rounded-lg border border-border bg-surface"
-            />
+            <div key={i} className="h-20 animate-pulse rounded-lg border border-border bg-surface" />
           ))}
         </div>
       </div>
@@ -208,27 +234,27 @@ export function InboxTimeline({
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case "CRITICAL":
-        return "text-red-500";
-      case "WARNING":
-        return "text-yellow-500";
-      case "INFO":
-        return "text-green-500";
+      case 'CRITICAL':
+        return 'text-red-500';
+      case 'WARNING':
+        return 'text-yellow-500';
+      case 'INFO':
+        return 'text-green-500';
       default:
-        return "text-text-muted";
+        return 'text-text-muted';
     }
   };
 
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
-      case "CRITICAL":
-        return "🔴";
-      case "WARNING":
-        return "🟡";
-      case "INFO":
-        return "🟢";
+      case 'CRITICAL':
+        return '🔴';
+      case 'WARNING':
+        return '🟡';
+      case 'INFO':
+        return '🟢';
       default:
-        return "⚪";
+        return '⚪';
     }
   };
 
@@ -243,6 +269,7 @@ export function InboxTimeline({
           <>
             {paginatedEvents.map((event, idx) => (
               <button
+                type="button"
                 key={event.id}
                 id={`event-${event.id}`}
                 onClick={() => {
@@ -251,33 +278,51 @@ export function InboxTimeline({
                 }}
                 className={`w-full rounded-lg border p-4 text-left transition-all ${
                   selectedEventId === event.id
-                    ? "border-primary-500 bg-primary-500/10 ring-2 ring-primary-500/20"
-                    : "border-border bg-surface hover:border-border/80 hover:bg-surfaceHighlight"
+                    ? 'border-primary-500 bg-primary-500/10 ring-2 ring-primary-500/20'
+                    : 'border-border bg-surface hover:border-border/80 hover:bg-surfaceHighlight'
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <span className="text-lg">
-                    {event.isRead ? "○" : "●"}
-                  </span>
+                  <div className="relative mt-0.5 flex-shrink-0">
+                    {(() => {
+                      const config = EVENT_TYPE_CONFIG[event.type] ?? EVENT_TYPE_CONFIG.FILING;
+                      const Icon = config.icon;
+                      return (
+                        <div
+                          className={`flex h-8 w-8 items-center justify-center rounded-lg bg-surface ${config.color}`}
+                        >
+                          <Icon className="h-4 w-4" />
+                        </div>
+                      );
+                    })()}
+                    {!event.isRead && (
+                      <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-primary-500" />
+                    )}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className={`text-xs font-medium ${getSeverityColor(event.severity)}`}>
                         {getSeverityIcon(event.severity)} {event.severity}
                       </span>
-                      <span className="text-xs text-text-muted">
-                        {event.type}
+                      <span
+                        className={`text-xs font-medium ${EVENT_TYPE_CONFIG[event.type]?.color ?? 'text-text-muted'}`}
+                      >
+                        {EVENT_TYPE_CONFIG[event.type]?.label ?? event.type}
                       </span>
-                      <span className="text-xs text-text-dim">•</span>
-                      <span className="text-xs text-text-dim">
+                      {event.subtype && (
+                        <>
+                          <span className="text-xs text-text-dim">·</span>
+                          <span className="text-xs text-text-dim font-mono">
+                            {SUBTYPE_LABELS[event.subtype] ?? event.subtype}
+                          </span>
+                        </>
+                      )}
+                      <span className="ml-auto text-xs text-text-dim">
                         {formatDistanceToNow(new Date(event.timestamp), { addSuffix: true })}
                       </span>
                     </div>
-                    <h3 className="font-medium text-sm text-text-main mb-1 truncate">
-                      {event.title}
-                    </h3>
-                    <p className="text-xs text-text-muted line-clamp-2">
-                      {event.summary || "No summary available"}
-                    </p>
+                    <h3 className="font-medium text-sm text-text-main mb-1 truncate">{event.title}</h3>
+                    <p className="text-xs text-text-muted line-clamp-2">{event.summary || 'No summary available'}</p>
                   </div>
                 </div>
               </button>
@@ -286,31 +331,34 @@ export function InboxTimeline({
             <div className="flex items-center justify-between gap-4 border-t border-border pt-4 mt-4">
               <div className="flex items-center gap-2">
                 <button
+                  type="button"
                   onClick={() => handlePageSizeChange(20)}
                   className={`rounded border px-3 py-1 text-sm font-medium transition-colors ${
                     pageSize === 20
-                      ? "border-primary-500 bg-primary-500/10 text-primary-400"
-                      : "border-border bg-surface text-text-main hover:bg-surfaceHighlight"
+                      ? 'border-primary-500 bg-primary-500/10 text-primary-400'
+                      : 'border-border bg-surface text-text-main hover:bg-surfaceHighlight'
                   }`}
                 >
                   20
                 </button>
                 <button
+                  type="button"
                   onClick={() => handlePageSizeChange(30)}
                   className={`rounded border px-3 py-1 text-sm font-medium transition-colors ${
                     pageSize === 30
-                      ? "border-primary-500 bg-primary-500/10 text-primary-400"
-                      : "border-border bg-surface text-text-main hover:bg-surfaceHighlight"
+                      ? 'border-primary-500 bg-primary-500/10 text-primary-400'
+                      : 'border-border bg-surface text-text-main hover:bg-surfaceHighlight'
                   }`}
                 >
                   30
                 </button>
                 <button
+                  type="button"
                   onClick={() => handlePageSizeChange(50)}
                   className={`rounded border px-3 py-1 text-sm font-medium transition-colors ${
                     pageSize === 50
-                      ? "border-primary-500 bg-primary-500/10 text-primary-400"
-                      : "border-border bg-surface text-text-main hover:bg-surfaceHighlight"
+                      ? 'border-primary-500 bg-primary-500/10 text-primary-400'
+                      : 'border-border bg-surface text-text-main hover:bg-surfaceHighlight'
                   }`}
                 >
                   50
@@ -320,7 +368,8 @@ export function InboxTimeline({
 
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                   className="rounded border border-border bg-surface px-3 py-1 text-sm font-medium text-text-main transition-colors hover:bg-surfaceHighlight disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -330,7 +379,8 @@ export function InboxTimeline({
                   Page {currentPage} of {Math.max(1, totalPages)}
                 </span>
                 <button
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
                   className="rounded border border-border bg-surface px-3 py-1 text-sm font-medium text-text-main transition-colors hover:bg-surfaceHighlight disabled:opacity-50 disabled:cursor-not-allowed"
                 >

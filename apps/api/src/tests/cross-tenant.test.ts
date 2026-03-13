@@ -29,8 +29,9 @@
  *   Run with: pnpm test:be --project=isolation
  *   This executes only this test file (as defined in vitest.workspace.ts).
  */
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+
 import { createClient } from '@supabase/supabase-js';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 const API_URL = process.env.API_URL ?? 'http://localhost:3001';
 const SUPABASE_URL = process.env.SUPABASE_URL!;
@@ -45,8 +46,6 @@ describe('Cross-tenant isolation (AUTH-06 CI gate)', () => {
     return;
   }
 
-  let firmAId: string;
-  let firmBId: string;
   let userAId: string;
   let userBId: string;
   let userAJwt: string;
@@ -83,11 +82,6 @@ describe('Cross-tenant isolation (AUTH-06 CI gate)', () => {
     // 2. Create two firms and assign memberships via the API onboard endpoint.
     // We sign in as each user and call POST /api/auth/onboard.
 
-    // Sign in as User A
-    const supabaseA = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    });
-
     // Exchange credentials for a JWT using the admin signInWithPassword approach
     // Use a regular (anon-key) client for this since we need the user's JWT, not service role
     const supabaseUserA = createClient(SUPABASE_URL, process.env.SUPABASE_ANON_KEY ?? SERVICE_ROLE_KEY, {
@@ -114,8 +108,7 @@ describe('Cross-tenant isolation (AUTH-06 CI gate)', () => {
       const body = await onboardARes.json().catch(() => ({}));
       throw new Error(`Failed to onboard User A: ${JSON.stringify(body)}`);
     }
-    const firmAData = await onboardARes.json();
-    firmAId = firmAData.firm.id;
+    await onboardARes.json();
 
     // Sign in as User B
     const supabaseUserB = createClient(SUPABASE_URL, process.env.SUPABASE_ANON_KEY ?? SERVICE_ROLE_KEY, {
@@ -142,8 +135,7 @@ describe('Cross-tenant isolation (AUTH-06 CI gate)', () => {
       const body = await onboardBRes.json().catch(() => ({}));
       throw new Error(`Failed to onboard User B: ${JSON.stringify(body)}`);
     }
-    const firmBData = await onboardBRes.json();
-    firmBId = firmBData.firm.id;
+    await onboardBRes.json();
 
     // Refresh User A's session to get a JWT with the new firm_id in app_metadata
     // (the custom access token hook injects firm_id on next token issue)

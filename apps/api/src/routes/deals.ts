@@ -3,8 +3,8 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { adminDb } from '../db/index.js';
-import type { AuthEnv } from '../middleware/auth.js';
 import * as schema from '../db/schema.js';
+import type { AuthEnv } from '../middleware/auth.js';
 
 // ---------------------------------------------------------------------------
 // Validation schemas
@@ -44,6 +44,28 @@ export const dealsRoutes = new Hono<AuthEnv>()
       .from(schema.deals)
       .where(and(eq(schema.deals.firmId, firmId), isNull(schema.deals.deletedAt)))
       .orderBy(schema.deals.createdAt);
+    return c.json(rows);
+  })
+  .get('/:id/clauses', async (c) => {
+    // GET /api/deals/:id/clauses — return extracted clauses for a deal; scoped to firm
+    const dealId = c.req.param('id');
+    const firmId = c.get('firmId');
+
+    // Verify the deal belongs to this firm
+    const [deal] = await adminDb
+      .select({ id: schema.deals.id })
+      .from(schema.deals)
+      .where(and(eq(schema.deals.id, dealId), eq(schema.deals.firmId, firmId), isNull(schema.deals.deletedAt)))
+      .limit(1);
+    if (!deal) {
+      return c.json({ error: 'Deal not found' }, 404);
+    }
+
+    const rows = await adminDb
+      .select()
+      .from(schema.clauses)
+      .where(and(eq(schema.clauses.dealId, dealId), eq(schema.clauses.firmId, firmId)))
+      .orderBy(schema.clauses.createdAt);
     return c.json(rows);
   })
   .get('/:id', async (c) => {
