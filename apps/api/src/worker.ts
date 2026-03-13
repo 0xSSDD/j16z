@@ -13,6 +13,7 @@
  */
 import 'dotenv/config';
 import { type Job, Worker } from 'bullmq';
+import { handleAlertEvaluate } from './alerts/alert-worker.js';
 import { handleFtcPoll } from './agency/ftc-poller.js';
 import { handleDojAntitrustRss, handleDojCivilRss, handleFtcCompetitionRss } from './agency/rss-pollers.js';
 import { handleCourtListenerPoll } from './courtlistener/poller.js';
@@ -43,6 +44,7 @@ const handlers: Record<string, (job: Job) => Promise<void>> = {
   rss_poll: handleRssPoll,
   courtlistener_poll: handleCourtListenerPoll,
   courtlistener_webhook: handleCourtListenerWebhook,
+  alert_evaluate: handleAlertEvaluate,
   // llm_extract: Processed by Python worker (apps/langextract/worker.py) — NOT handled here
 };
 
