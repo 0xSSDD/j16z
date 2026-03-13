@@ -18,7 +18,7 @@ export function RegLitigationTab({ events, deal }: RegLitigationTabProps) {
       {/* Regulatory status from deal flags */}
       <div className="p-4">
         <div className="flex items-center gap-2 mb-3">
-          <Shield className="h-4 w-4 text-amber-400" />
+          <Shield className="h-4 w-4 text-primary-500" />
           <h3 className="text-sm font-mono font-semibold text-text-muted uppercase tracking-wider">
             Regulatory Status
           </h3>
@@ -28,7 +28,7 @@ export function RegLitigationTab({ events, deal }: RegLitigationTabProps) {
             {deal.regulatoryFlags.map((flag) => (
               <span
                 key={flag}
-                className="px-3 py-1.5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-md font-mono text-xs"
+                className="px-3 py-1.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-md font-mono text-xs"
               >
                 {flag.replace(/_/g, ' ')}
               </span>
@@ -51,7 +51,7 @@ export function RegLitigationTab({ events, deal }: RegLitigationTabProps) {
                 </div>
                 {event.summary && <p className="text-xs text-text-muted">{event.summary}</p>}
                 {event.subtype && (
-                  <span className="inline-block mt-1 text-xs font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                  <span className="inline-block mt-1 text-xs font-mono text-primary-500 bg-primary-500/10 px-2 py-0.5 rounded-full border border-primary-500/20">
                     {event.subtype}
                   </span>
                 )}
@@ -64,7 +64,7 @@ export function RegLitigationTab({ events, deal }: RegLitigationTabProps) {
       {/* Litigation */}
       <div className="p-4">
         <div className="flex items-center gap-2 mb-3">
-          <Scale className="h-4 w-4 text-violet-400" />
+          <Scale className="h-4 w-4 text-text-muted" />
           <h3 className="text-sm font-mono font-semibold text-text-muted uppercase tracking-wider">Litigation</h3>
         </div>
 
@@ -89,7 +89,7 @@ export function RegLitigationTab({ events, deal }: RegLitigationTabProps) {
                 </div>
                 {event.summary && <p className="text-xs text-text-muted">{event.summary}</p>}
                 {event.subtype && (
-                  <span className="inline-block mt-1 text-xs font-mono text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded-full border border-violet-500/20">
+                  <span className="inline-block mt-1 text-xs font-mono text-text-muted bg-surface px-2 py-0.5 rounded-full border border-border">
                     {event.subtype}
                   </span>
                 )}

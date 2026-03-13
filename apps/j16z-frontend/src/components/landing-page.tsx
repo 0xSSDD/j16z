@@ -36,7 +36,7 @@ const SPREAD_DATA = [
 
 const LandingLogo = () => (
   <div className="flex items-center gap-2.5">
-    <div className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border border-zinc-700 bg-gradient-to-br from-zinc-800 to-black shadow-inner">
+    <div className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border border-border bg-surface shadow-inner">
       <div className="flex h-4 items-end gap-[2px]">
         <div className="h-2.5 w-1 rounded-sm bg-primary-500/40" />
         <div className="h-4 w-1 rounded-sm bg-primary-500" />
@@ -51,7 +51,7 @@ const LandingLogo = () => (
 
 /** Inbox mockup — materiality-scored event feed */
 const InboxMockup = () => (
-  <div className="w-full overflow-hidden rounded-xl border border-border bg-background shadow-2xl">
+  <div className="w-full overflow-hidden rounded-xl border border-border bg-background shadow-md">
     <div className="flex items-center gap-3 border-b border-border bg-surface px-4 py-3">
       <Bell className="h-4 w-4 text-text-muted" />
       <span className="text-sm font-semibold text-text-main">Inbox</span>
@@ -102,7 +102,7 @@ const InboxMockup = () => (
 
 /** Deal card mockup — spread chart + key terms */
 const DealCardMockup = () => (
-  <div className="w-full overflow-hidden rounded-xl border border-border bg-background shadow-2xl">
+  <div className="w-full overflow-hidden rounded-xl border border-border bg-background shadow-md">
     <div className="border-b border-border bg-surface px-4 py-3">
       <div className="flex items-start justify-between">
         <div>
@@ -162,7 +162,7 @@ const DealCardMockup = () => (
 
 /** Alert delivery mockup — email preview style */
 const AlertMockup = () => (
-  <div className="w-full overflow-hidden rounded-xl border border-border bg-background shadow-2xl">
+  <div className="w-full overflow-hidden rounded-xl border border-border bg-background shadow-md">
     <div className="flex items-center gap-3 border-b border-border bg-surface px-4 py-3">
       <Mail className="h-4 w-4 text-text-muted" />
       <span className="text-sm font-semibold text-text-main">Alert delivery</span>
@@ -198,7 +198,7 @@ const AlertMockup = () => (
 
 /** Memo editor mockup */
 const MemoMockup = () => (
-  <div className="w-full overflow-hidden rounded-xl border border-border bg-background font-mono shadow-2xl">
+  <div className="w-full overflow-hidden rounded-xl border border-border bg-background font-mono shadow-md">
     <div className="flex items-center gap-3 border-b border-border bg-surface px-4 py-3">
       <FileText className="h-4 w-4 text-text-muted" />
       <span className="font-body text-sm font-semibold text-text-main">Research Memo</span>
@@ -239,11 +239,10 @@ const MemoMockup = () => (
 
 // Existing components kept for hero visual
 const PolymarketCard = () => (
-  <div className="relative w-72 overflow-hidden rounded-xl border border-border bg-surface p-4 shadow-2xl">
-    <div className="absolute left-0 top-0 h-1 w-full bg-gradient-to-r from-blue-500 to-emerald-500" />
+  <div className="relative w-72 overflow-hidden rounded-xl border border-border bg-surface p-4 shadow-md">
     <div className="mb-2 flex items-start justify-between">
       <div className="flex items-center gap-2">
-        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-500/10 text-[10px] font-bold text-primary-500">
           P
         </div>
         <span className="text-xs font-bold text-text-main">Prediction Market</span>
@@ -277,9 +276,9 @@ const PolymarketCard = () => (
 );
 
 const SearchResultsCard = () => (
-  <div className="flex w-80 flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-2xl">
-    <div className="flex items-center gap-3 border-b border-border bg-surfaceHighlight/50 p-3">
-      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/10 text-blue-500">
+  <div className="flex w-80 flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-md">
+    <div className="flex items-center gap-3 border-b border-border bg-surfaceHighlight p-3">
+      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-500/10 text-primary-500">
         <Search className="h-4 w-4" />
       </div>
       <div className="flex-1">
@@ -320,11 +319,11 @@ const SearchResultsCard = () => (
 );
 
 const SynthesisTerminal = () => (
-  <div className="relative flex h-full w-full flex-col overflow-hidden rounded-xl border border-border bg-background font-mono text-[10px] shadow-2xl sm:text-xs">
+  <div className="relative flex h-full w-full flex-col overflow-hidden rounded-xl border border-border bg-background font-mono text-[10px] shadow-md sm:text-xs">
     <div className="flex h-8 items-center gap-2 border-b border-border bg-surface px-3">
       <div className="flex gap-1.5">
-        <div className="h-2.5 w-2.5 rounded-full bg-zinc-600/50" />
-        <div className="h-2.5 w-2.5 rounded-full bg-zinc-600/50" />
+        <div className="h-2.5 w-2.5 rounded-full bg-border" />
+        <div className="h-2.5 w-2.5 rounded-full bg-border" />
       </div>
       <span className="ml-2 text-[10px] text-text-dim">j16z · deal intelligence</span>
       <div className="ml-auto flex items-center gap-2 text-[10px] text-text-muted">
@@ -373,7 +372,6 @@ const SynthesisTerminal = () => (
 
 export const LandingPage: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
   const [isDarkMode, setIsDarkMode] = useState(true);
 
   const heroRef = useRef<HTMLDivElement | null>(null);
@@ -393,7 +391,6 @@ export const LandingPage: React.FC = () => {
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
-      setScrollY(window.scrollY);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -410,10 +407,6 @@ export const LandingPage: React.FC = () => {
       localStorage.setItem('theme', 'dark');
     }
   };
-
-  const yFloat1 = scrollY * -0.1;
-  const yFloat2 = scrollY * -0.15;
-  const yFloat3 = scrollY * -0.05;
 
   return (
     <div className="min-h-screen overflow-hidden bg-background font-body text-text-main selection:bg-primary-500/20 selection:text-primary-600">
@@ -465,7 +458,7 @@ export const LandingPage: React.FC = () => {
           SECTION 1 — HERO
           Problem-first: pain → solution → CTA
       ════════════════════════════════════════════════════════ */}
-      <section ref={heroRef} className="relative overflow-visible px-6 pb-48 pt-36 preserve-3d lg:pb-64 lg:pt-52">
+      <section ref={heroRef} className="relative overflow-visible px-6 pb-48 pt-36 lg:pb-64 lg:pt-52">
         {/* Aurora Background */}
         <div className="hero-glow pointer-events-none absolute left-[-10%] top-[-20%] h-[120vh] w-[120%] translate-z-0" />
         <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-[0.03]" />
@@ -474,18 +467,15 @@ export const LandingPage: React.FC = () => {
           {/* Hero Text */}
           <div className="relative z-10 space-y-8">
             {/* Problem badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surfaceHighlight px-3 py-1 text-xs font-medium text-text-muted backdrop-blur-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-              </span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surfaceHighlight px-3 py-1 text-xs font-medium text-text-muted">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
               Analysts spend 3–5 hrs/day chasing fragmented M&amp;A data
             </div>
 
             <h1 className="font-sans text-5xl font-extrabold leading-[1.0] tracking-tight text-text-main lg:text-7xl">
               Deal intelligence,
               <br />
-              <span className="bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
+              <span className="text-primary-500">
                 made faster.
               </span>
             </h1>
@@ -498,41 +488,33 @@ export const LandingPage: React.FC = () => {
             <div className="flex flex-col gap-4 sm:flex-row">
               <Link
                 href="/login"
-                className="flex items-center justify-center gap-2 rounded-lg bg-primary-500 px-8 py-4 text-sm font-bold text-black shadow-xl shadow-primary-500/20 transition-all hover:scale-105 hover:opacity-90"
+                className="flex items-center justify-center gap-2 rounded-lg bg-primary-500 px-8 py-4 text-sm font-bold text-black transition-opacity hover:opacity-90"
               >
                 Get Started
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <a
                 href="#how-it-works"
-                className="flex items-center justify-center gap-2 rounded-lg border border-border bg-surface/50 px-8 py-4 text-sm font-bold text-text-main backdrop-blur-sm transition-colors hover:bg-surface"
+                className="flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-8 py-4 text-sm font-bold text-text-main transition-colors hover:bg-surfaceHighlight"
               >
                 See How It Works
               </a>
             </div>
           </div>
 
-          {/* Hero Visual — floating card stack */}
-          <div className="relative hidden h-[680px] perspective-2000 lg:block">
+          {/* Hero Visual — card stack */}
+          <div className="relative hidden h-[680px] lg:block">
             <div
-              className="absolute left-1/2 top-1/2 z-10 h-[380px] w-[480px] -translate-x-1/2 -translate-y-1/2 shadow-2xl"
-              style={{ transform: `translate(-50%, -50%) translateY(${yFloat1}px) rotateY(-8deg) rotateX(4deg)` }}
+              className="absolute left-1/2 top-1/2 z-10 h-[380px] w-[480px] -translate-x-1/2 -translate-y-1/2 shadow-md"
             >
               <SynthesisTerminal />
             </div>
-            <div
-              className="absolute right-[-5%] top-[8%] z-20 animate-float shadow-xl"
-              style={{ animationDelay: '0s', transform: `translateY(${yFloat2}px)` }}
-            >
+            <div className="absolute right-[-5%] top-[8%] z-20 shadow-md">
               <PolymarketCard />
             </div>
-            <div
-              className="absolute bottom-[8%] left-[-10%] z-20 animate-float shadow-xl"
-              style={{ animationDelay: '1.5s', transform: `translateY(${yFloat3}px)` }}
-            >
+            <div className="absolute bottom-[8%] left-[-10%] z-20 shadow-md">
               <SearchResultsCard />
             </div>
-            <div className="pointer-events-none absolute inset-0 rounded-full bg-primary-500/20 opacity-20 blur-[100px] mix-blend-screen" />
           </div>
         </div>
       </section>
@@ -607,7 +589,7 @@ export const LandingPage: React.FC = () => {
           SECTION 3 — HOW IT WORKS
           3-step flow with scroll anchor
       ════════════════════════════════════════════════════════ */}
-      <section id="how-it-works" className="border-t border-border bg-surface/30 px-6 py-24">
+      <section id="how-it-works" className="border-t border-border bg-surface px-6 py-24">
         <div className="mx-auto max-w-6xl">
           <div className="mb-16 text-center">
             <p className="mb-3 text-sm font-bold uppercase tracking-widest text-primary-500">Workflow</p>
@@ -757,13 +739,12 @@ export const LandingPage: React.FC = () => {
         <div className="mx-auto max-w-6xl">
           <div className="mb-16 text-center">
             <p className="mb-3 text-sm font-bold uppercase tracking-widest text-primary-500">Pricing</p>
-            <h2 className="font-sans text-4xl font-bold tracking-tight text-text-main">Pricing</h2>
+            <h2 className="font-sans text-4xl font-bold tracking-tight text-text-main">Simple, transparent pricing</h2>
           </div>
 
           <div className="mx-auto max-w-md">
-            <div className="relative overflow-hidden rounded-2xl border border-primary-500/20 bg-surface p-10 text-center shadow-xl">
-              <div className="pointer-events-none absolute left-0 top-0 h-full w-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary-500/8 via-transparent to-transparent" />
-              <div className="relative z-10">
+            <div className="rounded-2xl border border-primary-500/20 bg-surface p-10 text-center">
+              <div>
                 <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary-500/20 bg-primary-500/10 px-4 py-1.5 text-xs font-bold text-primary-500">
                   Currently in beta
                 </div>
@@ -774,7 +755,7 @@ export const LandingPage: React.FC = () => {
                 </p>
                 <a
                   href="mailto:hello@j16z.com"
-                  className="inline-flex items-center gap-2 rounded-lg bg-primary-500 px-8 py-3.5 text-sm font-bold text-black shadow-lg shadow-primary-500/20 transition-all hover:opacity-90"
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary-500 px-8 py-3.5 text-sm font-bold text-black transition-opacity hover:opacity-90"
                 >
                   Contact us
                   <ArrowRight className="h-4 w-4" />
@@ -789,9 +770,8 @@ export const LandingPage: React.FC = () => {
           SECTION 6 — CTA FOOTER HOOK
       ════════════════════════════════════════════════════════ */}
       <section className="border-t border-border px-6 py-24">
-        <div className="relative mx-auto max-w-4xl overflow-hidden rounded-3xl border border-border bg-surface px-8 py-20 text-center">
-          <div className="pointer-events-none absolute left-0 top-0 h-full w-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary-500/10 via-transparent to-transparent" />
-          <div className="relative z-10 space-y-6">
+        <div className="mx-auto max-w-4xl rounded-3xl border border-border bg-surface px-8 py-20 text-center">
+          <div className="space-y-6">
             <h2 className="font-sans text-4xl font-bold tracking-tight text-text-main md:text-5xl">
               Ready to stop chasing filings?
             </h2>
@@ -802,7 +782,7 @@ export const LandingPage: React.FC = () => {
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
                 href="/login"
-                className="flex items-center gap-2 rounded-lg bg-primary-500 px-8 py-4 text-sm font-bold text-black shadow-lg shadow-primary-500/20 transition-all hover:scale-105 hover:opacity-90"
+                className="flex items-center gap-2 rounded-lg bg-primary-500 px-8 py-4 text-sm font-bold text-black transition-opacity hover:opacity-90"
               >
                 Get Started
                 <ArrowRight className="h-4 w-4" />

@@ -54,13 +54,13 @@ function ClauseCard({ clause }: { clause: Clause }) {
         {/* Low-confidence warning */}
         {isLowConfidence && (
           <AlertTriangle
-            className="h-3.5 w-3.5 text-yellow-500 shrink-0 mt-0.5"
+            className="h-3.5 w-3.5 text-primary-500 shrink-0 mt-0.5"
             aria-label="Low confidence extraction"
           />
         )}
         {/* Analyst-verified badge */}
         {clause.analystVerified && (
-          <CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" aria-label="Analyst verified" />
+          <CheckCircle className="h-3.5 w-3.5 text-text-muted shrink-0 mt-0.5" aria-label="Analyst verified" />
         )}
       </div>
 
@@ -76,7 +76,7 @@ function ClauseCard({ clause }: { clause: Clause }) {
               href={sourceHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 font-mono"
+              className="flex items-center gap-1 text-xs text-primary-500 hover:text-primary-400 font-mono"
             >
               <ExternalLink className="h-3 w-3" />
               View on EDGAR

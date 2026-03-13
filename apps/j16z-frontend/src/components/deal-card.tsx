@@ -167,12 +167,12 @@ export function DealCard({ dealId }: DealCardProps) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <h1 className="text-2xl font-mono font-bold text-zinc-100 mb-2">Deal Not Found</h1>
-          <p className="text-sm text-zinc-500 font-mono mb-4">The deal you&apos;re looking for doesn&apos;t exist.</p>
+          <h1 className="text-2xl font-mono font-bold text-text-main mb-2">Deal Not Found</h1>
+          <p className="text-sm text-text-muted font-mono mb-4">The deal you&apos;re looking for doesn&apos;t exist.</p>
           <button
             type="button"
             onClick={() => router.push('/app/deals')}
-            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 rounded-md font-mono text-sm transition-colors"
+            className="px-4 py-2 bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors border border-border"
           >
             Back to Deals
           </button>
@@ -249,7 +249,7 @@ export function DealCard({ dealId }: DealCardProps) {
 
         {/* Event detail sidebar — slides in from right */}
         {selectedEventId && (
-          <div className="fixed right-0 top-0 h-full z-20 shadow-xl transition-transform">
+          <div className="fixed right-0 top-0 h-full z-20 transition-transform">
             <DealEventSidePanel eventId={selectedEventId} events={events} onClose={() => setSelectedEventId(null)} />
           </div>
         )}

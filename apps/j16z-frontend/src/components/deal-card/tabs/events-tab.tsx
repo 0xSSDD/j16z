@@ -6,17 +6,17 @@ import * as React from 'react';
 import type { Event } from '@/lib/types';
 
 const EVENT_TYPE_META: Record<string, { icon: typeof FileText; color: string }> = {
-  FILING: { icon: FileText, color: 'text-emerald-400' },
-  COURT: { icon: Scale, color: 'text-violet-400' },
-  AGENCY: { icon: Shield, color: 'text-amber-400' },
-  SPREAD_MOVE: { icon: TrendingUp, color: 'text-cyan-400' },
-  NEWS: { icon: Newspaper, color: 'text-sky-400' },
+  FILING: { icon: FileText, color: 'text-primary-400' },
+  COURT: { icon: Scale, color: 'text-text-muted' },
+  AGENCY: { icon: Shield, color: 'text-primary-500' },
+  SPREAD_MOVE: { icon: TrendingUp, color: 'text-primary-300' },
+  NEWS: { icon: Newspaper, color: 'text-text-muted' },
 };
 
 const SEVERITY_DOT: Record<string, string> = {
   CRITICAL: 'bg-red-500',
-  WARNING: 'bg-amber-500',
-  INFO: 'bg-zinc-500',
+  WARNING: 'bg-primary-500',
+  INFO: 'bg-text-dim',
 };
 
 interface EventsTabProps {

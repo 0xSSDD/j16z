@@ -38,7 +38,7 @@ export function DealCardHeader({
   }, [deal.outsideDate]);
 
   return (
-    <div className="sticky top-0 z-10 bg-bg-primary border-b border-border px-6 py-4">
+    <div className="sticky top-0 z-10 bg-background border-b border-border px-6 py-4">
       {/* Back + Title row */}
       <div className="flex items-start justify-between mb-3">
         <div>
@@ -121,7 +121,7 @@ export function DealCardHeader({
         </div>
         <div>
           <div className="text-xs text-text-muted font-mono uppercase mb-1">EV</div>
-          <div className="text-xl font-mono font-bold text-green-500">
+          <div className="text-xl font-mono font-bold text-primary-500">
             {((deal.currentSpread * pCloseBase) / 100).toFixed(2)}%
           </div>
         </div>
