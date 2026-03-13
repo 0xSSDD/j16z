@@ -15,6 +15,11 @@ import { type NextRequest, NextResponse } from 'next/server';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // In mock-data mode, skip all auth — allow direct access to /app/* routes
+  if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true') {
+    return NextResponse.next();
+  }
+
   // Skip auth processing for /auth/* routes — they handle their own auth.
   // CRITICAL: Without this, the middleware refreshes the session on /auth/signout,
   // re-setting cookies that the signout route is trying to delete.

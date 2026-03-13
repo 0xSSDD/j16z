@@ -196,7 +196,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
           </nav>
 
           <div className="mt-auto border-t border-border p-4">
-            <SidebarItem href="/app/settings" icon={SettingsIcon} label="System Config" />
+            <SidebarItem href="/app/settings" icon={SettingsIcon} label="Settings" />
             <div className="mt-2 flex items-center gap-3 rounded-lg border border-border/50 bg-surface px-4 py-3">
               <div className="flex h-8 w-8 items-center justify-center rounded bg-gradient-to-tr from-primary-500 to-amber-600 text-xs font-bold text-white shadow-sm">
                 DA
