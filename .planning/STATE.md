@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-last_updated: "2026-03-13T11:22:04.385Z"
+status: in_progress
+last_updated: "2026-03-13T20:52:00Z"
 progress:
-  total_phases: 4
+  total_phases: 5
   completed_phases: 4
-  total_plans: 12
-  completed_plans: 12
+  total_plans: 15
+  completed_plans: 13
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Analysts spend 3-5 hours/day trolling fragmented sources. j16z turns that into a push-button workflow — live data in, analyst-ready intelligence out.
-**Current focus:** Phase 3 — LLM Extraction Pipeline
+**Current focus:** Phase 5 — Alert Delivery + Market Data
 
 ## Current Position
 
-Phase: 4 of 7 (CourtListener, FTC/DOJ, RSS Ingestion) — COMPLETE
-Plan: 3 of 3 (04-03 complete — frontend IntegrationsTab wiring + RSS keyword scoring + CourtListener unit tests)
-Status: Phase 4 COMPLETE — all 3 plans done; ready for Phase 5 (Alert Delivery + Market Data)
-Last activity: 2026-03-13 — Plan 04-03 complete (frontend integrations wiring, PACER warning, RSS keyword scoring, CourtListener unit tests)
+Phase: 5 of 7 (Alert Delivery + Market Data) — IN PROGRESS
+Plan: 1 of 3 (05-01 complete — alert delivery infrastructure: schema, worker, delivery handlers)
+Status: Plan 05-01 COMPLETE — alert evaluation pipeline with email/Slack/webhook delivery; ready for Plan 05-02 (Market Data)
+Last activity: 2026-03-13 — Plan 05-01 complete (notification_log schema, alert worker, Resend email, Slack Block Kit, HMAC webhook delivery)
 
-Progress: [██████████] 64%
+Progress: [█████████████] 68%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: ~9 min
-- Total execution time: ~49 min
+- Total plans completed: 8
+- Average duration: ~7 min
+- Total execution time: ~54 min
 
 **By Phase:**
 
@@ -44,9 +44,10 @@ Progress: [██████████] 64%
 | 02-sec-edgar-ingestion | 3 | 52 min | 17 min | COMPLETE |
 | 03-llm-extraction-pipeline | 3 | 21 min | 7 min | COMPLETE |
 | 04-courtlistener-ftcdoj-rss | 3 | 14 min | 5 min | COMPLETE |
+| 05-alert-delivery-market-data | 1/3 | 5 min | 5 min | IN PROGRESS |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (7 min), 03-02 (8 min), 03-03 (6 min), 04-01 (4 min)
+- Last 5 plans: 03-02 (8 min), 03-03 (6 min), 04-01 (4 min), 04-03 (5 min), 05-01 (5 min)
 - Trend: consistent ~5-7 min/plan for complex backend integrations
 
 *Updated after each plan completion*
@@ -103,6 +104,10 @@ Recent decisions affecting current work:
 - [04-03]: IntegrationHealthResponse wraps existing IntegrationHealth[] — backward-compatible, no change to individual source record shape
 - [04-03]: scoreRssItem capped at 70 — RSS news items cannot reach CRITICAL tier alone; CRITICAL reserved for COURT/AGENCY events
 - [04-03]: Mock INTEGRATION_HEALTH already had CourtListener entry — no change needed to mock array
+- [05-01]: Resend SDK for email delivery — ESM-native, simple API, good DX for transactional alerts
+- [05-01]: @slack/webhook IncomingWebhook pattern (not OAuth app) for Slack delivery — simpler setup, matches RESEARCH.md recommendation
+- [05-01]: Notification dedup via notification_log table (eventId+userId+channel unique check) — prevents alert storms on retry
+- [05-01]: CRITICAL events get email+slack; WARNING gets slack-only; INFO gets no push — matches CLAUDE.md materiality spec
 
 ### Pending Todos
 
@@ -112,12 +117,12 @@ None yet.
 
 - [Phase 3]: Market data vendor (Polygon.io vs IEX Cloud vs Alpha Vantage) needs pricing/quality evaluation before Phase 5 planning — research gap flagged
 - [Phase 3]: LLM extraction chunking strategy for 500-page S-4s needs empirical testing on real filings before committing to production design — recommend 5-10 filing experiment sprint during Phase 3 planning
-- [Phase 5]: Slack integration UX decision needed: incoming webhook URL (simpler) vs OAuth app (more configurable) — must decide before Phase 5 implementation
+- [Phase 5]: Slack integration UX decision RESOLVED: incoming webhook URL chosen (simpler setup, no OAuth complexity) — implemented in 05-01
 - [Deployment]: BullMQ workers require persistent processes — Vercel deployment is incompatible; hosting target must be decided before Phase 1 implementation
 - [01-frontend]: Pre-existing TypeScript errors in notifications-inbox.tsx and event-timeline.tsx (`.materiality` field mismatch) — logged in deferred-items.md
 
 ## Session Continuity
 
 Last session: 2026-03-13
-Stopped at: Completed 04-03-PLAN.md — frontend IntegrationsTab wiring + RSS keyword scoring + CourtListener unit tests
-Resume file: .planning/phases/05-alerts-notifications/ (Phase 5: Alert Delivery + Market Data)
+Stopped at: Completed 05-01-PLAN.md — alert delivery infrastructure (schema, worker, delivery handlers)
+Resume file: .planning/phases/05-alert-delivery-market-data/ (Phase 5: Plan 02 — Market Data)

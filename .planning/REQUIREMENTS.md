@@ -67,12 +67,12 @@ Requirements for production MVP. Each maps to roadmap phases.
 
 ### Alerts
 
-- [ ] **ALERT-01**: System sends email alerts on events with materiality score >70 (CRITICAL)
-- [ ] **ALERT-02**: System sends Slack alerts on events with materiality score >70 (CRITICAL)
-- [ ] **ALERT-03**: System sends Slack-only alerts on events with materiality score 50-70 (WARNING)
+- [x] **ALERT-01**: System sends email alerts on events with materiality score >70 (CRITICAL)
+- [x] **ALERT-02**: System sends Slack alerts on events with materiality score >70 (CRITICAL)
+- [x] **ALERT-03**: System sends Slack-only alerts on events with materiality score 50-70 (WARNING)
 - [ ] **ALERT-04**: User can configure alert thresholds per deal (override global defaults)
 - [ ] **ALERT-05**: User can configure delivery channels (email, Slack, webhook) per alert rule
-- [ ] **ALERT-06**: Webhook delivery for firms with internal systems
+- [x] **ALERT-06**: Webhook delivery for firms with internal systems
 
 ### Digests
 
@@ -187,12 +187,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RSS-01 | Phase 4 | Pending |
 | RSS-02 | Phase 4 | Pending |
 | RSS-03 | Phase 4 | Pending |
-| ALERT-01 | Phase 5 | Pending |
-| ALERT-02 | Phase 5 | Pending |
-| ALERT-03 | Phase 5 | Pending |
+| ALERT-01 | Phase 5 | Complete |
+| ALERT-02 | Phase 5 | Complete |
+| ALERT-03 | Phase 5 | Complete |
 | ALERT-04 | Phase 5 | Pending |
 | ALERT-05 | Phase 5 | Pending |
-| ALERT-06 | Phase 5 | Pending |
+| ALERT-06 | Phase 5 | Complete |
 | MKT-01 | Phase 5 | Pending |
 | MKT-02 | Phase 5 | Pending |
 | MKT-03 | Phase 5 | Pending |
