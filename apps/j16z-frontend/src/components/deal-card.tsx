@@ -123,7 +123,7 @@ export function DealCard({ dealId }: DealCardProps) {
       // Keys 1-5: switch tabs
       if (!e.metaKey && !e.ctrlKey && ['1', '2', '3', '4', '5'].includes(e.key)) {
         e.preventDefault();
-        const idx = parseInt(e.key) - 1;
+        const idx = Number.parseInt(e.key, 10) - 1;
         if (idx >= 0 && idx < TABS.length) {
           setActiveTab(TABS[idx]);
         }
@@ -170,6 +170,7 @@ export function DealCard({ dealId }: DealCardProps) {
           <h1 className="text-2xl font-mono font-bold text-zinc-100 mb-2">Deal Not Found</h1>
           <p className="text-sm text-zinc-500 font-mono mb-4">The deal you&apos;re looking for doesn&apos;t exist.</p>
           <button
+            type="button"
             onClick={() => router.push('/app/deals')}
             className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 rounded-md font-mono text-sm transition-colors"
           >
@@ -203,10 +204,7 @@ export function DealCard({ dealId }: DealCardProps) {
       <div className="flex flex-1 overflow-hidden">
         {/* Main tab content */}
         <div className={`flex-1 overflow-y-auto ${selectedEventId ? 'pr-[400px]' : ''}`}>
-          <Tabs.Root
-            value={activeTab}
-            onValueChange={(val) => setActiveTab(val as TabValue)}
-          >
+          <Tabs.Root value={activeTab} onValueChange={(val) => setActiveTab(val as TabValue)}>
             {/* Tab list */}
             <Tabs.List className="flex items-center border-b border-border px-4 gap-0">
               {TABS.map((tab) => (
@@ -252,11 +250,7 @@ export function DealCard({ dealId }: DealCardProps) {
         {/* Event detail sidebar — slides in from right */}
         {selectedEventId && (
           <div className="fixed right-0 top-0 h-full z-20 shadow-xl transition-transform">
-            <DealEventSidePanel
-              eventId={selectedEventId}
-              events={events}
-              onClose={() => setSelectedEventId(null)}
-            />
+            <DealEventSidePanel eventId={selectedEventId} events={events} onClose={() => setSelectedEventId(null)} />
           </div>
         )}
       </div>
