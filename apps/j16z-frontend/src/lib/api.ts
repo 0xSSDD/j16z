@@ -9,7 +9,17 @@
  */
 
 import { MOCK_CLAUSES, MOCK_DEALS, MOCK_EVENTS, MOCK_MARKET_SNAPSHOTS } from './constants';
-import type { AlertRule, Clause, CreateAlertRuleInput, Deal, Event, Filing, MarketSnapshot, NewsItem } from './types';
+import type {
+  AlertRule,
+  Clause,
+  CreateAlertRuleInput,
+  Deal,
+  DigestPreferences,
+  Event,
+  Filing,
+  MarketSnapshot,
+  NewsItem,
+} from './types';
 
 export interface IntegrationHealth {
   id: string;
@@ -527,6 +537,50 @@ export async function testAlertRule(id: string): Promise<void> {
   }
 
   await authFetch(`/api/alert-rules/${id}/test`, { method: 'POST' });
+}
+
+// ---------------------------------------------------------------------------
+// Market Snapshots API (latest snapshot for deal board)
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Digest Preferences API
+// ---------------------------------------------------------------------------
+
+const DEFAULT_DIGEST_PREFS: DigestPreferences = {
+  dailyEnabled: true,
+  weeklyEnabled: true,
+  suppressWeekend: false,
+};
+
+/**
+ * Get the current user's digest preferences.
+ * Returns defaults when NEXT_PUBLIC_USE_MOCK_DATA=true.
+ */
+export async function getDigestPreferences(): Promise<DigestPreferences> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return { ...DEFAULT_DIGEST_PREFS };
+  }
+
+  const response = await authFetch('/api/digest-preferences');
+  return response.json();
+}
+
+/**
+ * Update the current user's digest preferences.
+ */
+export async function updateDigestPreferences(prefs: DigestPreferences): Promise<DigestPreferences> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    return { ...prefs };
+  }
+
+  const response = await authFetch('/api/digest-preferences', {
+    method: 'PUT',
+    body: JSON.stringify(prefs),
+  });
+  return response.json();
 }
 
 // ---------------------------------------------------------------------------
