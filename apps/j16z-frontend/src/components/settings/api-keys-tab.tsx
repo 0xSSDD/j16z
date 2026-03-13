@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { Check, Copy, Eye, EyeOff, ExternalLink, Plus, Trash2 } from "lucide-react";
-import { createApiKey, deleteApiKey, listApiKeys } from "@/lib/api";
-import type { ApiKeyRecord } from "@/lib/api";
+import { Check, Copy, ExternalLink, Eye, EyeOff, Plus, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import type { ApiKeyRecord } from '@/lib/api';
+import { createApiKey, deleteApiKey, listApiKeys } from '@/lib/api';
 
 interface GenerateKeyModalProps {
   isOpen: boolean;
@@ -13,7 +13,7 @@ interface GenerateKeyModalProps {
 }
 
 function GenerateKeyModal({ isOpen, onClose, onGenerate, isLoading }: GenerateKeyModalProps) {
-  const [name, setName] = useState("");
+  const [name, setName] = useState('');
 
   if (!isOpen) return null;
 
@@ -21,7 +21,7 @@ function GenerateKeyModal({ isOpen, onClose, onGenerate, isLoading }: GenerateKe
     e.preventDefault();
     if (name.trim()) {
       onGenerate(name.trim());
-      setName("");
+      setName('');
     }
   };
 
@@ -32,10 +32,11 @@ function GenerateKeyModal({ isOpen, onClose, onGenerate, isLoading }: GenerateKe
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-2 block text-sm font-medium text-text-main">
+            <label htmlFor="api-key-name" className="mb-2 block text-sm font-medium text-text-main">
               Key Name
             </label>
             <input
+              id="api-key-name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -43,9 +44,7 @@ function GenerateKeyModal({ isOpen, onClose, onGenerate, isLoading }: GenerateKe
               className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-text-main placeholder-text-dim focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
               required
             />
-            <p className="mt-1 text-xs text-text-muted">
-              Choose a descriptive name to identify where this key is used
-            </p>
+            <p className="mt-1 text-xs text-text-muted">Choose a descriptive name to identify where this key is used</p>
           </div>
 
           <div className="flex gap-3">
@@ -62,7 +61,7 @@ function GenerateKeyModal({ isOpen, onClose, onGenerate, isLoading }: GenerateKe
               disabled={isLoading || !name.trim()}
               className="flex-1 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600 disabled:opacity-50"
             >
-              {isLoading ? "Generating..." : "Generate Key"}
+              {isLoading ? 'Generating...' : 'Generate Key'}
             </button>
           </div>
         </form>
@@ -103,18 +102,20 @@ function ShowKeyModal({ isOpen, keyValue, onClose }: ShowKeyModalProps) {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-text-main">
+            <label htmlFor="api-key-value" className="mb-2 block text-sm font-medium text-text-main">
               Your API Key
             </label>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <input
-                  type={visible ? "text" : "password"}
+                  id="api-key-value"
+                  type={visible ? 'text' : 'password'}
                   value={keyValue}
                   readOnly
                   className="w-full rounded-md border border-border bg-background px-3 py-2 pr-10 font-mono text-sm text-text-main"
                 />
                 <button
+                  type="button"
                   onClick={() => setVisible(!visible)}
                   className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-text-muted hover:text-text-main"
                 >
@@ -122,6 +123,7 @@ function ShowKeyModal({ isOpen, keyValue, onClose }: ShowKeyModalProps) {
                 </button>
               </div>
               <button
+                type="button"
                 onClick={handleCopy}
                 className="flex items-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-text-main transition-colors hover:bg-surfaceHighlight"
               >
@@ -141,6 +143,7 @@ function ShowKeyModal({ isOpen, keyValue, onClose }: ShowKeyModalProps) {
           </div>
 
           <button
+            type="button"
             onClick={onClose}
             className="w-full rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
           >
@@ -155,7 +158,7 @@ function ShowKeyModal({ isOpen, keyValue, onClose }: ShowKeyModalProps) {
 export function APIKeysTab() {
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [showKeyModal, setShowKeyModal] = useState(false);
-  const [generatedKey, setGeneratedKey] = useState("");
+  const [generatedKey, setGeneratedKey] = useState('');
   const [keys, setKeys] = useState<ApiKeyRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
@@ -168,7 +171,7 @@ export function APIKeysTab() {
         const data = await listApiKeys();
         setKeys(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load API keys");
+        setError(err instanceof Error ? err.message : 'Failed to load API keys');
       } finally {
         setIsFetching(false);
       }
@@ -182,37 +185,40 @@ export function APIKeysTab() {
     try {
       const result = await createApiKey(name);
       // Add key to list (without the raw key value)
-      setKeys((prev) => [...prev, { id: result.id, name: result.name, createdAt: result.createdAt, lastUsedAt: result.lastUsedAt }]);
+      setKeys((prev) => [
+        ...prev,
+        { id: result.id, name: result.name, createdAt: result.createdAt, lastUsedAt: result.lastUsedAt },
+      ]);
       setGeneratedKey(result.key);
       setShowGenerateModal(false);
       setShowKeyModal(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create API key");
+      setError(err instanceof Error ? err.message : 'Failed to create API key');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleDelete = async (keyId: string) => {
-    if (!confirm("Delete this API key? This action is immediate and cannot be undone.")) return;
+    if (!confirm('Delete this API key? This action is immediate and cannot be undone.')) return;
     setError(null);
     try {
       await deleteApiKey(keyId);
       setKeys((prev) => prev.filter((k) => k.id !== keyId));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete API key");
+      setError(err instanceof Error ? err.message : 'Failed to delete API key');
     }
   };
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+    return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
   const formatLastUsed = (dateStr: string | null) => {
-    if (!dateStr) return "Never";
+    if (!dateStr) return 'Never';
     const diff = Date.now() - new Date(dateStr).getTime();
     const minutes = Math.floor(diff / 60000);
-    if (minutes < 1) return "Just now";
+    if (minutes < 1) return 'Just now';
     if (minutes < 60) return `${minutes}m ago`;
     const hours = Math.floor(minutes / 60);
     if (hours < 24) return `${hours}h ago`;
@@ -228,19 +234,13 @@ export function APIKeysTab() {
         isLoading={isLoading}
       />
 
-      <ShowKeyModal
-        isOpen={showKeyModal}
-        keyValue={generatedKey}
-        onClose={() => setShowKeyModal(false)}
-      />
+      <ShowKeyModal isOpen={showKeyModal} keyValue={generatedKey} onClose={() => setShowKeyModal(false)} />
 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold text-text-main">API Keys</h2>
-          <p className="text-sm text-text-muted">
-            Manage API keys for programmatic access to /v1/* endpoints
-          </p>
+          <p className="text-sm text-text-muted">Manage API keys for programmatic access to /v1/* endpoints</p>
         </div>
         <div className="flex gap-3">
           <a
@@ -253,6 +253,7 @@ export function APIKeysTab() {
             API Documentation
           </a>
           <button
+            type="button"
             onClick={() => setShowGenerateModal(true)}
             className="flex items-center gap-2 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
           >
@@ -264,9 +265,7 @@ export function APIKeysTab() {
 
       {/* Error state */}
       {error && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
-          {error}
-        </div>
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">{error}</div>
       )}
 
       {/* API Keys List */}
@@ -279,6 +278,7 @@ export function APIKeysTab() {
           <div className="rounded-lg border border-border bg-surface p-12 text-center">
             <p className="text-sm text-text-muted">No API keys generated yet</p>
             <button
+              type="button"
               onClick={() => setShowGenerateModal(true)}
               className="mt-4 text-sm font-medium text-primary-500 hover:text-primary-600"
             >
@@ -310,6 +310,7 @@ export function APIKeysTab() {
 
                 <div className="flex gap-2">
                   <button
+                    type="button"
                     onClick={() => handleDelete(key.id)}
                     className="rounded-md p-2 text-text-muted transition-colors hover:bg-red-500/10 hover:text-red-500"
                     title="Delete key immediately"
@@ -325,9 +326,7 @@ export function APIKeysTab() {
 
       {/* Security Info */}
       <section className="rounded-lg border border-border bg-surface p-4">
-        <h3 className="mb-3 text-sm font-semibold text-text-main">
-          Security Best Practices
-        </h3>
+        <h3 className="mb-3 text-sm font-semibold text-text-main">Security Best Practices</h3>
         <ul className="space-y-2 text-xs text-text-muted">
           <li>• Never share your API keys or commit them to version control</li>
           <li>• Rotate keys regularly and immediately if compromised</li>

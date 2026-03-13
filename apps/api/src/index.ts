@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { serve } from '@hono/node-server';
+import { Scalar } from '@scalar/hono-api-reference';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
@@ -7,6 +8,7 @@ import { authMiddleware } from './middleware/auth.js';
 import { firmContextMiddleware } from './middleware/firm-context.js';
 import { registerSchedules } from './queues/scheduler.js';
 import { apiRoutes } from './routes/index.js';
+import { v1App } from './routes/v1/index.js';
 
 const app = new Hono();
 
@@ -26,6 +28,15 @@ app.use(
 // Health check — unauthenticated, used by load balancers and CI smoke tests
 // ---------------------------------------------------------------------------
 app.get('/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString() }));
+
+// ---------------------------------------------------------------------------
+// Public REST API — /v1/* with API key authentication
+// Mounted BEFORE /api routes to avoid basePath conflicts
+// ---------------------------------------------------------------------------
+app.route('/v1', v1App);
+
+// Scalar API docs — reads spec from /v1/doc
+app.get('/docs', Scalar({ url: '/v1/doc' }));
 
 // ---------------------------------------------------------------------------
 // Webhook routes — registered BEFORE api.basePath('/api') and authMiddleware.

@@ -15,8 +15,10 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",
+    "@hono/zod-openapi": "0.18.4",
     "@hono/zod-validator": "^0.4.3",
     "@react-email/components": "^1.0.9",
+    "@scalar/hono-api-reference": "^0.10.3",
     "@slack/webhook": "^7.0.8",
     "@supabase/supabase-js": "^2.49.4",
     "bullmq": "^5.70.1",
