@@ -3,6 +3,7 @@ import { and, eq, isNull, sql } from 'drizzle-orm';
 import Parser from 'rss-parser';
 import { adminDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
+import { ingestionQueue } from '../queues/ingestion.js';
 
 type RssItem = {
   title?: string;
@@ -70,25 +71,42 @@ export async function handleRssPoll(job: Job): Promise<void> {
           }
 
           const itemScore = scoreRssItem(item.title ?? '', buildDescription(item));
-          await adminDb.insert(schema.events).values({
-            firmId: feed.firmId,
-            dealId: deal.id,
-            type: 'NEWS',
-            subType: 'RSS_ARTICLE',
-            title: item.title ?? 'RSS article',
-            description: buildDescription(item),
-            source: 'RSS',
-            sourceUrl: item.link ?? feed.url,
-            timestamp: getItemTimestamp(item),
-            materialityScore: itemScore,
-            severity: getRssSeverity(itemScore),
-            metadata: {
-              feedId: feed.id,
-              feedName: feed.name,
-              rssGuid: guid,
-              rssLink: item.link ?? null,
+          const severity = getRssSeverity(itemScore);
+          const [insertedEvent] = await adminDb
+            .insert(schema.events)
+            .values({
+              firmId: feed.firmId,
+              dealId: deal.id,
+              type: 'NEWS',
+              subType: 'RSS_ARTICLE',
+              title: item.title ?? 'RSS article',
+              description: buildDescription(item),
+              source: 'RSS',
+              sourceUrl: item.link ?? feed.url,
+              timestamp: getItemTimestamp(item),
+              materialityScore: itemScore,
+              severity,
+              metadata: {
+                feedId: feed.id,
+                feedName: feed.name,
+                rssGuid: guid,
+                rssLink: item.link ?? null,
+              },
+            })
+            .returning({ id: schema.events.id });
+
+          // Enqueue alert evaluation for the newly created event
+          await ingestionQueue.add(
+            'alert_evaluate',
+            {
+              eventId: insertedEvent.id,
+              firmId: feed.firmId,
+              dealId: deal.id,
+              materialityScore: itemScore,
+              severity,
             },
-          });
+            { delay: 5000 },
+          );
 
           totalEventsCreated++;
         }

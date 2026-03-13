@@ -60,6 +60,7 @@ const api = app.basePath('/api');
 api.use('/*', authMiddleware);
 
 // Require firm context on data routes only
+api.use('/alert-rules/*', firmContextMiddleware);
 api.use('/deals/*', firmContextMiddleware);
 api.use('/events/*', firmContextMiddleware);
 api.use('/filings/*', firmContextMiddleware);
@@ -68,6 +69,7 @@ api.use('/watchlists/*', firmContextMiddleware);
 api.use('/market-snapshots/*', firmContextMiddleware);
 
 // Mount routes
+api.route('/alert-rules', apiRoutes.alertRules);
 api.route('/auth', apiRoutes.auth);
 api.route('/deals', apiRoutes.deals);
 api.route('/events', apiRoutes.events);

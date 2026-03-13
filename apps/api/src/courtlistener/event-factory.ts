@@ -1,5 +1,6 @@
 import { adminDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
+import { ingestionQueue } from '../queues/ingestion.js';
 
 // ---------------------------------------------------------------------------
 // COURT event creation — mirrors agency/event-factory.ts pattern
@@ -23,20 +24,36 @@ interface CreateCourtEventParams {
  * Source is always 'COURT_LISTENER'.
  */
 export async function createCourtEvent(params: CreateCourtEventParams): Promise<void> {
-  await adminDb.insert(schema.events).values({
-    firmId: params.firmId,
-    dealId: params.dealId,
-    type: 'COURT',
-    subType: params.subType,
-    title: params.title,
-    description: params.description,
-    source: 'COURT_LISTENER',
-    sourceUrl: params.sourceUrl,
-    timestamp: params.timestamp ?? new Date(),
-    materialityScore: params.materialityScore,
-    severity: params.severity,
-    metadata: params.metadata ?? null,
-  });
+  const [inserted] = await adminDb
+    .insert(schema.events)
+    .values({
+      firmId: params.firmId,
+      dealId: params.dealId,
+      type: 'COURT',
+      subType: params.subType,
+      title: params.title,
+      description: params.description,
+      source: 'COURT_LISTENER',
+      sourceUrl: params.sourceUrl,
+      timestamp: params.timestamp ?? new Date(),
+      materialityScore: params.materialityScore,
+      severity: params.severity,
+      metadata: params.metadata ?? null,
+    })
+    .returning({ id: schema.events.id });
+
+  // Enqueue alert evaluation for the newly created event
+  await ingestionQueue.add(
+    'alert_evaluate',
+    {
+      eventId: inserted.id,
+      firmId: params.firmId,
+      dealId: params.dealId,
+      materialityScore: params.materialityScore,
+      severity: params.severity,
+    },
+    { delay: 5000 },
+  );
 }
 
 /**

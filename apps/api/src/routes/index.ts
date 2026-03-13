@@ -1,3 +1,4 @@
+import { alertRulesRoutes } from './alert-rules.js';
 import { authRoutes } from './auth.js';
 import { dealsRoutes } from './deals.js';
 import { eventsRoutes } from './events.js';
@@ -9,6 +10,7 @@ import { watchlistsRoutes } from './watchlists.js';
 import { webhooksRoutes } from './webhooks.js';
 
 export const apiRoutes = {
+  alertRules: alertRulesRoutes,
   auth: authRoutes,
   deals: dealsRoutes,
   events: eventsRoutes,

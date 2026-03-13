@@ -1,5 +1,6 @@
 import { adminDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
+import { ingestionQueue } from '../queues/ingestion.js';
 import type { FilingMetadata } from './types.js';
 
 // ---------------------------------------------------------------------------
@@ -80,7 +81,23 @@ export async function createFilingEvents(
   }));
 
   if (eventValues.length > 0) {
-    await adminDb.insert(schema.events).values(eventValues);
-    console.log(`[event-factory] Created ${eventValues.length} FILING events for filing ${filing.accessionNumber}`);
+    const insertedEvents = await adminDb.insert(schema.events).values(eventValues).returning({ id: schema.events.id });
+
+    // Enqueue alert evaluation for each created event
+    for (let i = 0; i < insertedEvents.length; i++) {
+      await ingestionQueue.add(
+        'alert_evaluate',
+        {
+          eventId: insertedEvents[i].id,
+          firmId: eventValues[i].firmId,
+          dealId,
+          materialityScore,
+          severity,
+        },
+        { delay: 5000 },
+      );
+    }
+
+    console.log(`[event-factory] Created ${insertedEvents.length} FILING events for filing ${filing.accessionNumber}`);
   }
 }
