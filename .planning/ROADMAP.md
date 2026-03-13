@@ -119,8 +119,8 @@ Plans:
 **Plans**: 3 plans in 2 waves
 
 Plans:
-- [ ] 06-01-PLAN.md — Digest schema + BullMQ cron (daily 8 AM ET, weekly Friday 5 PM ET); react-email templates (dark Aurora palette); digest preference CRUD API + Settings Digests tab (Wave 1)
-- [ ] 06-02-PLAN.md — Memo schema (memos + snapshots) + CRUD API with optimistic concurrency; tiptap editor with deal-data scaffold; deal card Memo tab (Wave 1)
+- [x] 06-01-PLAN.md — Digest schema + BullMQ cron (daily 8 AM ET, weekly Friday 5 PM ET); react-email templates (dark Aurora palette); digest preference CRUD API + Settings Digests tab (Wave 1) — COMPLETE 2026-03-13
+- [x] 06-02-PLAN.md — Memo schema (memos + snapshots) + CRUD API with optimistic concurrency; tiptap editor with deal-data scaffold; deal card Memo tab (Wave 1) — COMPLETE 2026-03-13
 - [ ] 06-03-PLAN.md — Per-section live data refresh; snapshot panel (create/browse/restore/compare); memo export (.docx + .pdf) (Wave 2)
 
 ### Phase 7: Frontend Refinement + Exports

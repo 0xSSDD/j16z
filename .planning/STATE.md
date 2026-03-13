@@ -23,9 +23,9 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 ## Current Position
 
 Phase: 6 of 7 (Digests + Deal Memo Editor) — IN PROGRESS
-Plan: 1 of 3 (06-01 complete — email digest cron system, react-email templates, Settings > Digests tab)
-Status: Phase 6 Plan 1 COMPLETE — daily/weekly digest system live; ready for Plan 2 (Deal Memo Editor)
-Last activity: 2026-03-13 — Plan 06-01 complete (digest backend, react-email templates, DigestPreferencesTab)
+Plan: 2 of 3 (06-02 complete — tiptap memo editor, CRUD API, deal card Memo tab)
+Status: Phase 6 Plan 2 COMPLETE — memo editor with scaffold generator live; ready for Plan 3 (snapshot panel + export)
+Last activity: 2026-03-13 — Plan 06-02 complete (memos schema, CRUD API, tiptap editor, MemoList, deal card tab)
 
 Progress: [████████████████████] 100% (16/16 plans complete across 5 complete phases + phase 6 started)
 
@@ -45,7 +45,7 @@ Progress: [████████████████████] 100% (1
 | 03-llm-extraction-pipeline | 3 | 21 min | 7 min | COMPLETE |
 | 04-courtlistener-ftcdoj-rss | 3 | 14 min | 5 min | COMPLETE |
 | 05-alert-delivery-market-data | 3/3 | 17 min | 6 min | COMPLETE |
-| 06-digests-deal-memo-editor | 1/3 | 8 min | 8 min | IN PROGRESS |
+| 06-digests-deal-memo-editor | 2/3 | 21 min | 10.5 min | IN PROGRESS |
 
 **Recent Trend:**
 - Last 5 plans: 04-03 (5 min), 05-01 (5 min), 05-02 (4 min), 05-03 (8 min), 06-01 (8 min)
@@ -122,6 +122,10 @@ Recent decisions affecting current work:
 - [06-01]: Digest cron schedules use tz: 'America/New_York' in BullMQ upsertJobScheduler — explicit timezone, not UTC arithmetic
 - [06-01]: Digest preferences GET returns defaults (all enabled) if no row exists — avoids ghost row creation on first load
 - [06-01]: Weekend suppression uses Intl.DateTimeFormat weekday check in ET — consistent with market-poller.ts timezone pattern
+- [06-02]: JSONContent type imported from @tiptap/react (re-exports @tiptap/core) — @tiptap/core is a transitive dep not directly installed in frontend workspace
+- [06-02]: Memo auto-save uses 3s debounce with monotonic version counter; PATCH returns 409 if incoming version <= stored version
+- [06-02]: immediatelyRender: false on useEditor for Next.js SSR hydration compatibility
+- [06-02]: Deal card tab navigation wraps existing sections in React fragment (Overview tab); Memo tab renders MemoList alongside
 
 ### Pending Todos
 
@@ -138,5 +142,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-13
-Stopped at: Completed 06-01-PLAN.md — email digest cron system, react-email templates, digest-preferences API + Settings tab
-Resume file: .planning/phases/06-digests-deal-memo-editor/06-02-PLAN.md (Phase 6 Plan 2: Deal Memo Editor)
+Stopped at: Completed 06-02-PLAN.md — tiptap memo editor, CRUD API with optimistic concurrency, deal card Memo tab
+Resume file: .planning/phases/06-digests-deal-memo-editor/06-03-PLAN.md (Phase 6 Plan 3: Snapshot Panel + Export)
