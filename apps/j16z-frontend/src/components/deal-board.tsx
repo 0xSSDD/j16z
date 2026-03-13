@@ -338,16 +338,28 @@ export function DealBoard() {
     setCurrentPage(1);
   };
 
-  const exportCSV = () => {
-    const data = filteredDeals.map((deal) => ({
-      Deal: `${deal.acquirerSymbol}/${deal.symbol}`,
-      Status: deal.status,
-      Spread: `${deal.currentSpread.toFixed(1)}%`,
-      p_close: `${deal.p_close_base}%`,
-      EV: `${deal.ev.toFixed(2)}%`,
-      "Outside Date": deal.outsideDate,
-    }));
-    exportToCSV(data, `deals-${formatDateForFilename()}.csv`);
+  const exportDealBoardCSV = () => {
+    const data = filteredDeals.map((deal) => {
+      const snapshot = marketSnapshots[deal.id];
+      const spreadPct = snapshot ? Number(snapshot.spread) : deal.currentSpread;
+      const currentPx = snapshot ? Number(snapshot.targetPrice) : null;
+      return {
+        deal_name: `${deal.acquirerName} / ${deal.companyName}`,
+        acquirer: deal.acquirerName,
+        target: deal.companyName,
+        offer_price: deal.reportedEquityTakeoverValue ?? '',
+        current_price: currentPx != null ? Number(currentPx).toFixed(2) : '',
+        spread_pct: spreadPct != null ? Number(spreadPct).toFixed(2) : '',
+        p_close: deal.p_close_base ?? '',
+        status: deal.status,
+        announced_date: deal.announcementDate ?? '',
+        outside_date: deal.outsideDate ?? '',
+        filing_count: filingCounts[deal.id] ?? 0,
+        litigation_count: deal.litigationCount ?? 0,
+        regulatory_status: deal.regulatoryFlags.length > 0 ? deal.regulatoryFlags.join('; ') : 'None',
+      };
+    });
+    exportToCSV(data, `j16z-deals-${formatDateForFilename()}.csv`);
   };
 
   const exportJSON = () => {
@@ -378,7 +390,7 @@ export function DealBoard() {
             Watchlists
           </button>
           <button
-            onClick={exportCSV}
+            onClick={exportDealBoardCSV}
             className="px-4 py-2 border border-border bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
           >
             Export CSV

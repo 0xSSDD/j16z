@@ -734,6 +734,68 @@ export async function restoreMemoSnapshot(memoId: string, snapshotId: string): P
   return response.json();
 }
 
+// ---------------------------------------------------------------------------
+// API Keys API
+// ---------------------------------------------------------------------------
+
+export interface ApiKeyRecord {
+  id: string;
+  name: string;
+  createdAt: string;
+  lastUsedAt: string | null;
+}
+
+export interface CreateApiKeyResponse extends ApiKeyRecord {
+  key: string; // Raw sk_live_ key — shown once, never returned again
+}
+
+/**
+ * List all API keys for the firm (id, name, dates — never the raw key).
+ */
+export async function listApiKeys(): Promise<ApiKeyRecord[]> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return [];
+  }
+
+  const response = await authFetch('/api/api-keys');
+  return response.json();
+}
+
+/**
+ * Create a new API key. Returns the raw sk_live_ key shown once.
+ */
+export async function createApiKey(name: string): Promise<CreateApiKeyResponse> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    return {
+      id: `key-${Date.now()}`,
+      name,
+      key: `sk_live_${'x'.repeat(64)}`,
+      createdAt: new Date().toISOString(),
+      lastUsedAt: null,
+    };
+  }
+
+  const response = await authFetch('/api/api-keys', {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+  });
+  return response.json();
+}
+
+/**
+ * Delete an API key by ID.
+ */
+export async function deleteApiKey(id: string): Promise<void> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    return;
+  }
+
+  await authFetch(`/api/api-keys/${id}`, { method: 'DELETE' });
+}
+
 export async function getLatestMarketSnapshot(dealId: string): Promise<MarketSnapshot | null> {
   if (USE_MOCK_DATA) {
     await new Promise((resolve) => setTimeout(resolve, 100));

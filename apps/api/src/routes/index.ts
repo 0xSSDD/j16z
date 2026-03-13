@@ -1,4 +1,5 @@
 import { alertRulesRoutes } from './alert-rules.js';
+import { apiKeyRoutes } from './api-keys.js';
 import { authRoutes } from './auth.js';
 import { dealsRoutes } from './deals.js';
 import { digestPreferencesRoutes } from './digest-preferences.js';
@@ -13,6 +14,7 @@ import { webhooksRoutes } from './webhooks.js';
 
 export const apiRoutes = {
   alertRules: alertRulesRoutes,
+  apiKeys: apiKeyRoutes,
   auth: authRoutes,
   deals: dealsRoutes,
   digestPreferences: digestPreferencesRoutes,

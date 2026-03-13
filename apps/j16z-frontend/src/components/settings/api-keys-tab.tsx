@@ -1,32 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Copy, RotateCw, Trash2, ExternalLink, Check, Eye, EyeOff } from "lucide-react";
-
-interface APIKey {
-  id: string;
-  name: string;
-  keyPrefix: string;
-  created: string;
-  lastUsed: string;
-  status: "active" | "rotating" | "revoked";
-}
+import { useEffect, useState } from "react";
+import { Check, Copy, Eye, EyeOff, ExternalLink, Plus, Trash2 } from "lucide-react";
+import { createApiKey, deleteApiKey, listApiKeys } from "@/lib/api";
+import type { ApiKeyRecord } from "@/lib/api";
 
 interface GenerateKeyModalProps {
   isOpen: boolean;
   onClose: () => void;
   onGenerate: (name: string) => void;
+  isLoading: boolean;
 }
 
-function GenerateKeyModal({ isOpen, onClose, onGenerate }: GenerateKeyModalProps) {
+function GenerateKeyModal({ isOpen, onClose, onGenerate, isLoading }: GenerateKeyModalProps) {
   const [name, setName] = useState("");
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name) {
-      onGenerate(name);
+    if (name.trim()) {
+      onGenerate(name.trim());
       setName("");
     }
   };
@@ -58,15 +52,17 @@ function GenerateKeyModal({ isOpen, onClose, onGenerate }: GenerateKeyModalProps
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-text-main transition-colors hover:bg-surfaceHighlight"
+              disabled={isLoading}
+              className="flex-1 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-text-main transition-colors hover:bg-surfaceHighlight disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
+              disabled={isLoading || !name.trim()}
+              className="flex-1 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600 disabled:opacity-50"
             >
-              Generate Key
+              {isLoading ? "Generating..." : "Generate Key"}
             </button>
           </div>
         </form>
@@ -100,9 +96,9 @@ function ShowKeyModal({ isOpen, keyValue, onClose }: ShowKeyModalProps) {
 
         <div className="space-y-4">
           <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-4">
-            <p className="text-sm font-medium text-yellow-500">⚠️ Important</p>
+            <p className="text-sm font-medium text-yellow-500">Important</p>
             <p className="mt-1 text-xs text-text-muted">
-              This is the only time you'll see this key. Copy it now and store it securely.
+              This is the only time you&apos;ll see this key. Copy it now and store it securely.
             </p>
           </div>
 
@@ -148,7 +144,7 @@ function ShowKeyModal({ isOpen, keyValue, onClose }: ShowKeyModalProps) {
             onClick={onClose}
             className="w-full rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
           >
-            I've Saved My Key
+            I&apos;ve Saved My Key
           </button>
         </div>
       </div>
@@ -160,98 +156,67 @@ export function APIKeysTab() {
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [generatedKey, setGeneratedKey] = useState("");
-  const [keys, setKeys] = useState<APIKey[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("api_keys");
-      if (stored) {
-        try {
-          return JSON.parse(stored);
-        } catch {
-          // Ignore parse errors
-        }
+  const [keys, setKeys] = useState<ApiKeyRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchKeys() {
+      setIsFetching(true);
+      try {
+        const data = await listApiKeys();
+        setKeys(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load API keys");
+      } finally {
+        setIsFetching(false);
       }
     }
-    return [
-      {
-        id: "1",
-        name: "Production Server",
-        keyPrefix: "j16z_prod_abc123",
-        created: "2023-10-15",
-        lastUsed: "2 hours ago",
-        status: "active",
-      },
-      {
-        id: "2",
-        name: "Development Environment",
-        keyPrefix: "j16z_dev_xyz789",
-        created: "2023-11-20",
-        lastUsed: "5 minutes ago",
-        status: "active",
-      },
-    ];
-  });
+    fetchKeys();
+  }, []);
 
-  const handleGenerate = (name: string) => {
-    const newKey = {
-      id: Date.now().toString(),
-      name,
-      keyPrefix: `j16z_${Date.now().toString(36)}`,
-      created: new Date().toISOString().split("T")[0],
-      lastUsed: "Never",
-      status: "active" as const,
-    };
-
-    const fullKey = `${newKey.keyPrefix}_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
-
-    const updated = [...keys, newKey];
-    setKeys(updated);
-    localStorage.setItem("api_keys", JSON.stringify(updated));
-
-    setGeneratedKey(fullKey);
-    setShowGenerateModal(false);
-    setShowKeyModal(true);
-  };
-
-  const handleCopyId = (keyPrefix: string) => {
-    navigator.clipboard.writeText(keyPrefix);
-  };
-
-  const handleRotate = (keyId: string) => {
-    if (confirm("Rotate this API key? The old key will remain valid for 24 hours.")) {
-      const updated = keys.map(k =>
-        k.id === keyId ? { ...k, status: "rotating" as const } : k
-      );
-      setKeys(updated);
-      localStorage.setItem("api_keys", JSON.stringify(updated));
+  const handleGenerate = async (name: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await createApiKey(name);
+      // Add key to list (without the raw key value)
+      setKeys((prev) => [...prev, { id: result.id, name: result.name, createdAt: result.createdAt, lastUsedAt: result.lastUsedAt }]);
+      setGeneratedKey(result.key);
+      setShowGenerateModal(false);
+      setShowKeyModal(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create API key");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleRevoke = (keyId: string) => {
-    if (confirm("Revoke this API key? This action is immediate and cannot be undone.")) {
-      const updated = keys.map(k =>
-        k.id === keyId ? { ...k, status: "revoked" as const } : k
-      );
-      setKeys(updated);
-      localStorage.setItem("api_keys", JSON.stringify(updated));
+  const handleDelete = async (keyId: string) => {
+    if (!confirm("Delete this API key? This action is immediate and cannot be undone.")) return;
+    setError(null);
+    try {
+      await deleteApiKey(keyId);
+      setKeys((prev) => prev.filter((k) => k.id !== keyId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete API key");
     }
   };
 
-  const getStatusBadge = (status: APIKey["status"]) => {
-    const styles = {
-      active: "bg-green-500/10 text-green-500 border-green-500/30",
-      rotating: "bg-yellow-500/10 text-yellow-500 border-yellow-500/30",
-      revoked: "bg-red-500/10 text-red-500 border-red-500/30",
-    };
-    const labels = {
-      active: "Active",
-      rotating: "Rotating (24h grace)",
-      revoked: "Revoked",
-    };
-    return (
-      <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${styles[status]}`}>
-        {labels[status]}
-      </span>
-    );
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  };
+
+  const formatLastUsed = (dateStr: string | null) => {
+    if (!dateStr) return "Never";
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return "Just now";
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
   };
 
   return (
@@ -260,6 +225,7 @@ export function APIKeysTab() {
         isOpen={showGenerateModal}
         onClose={() => setShowGenerateModal(false)}
         onGenerate={handleGenerate}
+        isLoading={isLoading}
       />
 
       <ShowKeyModal
@@ -273,12 +239,12 @@ export function APIKeysTab() {
         <div>
           <h2 className="text-lg font-semibold text-text-main">API Keys</h2>
           <p className="text-sm text-text-muted">
-            Manage API keys for programmatic access
+            Manage API keys for programmatic access to /v1/* endpoints
           </p>
         </div>
         <div className="flex gap-3">
           <a
-            href="https://docs.j16z.com/api"
+            href="/docs"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text-main transition-colors hover:bg-surfaceHighlight"
@@ -296,9 +262,20 @@ export function APIKeysTab() {
         </div>
       </div>
 
+      {/* Error state */}
+      {error && (
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+          {error}
+        </div>
+      )}
+
       {/* API Keys List */}
       <section>
-        {keys.length === 0 ? (
+        {isFetching ? (
+          <div className="rounded-lg border border-border bg-surface p-12 text-center">
+            <p className="text-sm text-text-muted">Loading API keys...</p>
+          </div>
+        ) : keys.length === 0 ? (
           <div className="rounded-lg border border-border bg-surface p-12 text-center">
             <p className="text-sm text-text-muted">No API keys generated yet</p>
             <button
@@ -318,43 +295,27 @@ export function APIKeysTab() {
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
                     <p className="font-medium text-text-main">{key.name}</p>
-                    {getStatusBadge(key.status)}
+                    <span className="rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-500">
+                      Active
+                    </span>
                   </div>
                   <div className="mt-1 flex items-center gap-4 text-xs text-text-muted">
-                    <span className="font-mono">{key.keyPrefix}...</span>
+                    <span className="font-mono">sk_live_...</span>
                     <span>•</span>
-                    <span>Created {key.created}</span>
+                    <span>Created {formatDate(key.createdAt)}</span>
                     <span>•</span>
-                    <span>Last used {key.lastUsed}</span>
+                    <span>Last used {formatLastUsed(key.lastUsedAt)}</span>
                   </div>
                 </div>
 
                 <div className="flex gap-2">
                   <button
-                    onClick={() => handleCopyId(key.keyPrefix)}
-                    className="rounded-md p-2 text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-text-main"
-                    title="Copy key ID"
+                    onClick={() => handleDelete(key.id)}
+                    className="rounded-md p-2 text-text-muted transition-colors hover:bg-red-500/10 hover:text-red-500"
+                    title="Delete key immediately"
                   >
-                    <Copy className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4" />
                   </button>
-                  {key.status === "active" && (
-                    <>
-                      <button
-                        onClick={() => handleRotate(key.id)}
-                        className="rounded-md p-2 text-text-muted transition-colors hover:bg-yellow-500/10 hover:text-yellow-500"
-                        title="Rotate key (24h grace period)"
-                      >
-                        <RotateCw className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleRevoke(key.id)}
-                        className="rounded-md p-2 text-text-muted transition-colors hover:bg-red-500/10 hover:text-red-500"
-                        title="Revoke key immediately"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </>
-                  )}
                 </div>
               </div>
             ))}
@@ -372,7 +333,7 @@ export function APIKeysTab() {
           <li>• Rotate keys regularly and immediately if compromised</li>
           <li>• Use different keys for different environments (dev, staging, prod)</li>
           <li>• Monitor key usage in your application logs</li>
-          <li>• Revoke unused keys to minimize security risk</li>
+          <li>• Delete unused keys to minimize security risk</li>
         </ul>
       </section>
     </div>

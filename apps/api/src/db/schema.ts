@@ -486,6 +486,25 @@ export const memoSnapshots = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// api_keys — programmatic access keys for public REST API (/v1/*)
+// Keys are stored as SHA-256 hashes — plaintext is shown once at creation time
+// ---------------------------------------------------------------------------
+export const apiKeys = pgTable(
+  'api_keys',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    firmId: uuid('firm_id')
+      .notNull()
+      .references(() => firms.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    keyHash: text('key_hash').notNull().unique(), // SHA-256 of the raw sk_live_ key
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
+    ...timestamps,
+  },
+  () => firmIsolationPolicies(),
+);
+
+// ---------------------------------------------------------------------------
 // notification_log — tracks alert deliveries for dedup and audit
 // ---------------------------------------------------------------------------
 export const notificationLog = pgTable(

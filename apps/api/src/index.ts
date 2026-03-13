@@ -61,6 +61,7 @@ api.use('/*', authMiddleware);
 
 // Require firm context on data routes only
 api.use('/alert-rules/*', firmContextMiddleware);
+api.use('/api-keys/*', firmContextMiddleware);
 api.use('/deals/*', firmContextMiddleware);
 api.use('/digest-preferences/*', firmContextMiddleware);
 api.use('/events/*', firmContextMiddleware);
@@ -72,6 +73,7 @@ api.use('/memos/*', firmContextMiddleware);
 
 // Mount routes
 api.route('/alert-rules', apiRoutes.alertRules);
+api.route('/api-keys', apiRoutes.apiKeys);
 api.route('/auth', apiRoutes.auth);
 api.route('/deals', apiRoutes.deals);
 api.route('/digest-preferences', apiRoutes.digestPreferences);
