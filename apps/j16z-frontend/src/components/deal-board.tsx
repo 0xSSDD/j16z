@@ -3,9 +3,10 @@
 import * as React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
-import { Deal } from "@/lib/types";
+import { Deal, MarketSnapshot } from "@/lib/types";
 import { MOCK_DEALS } from "@/lib/constants";
-import { getFilings } from "@/lib/api";
+import { getFilings, getLatestMarketSnapshot } from "@/lib/api";
+import { DataAgeBadge } from "@/components/ui/data-age-badge";
 import { DataTable } from "@/components/ui/data-table";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { FilterChips } from "@/components/ui/filter-chips";
@@ -30,6 +31,7 @@ export function DealBoard() {
   const [pageSize, setPageSize] = React.useState(20);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [filingCounts, setFilingCounts] = React.useState<Record<string, number>>({});
+  const [marketSnapshots, setMarketSnapshots] = React.useState<Record<string, MarketSnapshot>>({});
 
   // Fetch filing counts for real data mode
   React.useEffect(() => {
@@ -49,6 +51,25 @@ export function DealBoard() {
       setFilingCounts(counts);
     }
     fetchCounts();
+  }, [deals]);
+
+  // Fetch latest market snapshots for spread display
+  React.useEffect(() => {
+    async function fetchSnapshots() {
+      const snaps: Record<string, MarketSnapshot> = {};
+      for (const deal of deals) {
+        try {
+          const snapshot = await getLatestMarketSnapshot(deal.id);
+          if (snapshot) {
+            snaps[deal.id] = snapshot;
+          }
+        } catch {
+          // No snapshot available — skip
+        }
+      }
+      setMarketSnapshots(snaps);
+    }
+    fetchSnapshots();
   }, [deals]);
 
   // Filter options
@@ -127,16 +148,27 @@ export function DealBoard() {
           <span className="cursor-help border-b border-dotted border-text-muted">Spread</span>
         </Tooltip>
       ),
-      cell: ({ row }) => (
-        <div className="flex flex-col gap-0.5">
-          <div className="font-medium text-primary-500">
-            {row.original.currentSpread.toFixed(1)}%
+      cell: ({ row }) => {
+        const snapshot = marketSnapshots[row.original.id];
+        const spreadValue = snapshot ? Number(snapshot.spread) : row.original.currentSpread;
+        return (
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-1.5">
+              <span className="font-medium text-primary-500">
+                {spreadValue != null ? `${Number(spreadValue).toFixed(1)}%` : '--'}
+              </span>
+              {snapshot && (
+                <DataAgeBadge lastUpdated={snapshot.timestamp} />
+              )}
+            </div>
+            {snapshot && (
+              <div className="text-[10px] text-text-muted">
+                Ann. {Number(snapshot.volume) > 0 ? `${Number(snapshot.volume).toLocaleString()} vol` : ''}
+              </div>
+            )}
           </div>
-          <div className="text-xs text-text-muted">
-            {row.original.currentSpread > 3 ? "↑" : "↓"} 0.3%
-          </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       accessorKey: "p_close_base",

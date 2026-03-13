@@ -1,389 +1,417 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Bell, Plus, X } from "lucide-react";
-import { SimpleDropdown } from "@/components/ui/simple-dropdown";
-
-interface AlertThresholds {
-  severity: string[];
-  minSpread: number;
-  daysBeforeOutside: number;
-  channels: string[];
-}
-
-interface DealOverride {
-  id: string;
-  dealId: string;
-  dealName: string;
-  eventTypes: string[];
-}
-
-interface EmailDigest {
-  enabled: boolean;
-  frequency: "daily" | "weekly";
-  time: string;
-  tiers: string[];
-}
-
-interface AlertRulesState {
-  thresholds: AlertThresholds;
-  dealOverrides: DealOverride[];
-  emailDigest: EmailDigest;
-}
+import { useCallback, useEffect, useState } from 'react';
+import { Bell, Copy, Loader2, Plus, Send, Trash2, X } from 'lucide-react';
+import { SimpleDropdown } from '@/components/ui/simple-dropdown';
+import {
+  createAlertRule,
+  deleteAlertRule,
+  getAlertRules,
+  testAlertRule,
+  updateAlertRule,
+} from '@/lib/api';
+import type { AlertChannel, AlertRule, CreateAlertRuleInput } from '@/lib/types';
 
 export function AlertRulesTab() {
-  const [rules, setRules] = useState<AlertRulesState>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("alert_rules");
-      if (stored) {
-        try {
-          return JSON.parse(stored);
-        } catch {
-          // Ignore parse errors
-        }
-      }
+  const [rules, setRules] = useState<AlertRule[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newlyCreatedSecret, setNewlyCreatedSecret] = useState<string | null>(null);
+  const [testingRuleId, setTestingRuleId] = useState<string | null>(null);
+
+  // Fetch rules on mount
+  const fetchRules = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await getAlertRules();
+      setRules(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load alert rules');
+    } finally {
+      setLoading(false);
     }
-    return {
-      thresholds: {
-        severity: ["CRITICAL"],
-        minSpread: 2.0,
-        daysBeforeOutside: 30,
-        channels: ["email"],
-      },
-      dealOverrides: [],
-      emailDigest: {
-        enabled: true,
-        frequency: "daily",
-        time: "09:00",
-        tiers: ["CRITICAL", "WARNING"],
-      },
-    };
-  });
+  }, []);
 
-  const [showOverrideModal, setShowOverrideModal] = useState(false);
+  useEffect(() => {
+    fetchRules();
+  }, [fetchRules]);
 
-  const handleSave = () => {
-    localStorage.setItem("alert_rules", JSON.stringify(rules));
+  const handleCreate = async (input: CreateAlertRuleInput) => {
+    try {
+      const created = await createAlertRule(input);
+      setRules((prev) => [created, ...prev]);
+      setShowCreateModal(false);
+      // Show webhook secret if present
+      if (created.webhookSecret) {
+        setNewlyCreatedSecret(created.webhookSecret);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create rule');
+    }
   };
 
-  const severityOptions = [
-    { id: "CRITICAL", name: "🔴 Critical" },
-    { id: "WARNING", name: "🟡 Warning" },
-    { id: "INFO", name: "🟢 Info" },
-  ];
-
-  const channelOptions = [
-    { id: "email", name: "Email" },
-    { id: "slack", name: "Slack" },
-    { id: "webhook", name: "Webhook" },
-  ];
-
-  const toggleSeverity = (level: string) => {
-    setRules(prev => ({
-      ...prev,
-      thresholds: {
-        ...prev.thresholds,
-        severity: prev.thresholds.severity.includes(level)
-          ? prev.thresholds.severity.filter(l => l !== level)
-          : [...prev.thresholds.severity, level],
-      },
-    }));
+  const handleToggleActive = async (rule: AlertRule) => {
+    try {
+      const updated = await updateAlertRule(rule.id, { isActive: !rule.isActive });
+      setRules((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update rule');
+    }
   };
 
-  const toggleChannel = (channel: string) => {
-    setRules(prev => ({
-      ...prev,
-      thresholds: {
-        ...prev.thresholds,
-        channels: prev.thresholds.channels.includes(channel)
-          ? prev.thresholds.channels.filter(c => c !== channel)
-          : [...prev.thresholds.channels, channel],
-      },
-    }));
+  const handleUpdateThreshold = async (rule: AlertRule, threshold: number) => {
+    try {
+      const updated = await updateAlertRule(rule.id, { threshold });
+      setRules((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update threshold');
+    }
   };
 
-  const toggleDigestTier = (tier: string) => {
-    setRules(prev => ({
-      ...prev,
-      emailDigest: {
-        ...prev.emailDigest,
-        tiers: prev.emailDigest.tiers.includes(tier)
-          ? prev.emailDigest.tiers.filter(t => t !== tier)
-          : [...prev.emailDigest.tiers, tier],
-      },
-    }));
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteAlertRule(id);
+      setRules((prev) => prev.filter((r) => r.id !== id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete rule');
+    }
   };
 
-  const removeOverride = (id: string) => {
-    setRules(prev => ({
-      ...prev,
-      dealOverrides: prev.dealOverrides.filter(o => o.id !== id),
-    }));
+  const handleTest = async (id: string) => {
+    try {
+      setTestingRuleId(id);
+      await testAlertRule(id);
+      setTestingRuleId(null);
+    } catch (err) {
+      setTestingRuleId(null);
+      setError(err instanceof Error ? err.message : 'Test delivery failed');
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--text-muted)]" />
+        <span className="ml-2 text-sm text-[var(--text-muted)]">Loading alert rules...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
-      {/* Default Thresholds */}
-      <section>
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold text-text-main">Default Alert Thresholds</h2>
-          <p className="text-sm text-text-muted">Configure when you receive alerts for all deals</p>
+      {error && (
+        <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4">
+          <p className="text-sm text-red-400">{error}</p>
+          <button
+            onClick={() => setError(null)}
+            className="mt-1 text-xs text-red-400/70 underline hover:text-red-400"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Webhook Secret Banner */}
+      {newlyCreatedSecret && (
+        <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4">
+          <p className="mb-2 text-sm font-medium text-amber-400">
+            Webhook Secret (copy now -- it will not be shown again)
+          </p>
+          <div className="flex items-center gap-2">
+            <code className="flex-1 rounded bg-[var(--bg-primary)] px-3 py-1.5 font-mono text-xs text-[var(--text-main)] select-all">
+              {newlyCreatedSecret}
+            </code>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(newlyCreatedSecret);
+              }}
+              className="rounded p-1.5 text-amber-400 transition-colors hover:bg-amber-500/10"
+            >
+              <Copy className="h-4 w-4" />
+            </button>
+          </div>
+          <button
+            onClick={() => setNewlyCreatedSecret(null)}
+            className="mt-2 text-xs text-amber-400/70 underline hover:text-amber-400"
+          >
+            I have copied the secret
+          </button>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-[var(--text-main)]">Alert Rules</h2>
+          <p className="text-sm text-[var(--text-muted)]">
+            Configure when and how you receive notifications
+          </p>
+        </div>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="flex items-center gap-2 rounded-md bg-[var(--aurora-primary)] px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
+        >
+          <Plus className="h-4 w-4" />
+          New Rule
+        </button>
+      </div>
+
+      {/* Rules list */}
+      {rules.length === 0 ? (
+        <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-surface)] p-8 text-center">
+          <Bell className="mx-auto mb-3 h-8 w-8 text-[var(--text-muted)]" />
+          <p className="text-sm text-[var(--text-muted)]">No alert rules configured yet</p>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">
+            Create a rule to start receiving notifications
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {rules.map((rule) => (
+            <div
+              key={rule.id}
+              className={`rounded-lg border bg-[var(--bg-surface)] p-4 transition-colors ${
+                rule.isActive ? 'border-[var(--border-color)]' : 'border-[var(--border-color)] opacity-60'
+              }`}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-medium text-[var(--text-main)]">{rule.name}</h3>
+                    {rule.dealId && (
+                      <span className="rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-medium text-indigo-400 border border-indigo-500/20">
+                        Per-deal
+                      </span>
+                    )}
+                    {!rule.isActive && (
+                      <span className="rounded-full bg-[var(--bg-primary)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-muted)]">
+                        Paused
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-[var(--text-muted)]">
+                    <span>
+                      Threshold: <strong className="text-[var(--text-main)]">{rule.threshold}</strong>
+                    </span>
+                    <span>|</span>
+                    <span>
+                      Channels:{' '}
+                      {rule.channels.map((ch) => (
+                        <span
+                          key={ch}
+                          className="ml-1 inline-flex rounded bg-[var(--bg-primary)] px-1.5 py-0.5 text-[10px]"
+                        >
+                          {ch}
+                        </span>
+                      ))}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  {/* Threshold slider */}
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={rule.threshold}
+                    onChange={(e) => handleUpdateThreshold(rule, Number(e.target.value))}
+                    className="h-1 w-20 cursor-pointer accent-[var(--aurora-primary)]"
+                    title={`Threshold: ${rule.threshold}`}
+                  />
+
+                  {/* Test button */}
+                  <button
+                    onClick={() => handleTest(rule.id)}
+                    disabled={testingRuleId === rule.id}
+                    className="rounded p-1.5 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-primary)] hover:text-[var(--text-main)] disabled:opacity-50"
+                    title="Send test notification"
+                  >
+                    {testingRuleId === rule.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                  </button>
+
+                  {/* Toggle active */}
+                  <label className="relative inline-flex cursor-pointer items-center">
+                    <input
+                      type="checkbox"
+                      checked={rule.isActive}
+                      onChange={() => handleToggleActive(rule)}
+                      className="peer sr-only"
+                    />
+                    <div className="peer h-5 w-9 rounded-full bg-[var(--border-color)] after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-[var(--aurora-primary)] peer-checked:after:translate-x-full" />
+                  </label>
+
+                  {/* Delete */}
+                  <button
+                    onClick={() => handleDelete(rule.id)}
+                    className="rounded p-1.5 text-[var(--text-muted)] transition-colors hover:bg-red-500/10 hover:text-red-400"
+                    title="Delete rule"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Create Modal */}
+      {showCreateModal && (
+        <CreateRuleModal
+          onClose={() => setShowCreateModal(false)}
+          onCreate={handleCreate}
+        />
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Create Rule Modal
+// ---------------------------------------------------------------------------
+
+function CreateRuleModal({
+  onClose,
+  onCreate,
+}: {
+  onClose: () => void;
+  onCreate: (input: CreateAlertRuleInput) => Promise<void>;
+}) {
+  const [name, setName] = useState('');
+  const [threshold, setThreshold] = useState(50);
+  const [channels, setChannels] = useState<AlertChannel[]>(['email']);
+  const [webhookUrl, setWebhookUrl] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const channelOptions = [
+    { id: 'email', name: 'Email' },
+    { id: 'slack', name: 'Slack' },
+    { id: 'webhook', name: 'Webhook' },
+  ];
+
+  const toggleChannel = (id: string) => {
+    setChannels((prev) =>
+      prev.includes(id as AlertChannel)
+        ? prev.filter((c) => c !== id)
+        : [...prev, id as AlertChannel],
+    );
+  };
+
+  const handleSubmit = async () => {
+    if (!name.trim() || channels.length === 0) return;
+    setSaving(true);
+    try {
+      await onCreate({
+        name: name.trim(),
+        threshold,
+        channels,
+        webhookUrl: channels.includes('webhook') && webhookUrl ? webhookUrl : undefined,
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="w-full max-w-md rounded-lg border border-[var(--border-color)] bg-[var(--bg-surface)] p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-[var(--text-main)]">Create Alert Rule</h3>
+          <button
+            onClick={onClose}
+            className="rounded p-1 text-[var(--text-muted)] transition-colors hover:text-[var(--text-main)]"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
-        <div className="space-y-6 rounded-lg border border-border bg-surface p-6">
-          {/* Severity */}
+        <div className="space-y-4">
+          {/* Name */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-text-main">
-              Severity Levels
-            </label>
-            <p className="mb-3 text-xs text-text-muted">
-              Receive alerts for events with these severity levels
-            </p>
-            <SimpleDropdown
-              label="Severity"
-              items={severityOptions}
-              selectedIds={rules.thresholds.severity}
-              onToggle={toggleSeverity}
+            <label className="mb-1 block text-sm font-medium text-[var(--text-main)]">Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Critical EDGAR alerts"
+              className="w-full rounded-md border border-[var(--border-color)] bg-[var(--bg-primary)] px-3 py-2 text-sm text-[var(--text-main)] placeholder:text-[var(--text-muted)] focus:border-[var(--aurora-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--aurora-primary)]"
             />
           </div>
 
-          {/* Min Spread */}
+          {/* Threshold */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-text-main">
-              Minimum Spread
+            <label className="mb-1 block text-sm font-medium text-[var(--text-main)]">
+              Materiality Threshold: {threshold}
             </label>
-            <p className="mb-3 text-xs text-text-muted">
-              Only alert when spread is above this threshold
-            </p>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                step="0.1"
-                min="0"
-                value={rules.thresholds.minSpread}
-                onChange={(e) => setRules(prev => ({
-                  ...prev,
-                  thresholds: { ...prev.thresholds, minSpread: parseFloat(e.target.value) || 0 },
-                }))}
-                className="w-32 rounded-md border border-border bg-background px-3 py-2 text-sm text-text-main focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-              />
-              <span className="text-sm text-text-muted">%</span>
-            </div>
-          </div>
-
-          {/* Days Before Outside Date */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-text-main">
-              Days Before Outside Date
-            </label>
-            <p className="mb-3 text-xs text-text-muted">
-              Alert when a deal is within this many days of its outside date
-            </p>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                min="0"
-                value={rules.thresholds.daysBeforeOutside}
-                onChange={(e) => setRules(prev => ({
-                  ...prev,
-                  thresholds: { ...prev.thresholds, daysBeforeOutside: parseInt(e.target.value) || 0 },
-                }))}
-                className="w-32 rounded-md border border-border bg-background px-3 py-2 text-sm text-text-main focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-              />
-              <span className="text-sm text-text-muted">days</span>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={threshold}
+              onChange={(e) => setThreshold(Number(e.target.value))}
+              className="h-2 w-full cursor-pointer accent-[var(--aurora-primary)]"
+            />
+            <div className="mt-1 flex justify-between text-[10px] text-[var(--text-muted)]">
+              <span>0 (all events)</span>
+              <span>50 (WARNING+)</span>
+              <span>70 (CRITICAL)</span>
+              <span>100</span>
             </div>
           </div>
 
           {/* Channels */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-text-main">
-              Alert Channels
+            <label className="mb-1 block text-sm font-medium text-[var(--text-main)]">
+              Channels
             </label>
-            <p className="mb-3 text-xs text-text-muted">
-              Where to send alert notifications
-            </p>
             <SimpleDropdown
               label="Channels"
               items={channelOptions}
-              selectedIds={rules.thresholds.channels}
+              selectedIds={channels}
               onToggle={toggleChannel}
             />
           </div>
-        </div>
-      </section>
 
-      {/* Per-Deal Overrides */}
-      <section>
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-text-main">Per-Deal Overrides</h2>
-            <p className="text-sm text-text-muted">Customize alert rules for specific deals</p>
-          </div>
-          <button
-            onClick={() => setShowOverrideModal(true)}
-            className="flex items-center gap-2 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
-          >
-            <Plus className="h-4 w-4" />
-            Add Override
-          </button>
-        </div>
-
-        {rules.dealOverrides.length === 0 ? (
-          <div className="rounded-lg border border-border bg-surface p-8 text-center">
-            <p className="text-sm text-text-muted">No deal-specific overrides configured</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {rules.dealOverrides.map((override) => (
-              <div
-                key={override.id}
-                className="flex items-center justify-between rounded-lg border border-border bg-surface p-4"
-              >
-                <div>
-                  <p className="font-medium text-text-main">{override.dealName}</p>
-                  <p className="text-xs text-text-muted">
-                    {override.eventTypes.length} event types selected
-                  </p>
-                </div>
-                <button
-                  onClick={() => removeOverride(override.id)}
-                  className="rounded p-1 text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-text-main"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Email Digest */}
-      <section>
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold text-text-main">Email Digest</h2>
-          <p className="text-sm text-text-muted">Receive a summary of alerts via email</p>
-        </div>
-
-        <div className="space-y-6 rounded-lg border border-border bg-surface p-6">
-          {/* Enable/Disable */}
-          <div className="flex items-center justify-between">
+          {/* Webhook URL (conditional) */}
+          {channels.includes('webhook') && (
             <div>
-              <p className="font-medium text-text-main">Enable Email Digest</p>
-              <p className="text-xs text-text-muted">Receive periodic email summaries</p>
-            </div>
-            <label className="relative inline-flex cursor-pointer items-center">
+              <label className="mb-1 block text-sm font-medium text-[var(--text-main)]">
+                Webhook URL
+              </label>
               <input
-                type="checkbox"
-                checked={rules.emailDigest.enabled}
-                onChange={(e) => setRules(prev => ({
-                  ...prev,
-                  emailDigest: { ...prev.emailDigest, enabled: e.target.checked },
-                }))}
-                className="peer sr-only"
+                type="url"
+                value={webhookUrl}
+                onChange={(e) => setWebhookUrl(e.target.value)}
+                placeholder="https://your-app.com/webhook"
+                className="w-full rounded-md border border-[var(--border-color)] bg-[var(--bg-primary)] px-3 py-2 text-sm text-[var(--text-main)] placeholder:text-[var(--text-muted)] focus:border-[var(--aurora-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--aurora-primary)]"
               />
-              <div className="peer h-6 w-11 rounded-full bg-border after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary-500 peer-checked:after:translate-x-full"></div>
-            </label>
-          </div>
-
-          {rules.emailDigest.enabled && (
-            <>
-              {/* Frequency */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-text-main">
-                  Frequency
-                </label>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setRules(prev => ({
-                      ...prev,
-                      emailDigest: { ...prev.emailDigest, frequency: "daily" },
-                    }))}
-                    className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
-                      rules.emailDigest.frequency === "daily"
-                        ? "border-primary-500 bg-primary-500/10 text-primary-400"
-                        : "border-border bg-surface text-text-main hover:bg-surfaceHighlight"
-                    }`}
-                  >
-                    Daily
-                  </button>
-                  <button
-                    onClick={() => setRules(prev => ({
-                      ...prev,
-                      emailDigest: { ...prev.emailDigest, frequency: "weekly" },
-                    }))}
-                    className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
-                      rules.emailDigest.frequency === "weekly"
-                        ? "border-primary-500 bg-primary-500/10 text-primary-400"
-                        : "border-border bg-surface text-text-main hover:bg-surfaceHighlight"
-                    }`}
-                  >
-                    Weekly
-                  </button>
-                </div>
-              </div>
-
-              {/* Time */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-text-main">
-                  Delivery Time
-                </label>
-                <input
-                  type="time"
-                  value={rules.emailDigest.time}
-                  onChange={(e) => setRules(prev => ({
-                    ...prev,
-                    emailDigest: { ...prev.emailDigest, time: e.target.value },
-                  }))}
-                  className="rounded-md border border-border bg-background px-3 py-2 text-sm text-text-main focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                />
-              </div>
-
-              {/* Tiers */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-text-main">
-                  Include Severity Levels
-                </label>
-                <p className="mb-3 text-xs text-text-muted">
-                  Which severity levels to include in the digest
-                </p>
-                <SimpleDropdown
-                  label="Severity"
-                  items={severityOptions}
-                  selectedIds={rules.emailDigest.tiers}
-                  onToggle={toggleDigestTier}
-                />
-              </div>
-            </>
+            </div>
           )}
         </div>
-      </section>
 
-      {/* Override Modal - Placeholder */}
-      {showOverrideModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md rounded-lg border border-border bg-surface p-6">
-            <h3 className="mb-4 text-lg font-semibold text-text-main">Add Deal Override</h3>
-            <p className="mb-4 text-sm text-text-muted">
-              Override modal implementation coming soon
-            </p>
-            <button
-              onClick={() => setShowOverrideModal(false)}
-              className="rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
-            >
-              Close
-            </button>
-          </div>
+        <div className="mt-6 flex justify-end gap-2">
+          <button
+            onClick={onClose}
+            className="rounded-md border border-[var(--border-color)] bg-[var(--bg-surface)] px-4 py-2 text-sm font-medium text-[var(--text-main)] transition-colors hover:bg-[var(--bg-primary)]"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={!name.trim() || channels.length === 0 || saving}
+            className="flex items-center gap-2 rounded-md bg-[var(--aurora-primary)] px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90 disabled:opacity-50"
+          >
+            {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+            Create Rule
+          </button>
         </div>
-      )}
-
-      {/* Save Button */}
-      <div className="flex justify-end border-t border-border pt-6">
-        <button
-          onClick={handleSave}
-          className="rounded-md bg-primary-500 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
-        >
-          Save Changes
-        </button>
       </div>
     </div>
   );

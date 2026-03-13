@@ -190,3 +190,32 @@ export interface Filing {
 export interface DealWithFilings extends Deal {
   filingCount?: number;
 }
+
+// ---------------------------------------------------------------------------
+// Alert Rules (backend-grounded types)
+// ---------------------------------------------------------------------------
+
+export type AlertChannel = 'email' | 'slack' | 'webhook';
+
+export interface AlertRule {
+  id: string;
+  firmId: string;
+  dealId: string | null;
+  userId: string;
+  name: string;
+  threshold: number;
+  channels: AlertChannel[];
+  webhookUrl: string | null;
+  webhookSecret?: string | null; // only returned on creation
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateAlertRuleInput {
+  name: string;
+  threshold: number;
+  channels: AlertChannel[];
+  dealId?: string;
+  webhookUrl?: string;
+}

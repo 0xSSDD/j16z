@@ -9,7 +9,7 @@
  */
 
 import { MOCK_CLAUSES, MOCK_DEALS, MOCK_EVENTS, MOCK_MARKET_SNAPSHOTS } from './constants';
-import type { Clause, Deal, Event, Filing, MarketSnapshot, NewsItem } from './types';
+import type { AlertRule, Clause, CreateAlertRuleInput, Deal, Event, Filing, MarketSnapshot, NewsItem } from './types';
 
 export interface IntegrationHealth {
   id: string;
@@ -437,4 +437,126 @@ export async function updateRSSFeed(id: string, updates: Partial<RSSFeedRecord>)
     body: JSON.stringify(updates),
   });
   return response.json();
+}
+
+// ---------------------------------------------------------------------------
+// Alert Rules API
+// ---------------------------------------------------------------------------
+
+const MOCK_ALERT_RULES: AlertRule[] = [
+  {
+    id: 'ar-1',
+    firmId: 'firm-1',
+    dealId: null,
+    userId: 'user-1',
+    name: 'Critical alerts',
+    threshold: 70,
+    channels: ['email', 'slack'],
+    webhookUrl: null,
+    isActive: true,
+    createdAt: '2026-01-15T00:00:00Z',
+    updatedAt: '2026-01-15T00:00:00Z',
+  },
+];
+
+export async function getAlertRules(dealId?: string): Promise<AlertRule[]> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    if (dealId) return MOCK_ALERT_RULES.filter((r) => r.dealId === dealId);
+    return MOCK_ALERT_RULES;
+  }
+
+  const params = dealId ? `?dealId=${dealId}` : '';
+  const response = await authFetch(`/api/alert-rules${params}`);
+  return response.json();
+}
+
+export async function createAlertRule(rule: CreateAlertRuleInput): Promise<AlertRule> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    return {
+      id: `ar-${Date.now()}`,
+      firmId: 'firm-1',
+      dealId: rule.dealId ?? null,
+      userId: 'user-1',
+      name: rule.name,
+      threshold: rule.threshold,
+      channels: rule.channels,
+      webhookUrl: rule.webhookUrl ?? null,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
+  const response = await authFetch('/api/alert-rules', {
+    method: 'POST',
+    body: JSON.stringify(rule),
+  });
+  return response.json();
+}
+
+export async function updateAlertRule(id: string, updates: Partial<AlertRule>): Promise<AlertRule> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    const existing = MOCK_ALERT_RULES.find((r) => r.id === id);
+    if (!existing) throw new Error('Alert rule not found');
+    return { ...existing, ...updates };
+  }
+
+  const response = await authFetch(`/api/alert-rules/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  });
+  return response.json();
+}
+
+export async function deleteAlertRule(id: string): Promise<void> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    return;
+  }
+
+  await authFetch(`/api/alert-rules/${id}`, { method: 'DELETE' });
+}
+
+export async function testAlertRule(id: string): Promise<void> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return;
+  }
+
+  await authFetch(`/api/alert-rules/${id}/test`, { method: 'POST' });
+}
+
+// ---------------------------------------------------------------------------
+// Market Snapshots API (latest snapshot for deal board)
+// ---------------------------------------------------------------------------
+
+export async function getLatestMarketSnapshot(dealId: string): Promise<MarketSnapshot | null> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const snapshots = MOCK_MARKET_SNAPSHOTS.filter((s) => s.dealId === dealId);
+    if (snapshots.length === 0) return null;
+    // Return the most recent snapshot
+    return snapshots.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+  }
+
+  try {
+    const response = await authFetch(`/api/market-snapshots/${dealId}/latest`);
+    const data = await response.json();
+    // Map backend shape (grossSpread, targetPrice) to frontend MarketSnapshot type
+    return {
+      dealId: data.dealId,
+      timestamp: data.timestamp,
+      targetPrice: Number(data.currentPrice),
+      acquirerPrice: Number(data.acquirerPrice),
+      offerPrice: Number(data.targetPrice),
+      spread: Number(data.grossSpread),
+      volume: Number(data.volume),
+    };
+  } catch (err) {
+    if (err instanceof Error && err.message.includes('404')) return null;
+    throw err;
+  }
 }
