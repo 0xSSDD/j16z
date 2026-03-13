@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 
 ## Current Position
 
-Phase: 7 of 7 (Frontend Refinement + Exports) — IN PROGRESS
-Plan: 2 of 3 (07-02 complete — landing page polish, problem-first messaging, 6 sections)
-Status: Phase 7 in progress — 2/3 plans done; next: 07-03 (CSV export + public REST API + OpenAPI docs)
-Last activity: 2026-03-14 — Plan 07-02 complete (landing page rewrite with Linear x Harvey aesthetic)
+Phase: 7 of 7 (Frontend Refinement + Exports) — COMPLETE
+Plan: 3 of 3 (07-03 complete — CSV export + public REST API + OpenAPI docs + Scalar)
+Status: Phase 7 complete — all 3/3 plans done; all 7 phases complete
+Last activity: 2026-03-14 — Plan 07-03 complete (CSV export, API keys, /v1/* REST API, Scalar docs)
 
-Progress: [████████████████████] 100% (21/22 plans — Phase 7 plan 2 done)
+Progress: [████████████████████] 100% (22/22 plans — ALL PHASES COMPLETE)
 
 ## Performance Metrics
 
@@ -136,6 +136,10 @@ Recent decisions affecting current work:
 - [07-01]: @radix-ui/react-tabs chosen over shadcn Tabs — direct data-[state=active] styling without wrapper abstraction
 - [07-02]: Landing page uses 4 rendered React mockup components (InboxMockup, DealCardMockup, AlertMockup, MemoMockup) in Feature Showcase — not static screenshots; existing hero components (PolymarketCard, SearchResultsCard, SynthesisTerminal) updated with Kroger/Albertsons M&A content
 - [07-02]: Beta pricing section shows "reach out for pricing" with mailto CTA — no tier grid (per locked plan decision)
+- [07-03]: Pinned @hono/zod-openapi to 0.18.4 — v1.x requires zod v4 which is incompatible with project zod v3; zod v3.25.76 resolves cleanly
+- [07-03]: @ts-nocheck on v1 route files: OpenAPIHono 0.18.x strict return types reject Date→string DB serialization (false positives; runtime behavior is correct)
+- [07-03]: Scalar receives { url: '/v1/doc' } directly (not { spec: { url } }) — matches ApiReferenceConfiguration type in installed @scalar/hono-api-reference@0.10.3
+- [07-03]: lastUsedAt updated asynchronously (fire-and-forget) to avoid latency on every API request
 
 ### Pending Todos
 
@@ -152,5 +156,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-14
-Stopped at: Completed 07-02-PLAN.md — Landing page rewrite, problem-first messaging, 6 sections, Linear x Harvey aesthetic
-Resume file: Phase 7 in progress. Next: 07-03 (CSV export + public REST API + OpenAPI docs)
+Stopped at: Completed 07-03-PLAN.md — CSV export, API key auth, /v1/* REST API, OpenAPI spec, Scalar docs
+Resume file: ALL PHASES COMPLETE — v1.0 milestone achieved

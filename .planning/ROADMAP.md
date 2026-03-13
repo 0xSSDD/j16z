@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: CourtListener, FTC/DOJ, and RSS Ingestion** - All secondary data sources; complete event coverage (3 plans, 2 waves) (completed 2026-03-13)
 - [x] **Phase 5: Alert Delivery + Market Data** - Email and Slack alerts on scored events; spread display on deal board (3/3 plans complete) (completed 2026-03-13)
 - [x] **Phase 6: Digests + Deal Memo Editor** - Daily/weekly digests; memo editor seeded with live deal terms (3/3 plans complete) (completed 2026-03-14)
-- [ ] **Phase 7: Frontend Refinement + Exports** - v1 completeness: deal page tabs, landing page polish, CSV/API exports
+- [x] **Phase 7: Frontend Refinement + Exports** - v1 completeness: deal page tabs, landing page polish, CSV/API exports (completed 2026-03-13)
 
 ## Phase Details
 
@@ -153,4 +153,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. CourtListener, FTC/DOJ, RSS | 3/3 | Complete    | 2026-03-13 |
 | 5. Alert Delivery + Market Data | 3/3 | Complete | 2026-03-13 |
 | 6. Digests + Deal Memo Editor | 3/3 | Complete | 2026-03-14 |
-| 7. Frontend Refinement + Exports | 2/3 | In Progress | - |
+| 7. Frontend Refinement + Exports | 3/3 | Complete   | 2026-03-13 |

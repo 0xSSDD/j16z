@@ -104,9 +104,9 @@ Requirements for production MVP. Each maps to roadmap phases.
 
 ### Data Exports
 
-- [ ] **EXPORT-01**: User can export deal data as CSV
-- [ ] **EXPORT-02**: User can access structured data via REST API with API key authentication
-- [ ] **EXPORT-03**: API documentation available (OpenAPI spec)
+- [x] **EXPORT-01**: User can export deal data as CSV
+- [x] **EXPORT-02**: User can access structured data via REST API with API key authentication
+- [x] **EXPORT-03**: API documentation available (OpenAPI spec)
 
 ## v2 Requirements
 
@@ -210,9 +210,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UI-03 | Phase 7 | Complete |
 | UI-04 | Phase 7 | Complete |
 | UI-05 | Phase 7 | Complete |
-| EXPORT-01 | Phase 7 | Pending |
-| EXPORT-02 | Phase 7 | Pending |
-| EXPORT-03 | Phase 7 | Pending |
+| EXPORT-01 | Phase 7 | Complete |
+| EXPORT-02 | Phase 7 | Complete |
+| EXPORT-03 | Phase 7 | Complete |
 
 **Coverage:**
 - v1 requirements: 62 total (note: REQUIREMENTS.md previously stated 52; actual enumeration is 62)
