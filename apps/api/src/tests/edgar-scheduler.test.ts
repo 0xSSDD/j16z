@@ -84,7 +84,7 @@ describe('registerSchedules', () => {
     await expect(registerSchedules()).resolves.toBeUndefined();
     await expect(registerSchedules()).resolves.toBeUndefined();
 
-    // upsertJobScheduler called once per invocation
-    expect(mockUpsertJobScheduler).toHaveBeenCalledTimes(2);
+    // upsertJobScheduler called once per scheduler entry per invocation (7 entries × 2 calls = 14)
+    expect(mockUpsertJobScheduler).toHaveBeenCalledTimes(14);
   });
 });
