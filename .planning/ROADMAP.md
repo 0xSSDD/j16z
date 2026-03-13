@@ -150,6 +150,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 2. SEC EDGAR Ingestion | 3/3 | Complete   | 2026-03-01 |
 | 3. LLM Extraction Pipeline | 3/3 | Complete   | 2026-03-01 |
 | 4. CourtListener, FTC/DOJ, RSS | 3/3 | Complete    | 2026-03-13 |
-| 5. Alert Delivery + Market Data | 2/3 | In Progress | - |
+| 5. Alert Delivery + Market Data | 3/3 | Complete | 2026-03-13 |
 | 6. Digests + Deal Memo Editor | 0/2 | Not started | - |
 | 7. Frontend Refinement + Exports | 0/3 | Not started | - |
