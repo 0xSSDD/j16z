@@ -11,6 +11,38 @@
 import { MOCK_CLAUSES, MOCK_DEALS, MOCK_EVENTS, MOCK_MARKET_SNAPSHOTS } from './constants';
 import type { Clause, Deal, Event, Filing, MarketSnapshot, NewsItem } from './types';
 
+export interface IntegrationHealth {
+  id: string;
+  source: string;
+  status: 'healthy' | 'unhealthy' | 'degraded';
+  lastSyncAt: string | null;
+  itemsIngested: number;
+  lastError: string | null;
+  pollIntervalMinutes: number;
+}
+
+export interface PacerCredentialHealth {
+  isExpiringSoon: boolean;
+  daysUntilExpiry: number | null;
+  expiryDate: string | null;
+  lastChanged: string | null;
+}
+
+export interface IntegrationHealthResponse {
+  sources: IntegrationHealth[];
+  pacerCredential?: PacerCredentialHealth;
+}
+
+export interface RSSFeedRecord {
+  id: string;
+  name: string;
+  url: string;
+  status: 'active' | 'paused' | 'error';
+  lastSyncAt: string | null;
+  itemCount: number;
+  createdAt: string;
+}
+
 const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -228,4 +260,181 @@ export async function getFilingCount(dealId: string): Promise<number> {
 
   const filings = await getFilings(dealId);
   return filings.length;
+}
+
+const MOCK_INTEGRATION_HEALTH: IntegrationHealth[] = [
+  {
+    id: 'int-edgar',
+    source: 'SEC EDGAR',
+    status: 'healthy',
+    lastSyncAt: new Date(Date.now() - 1000 * 60 * 3).toISOString(),
+    itemsIngested: 1247,
+    lastError: null,
+    pollIntervalMinutes: 10,
+  },
+  {
+    id: 'int-ftc',
+    source: 'FTC.gov',
+    status: 'healthy',
+    lastSyncAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+    itemsIngested: 89,
+    lastError: null,
+    pollIntervalMinutes: 30,
+  },
+  {
+    id: 'int-doj',
+    source: 'DOJ.gov',
+    status: 'degraded',
+    lastSyncAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    itemsIngested: 42,
+    lastError: 'Rate limited — retry scheduled',
+    pollIntervalMinutes: 30,
+  },
+  {
+    id: 'int-court',
+    source: 'CourtListener',
+    status: 'healthy',
+    lastSyncAt: new Date(Date.now() - 1000 * 60 * 8).toISOString(),
+    itemsIngested: 316,
+    lastError: null,
+    pollIntervalMinutes: 15,
+  },
+  {
+    id: 'int-rss',
+    source: 'RSS Feeds',
+    status: 'healthy',
+    lastSyncAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+    itemsIngested: 523,
+    lastError: null,
+    pollIntervalMinutes: 15,
+  },
+];
+
+export async function getIntegrationHealth(): Promise<IntegrationHealthResponse> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    return { sources: MOCK_INTEGRATION_HEALTH };
+  }
+
+  const response = await authFetch('/api/integrations/health');
+  const data = await response.json();
+
+  // Map backend { sources, pacerCredential } shape to frontend IntegrationHealth[]
+  const mappedSources: IntegrationHealth[] = (data.sources ?? []).map(
+    (source: {
+      sourceName: string;
+      displayName: string;
+      lastSuccessfulSync: string | null;
+      lastError: string | null;
+      itemsIngested: number;
+      isHealthy: boolean;
+    }) => ({
+      id: source.sourceName,
+      source: source.displayName,
+      status: source.isHealthy ? 'healthy' : source.lastError ? 'unhealthy' : 'degraded',
+      lastSyncAt: source.lastSuccessfulSync,
+      itemsIngested: source.itemsIngested,
+      lastError: source.lastError,
+      pollIntervalMinutes: 30,
+    }),
+  );
+
+  return {
+    sources: mappedSources,
+    pacerCredential: data.pacerCredential,
+  };
+}
+
+const MOCK_RSS_FEEDS: RSSFeedRecord[] = [
+  {
+    id: 'rss-1',
+    name: 'Reuters M&A Wire',
+    url: 'https://www.reuters.com/business/deals/rss',
+    status: 'active',
+    lastSyncAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
+    itemCount: 234,
+    createdAt: '2024-01-15T00:00:00Z',
+  },
+  {
+    id: 'rss-2',
+    name: 'Bloomberg Law Mergers',
+    url: 'https://news.bloomberglaw.com/mergers-and-acquisitions/feed',
+    status: 'active',
+    lastSyncAt: new Date(Date.now() - 1000 * 60 * 8).toISOString(),
+    itemCount: 189,
+    createdAt: '2024-01-20T00:00:00Z',
+  },
+  {
+    id: 'rss-3',
+    name: 'Skadden M&A Alerts',
+    url: 'https://www.skadden.com/insights/rss/mergers-acquisitions',
+    status: 'paused',
+    lastSyncAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
+    itemCount: 67,
+    createdAt: '2024-02-01T00:00:00Z',
+  },
+  {
+    id: 'rss-4',
+    name: 'Wachtell Lipton Insights',
+    url: 'https://www.wlrk.com/insights/feed',
+    status: 'error',
+    lastSyncAt: null,
+    itemCount: 0,
+    createdAt: '2024-02-10T00:00:00Z',
+  },
+];
+
+export async function getRSSFeeds(): Promise<RSSFeedRecord[]> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    return MOCK_RSS_FEEDS;
+  }
+
+  const response = await authFetch('/api/rss-feeds');
+  return response.json();
+}
+
+export async function createRSSFeed(data: { name: string; url: string }): Promise<RSSFeedRecord> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    return {
+      id: `rss-${Date.now()}`,
+      name: data.name,
+      url: data.url,
+      status: 'active',
+      lastSyncAt: null,
+      itemCount: 0,
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  const response = await authFetch('/api/rss-feeds', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  return response.json();
+}
+
+export async function deleteRSSFeed(id: string): Promise<void> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    return;
+  }
+
+  await authFetch(`/api/rss-feeds/${id}`, { method: 'DELETE' });
+}
+
+export async function updateRSSFeed(id: string, updates: Partial<RSSFeedRecord>): Promise<RSSFeedRecord> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    const feed = MOCK_RSS_FEEDS.find((f) => f.id === id);
+    if (!feed) throw new Error('Feed not found');
+    return { ...feed, ...updates };
+  }
+
+  const response = await authFetch(`/api/rss-feeds/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  });
+  return response.json();
 }
