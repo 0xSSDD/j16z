@@ -104,7 +104,7 @@ Plans:
 
 Plans:
 - [x] 05-01-PLAN.md — Schema migration (notification_log, webhookSecret, exchangeRatio); alert types; alert worker evaluating AlertRules; Resend email + Slack Block Kit + HMAC webhook delivery handlers with dedup (Wave 1) — COMPLETE 2026-03-13
-- [ ] 05-02-PLAN.md — Alpha Vantage quote adapter with vendor-agnostic interface; spread calculator (gross/annualized/implied); market data poller with market-hours awareness; market-snapshots API endpoints; scheduler registration (Wave 1)
+- [x] 05-02-PLAN.md — Alpha Vantage quote adapter with vendor-agnostic interface; spread calculator (gross/annualized/implied); market data poller with market-hours awareness; market-snapshots API endpoints; scheduler registration (Wave 1) — COMPLETE 2026-03-13
 - [ ] 05-03-PLAN.md — Alert rule CRUD API; event-factory alert_evaluate wiring across all pipelines; frontend AlertRulesTab real API wiring; deal board spread display with DataAgeBadge (Wave 2)
 
 ### Phase 6: Digests + Deal Memo Editor
@@ -150,6 +150,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 2. SEC EDGAR Ingestion | 3/3 | Complete   | 2026-03-01 |
 | 3. LLM Extraction Pipeline | 3/3 | Complete   | 2026-03-01 |
 | 4. CourtListener, FTC/DOJ, RSS | 3/3 | Complete    | 2026-03-13 |
-| 5. Alert Delivery + Market Data | 1/3 | In Progress | - |
+| 5. Alert Delivery + Market Data | 2/3 | In Progress | - |
 | 6. Digests + Deal Memo Editor | 0/2 | Not started | - |
 | 7. Frontend Refinement + Exports | 0/3 | Not started | - |

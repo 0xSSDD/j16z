@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-03-13T20:52:00Z"
+last_updated: "2026-03-13T21:01:00Z"
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 15
-  completed_plans: 13
+  completed_plans: 14
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 ## Current Position
 
 Phase: 5 of 7 (Alert Delivery + Market Data) — IN PROGRESS
-Plan: 1 of 3 (05-01 complete — alert delivery infrastructure: schema, worker, delivery handlers)
-Status: Plan 05-01 COMPLETE — alert evaluation pipeline with email/Slack/webhook delivery; ready for Plan 05-02 (Market Data)
-Last activity: 2026-03-13 — Plan 05-01 complete (notification_log schema, alert worker, Resend email, Slack Block Kit, HMAC webhook delivery)
+Plan: 2 of 3 (05-02 complete — market data subsystem: quote adapter, spread calculator, poller, API)
+Status: Plan 05-02 COMPLETE — Alpha Vantage adapter, spread calculator, market data poller, snapshot API; ready for Plan 05-03 (Alert Rules + Frontend)
+Last activity: 2026-03-13 — Plan 05-02 complete (quote adapter, spread calculator, market poller, snapshot endpoints)
 
-Progress: [█████████████] 68%
+Progress: [██████████████] 73%
 
 ## Performance Metrics
 
@@ -44,11 +44,11 @@ Progress: [█████████████] 68%
 | 02-sec-edgar-ingestion | 3 | 52 min | 17 min | COMPLETE |
 | 03-llm-extraction-pipeline | 3 | 21 min | 7 min | COMPLETE |
 | 04-courtlistener-ftcdoj-rss | 3 | 14 min | 5 min | COMPLETE |
-| 05-alert-delivery-market-data | 1/3 | 5 min | 5 min | IN PROGRESS |
+| 05-alert-delivery-market-data | 2/3 | 9 min | 5 min | IN PROGRESS |
 
 **Recent Trend:**
-- Last 5 plans: 03-02 (8 min), 03-03 (6 min), 04-01 (4 min), 04-03 (5 min), 05-01 (5 min)
-- Trend: consistent ~5-7 min/plan for complex backend integrations
+- Last 5 plans: 03-03 (6 min), 04-01 (4 min), 04-03 (5 min), 05-01 (5 min), 05-02 (4 min)
+- Trend: consistent ~4-6 min/plan for backend integrations
 
 *Updated after each plan completion*
 
@@ -108,6 +108,10 @@ Recent decisions affecting current work:
 - [05-01]: @slack/webhook IncomingWebhook pattern (not OAuth app) for Slack delivery — simpler setup, matches RESEARCH.md recommendation
 - [05-01]: Notification dedup via notification_log table (eventId+userId+channel unique check) — prevents alert storms on retry
 - [05-01]: CRITICAL events get email+slack; WARNING gets slack-only; INFO gets no push — matches CLAUDE.md materiality spec
+- [05-02]: RateLimiter at 4 tokens/min for Alpha Vantage free tier safety (25 req/day, 5/min burst)
+- [05-02]: acquirerPrice placeholder uses target quote price — separate acquirer ticker quote deferred
+- [05-02]: Deals with null firmId (auto-discovered) skip marketSnapshot insert but still get deal price column updates
+- [05-02]: Market hours uses Intl.DateTimeFormat for timezone-safe ET detection without external library
 
 ### Pending Todos
 
@@ -124,5 +128,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-13
-Stopped at: Completed 05-01-PLAN.md — alert delivery infrastructure (schema, worker, delivery handlers)
-Resume file: .planning/phases/05-alert-delivery-market-data/ (Phase 5: Plan 02 — Market Data)
+Stopped at: Completed 05-02-PLAN.md — market data subsystem (quote adapter, spread calculator, poller, API)
+Resume file: .planning/phases/05-alert-delivery-market-data/ (Phase 5: Plan 03 — Alert Rules + Frontend)

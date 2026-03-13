@@ -50,9 +50,9 @@ Requirements for production MVP. Each maps to roadmap phases.
 
 ### Market Data
 
-- [ ] **MKT-01**: System polls market data API for spread and price data on tracked deal tickers
-- [ ] **MKT-02**: System computes implied consideration and gross/annualized spread
-- [ ] **MKT-03**: Market snapshots stored with timestamps for spread history charting
+- [x] **MKT-01**: System polls market data API for spread and price data on tracked deal tickers
+- [x] **MKT-02**: System computes implied consideration and gross/annualized spread
+- [x] **MKT-03**: Market snapshots stored with timestamps for spread history charting
 - [ ] **MKT-04**: Spread display shows last-updated timestamp (data-age indicator)
 
 ### LangExtract (AI Extraction Pipeline)
@@ -193,9 +193,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ALERT-04 | Phase 5 | Pending |
 | ALERT-05 | Phase 5 | Pending |
 | ALERT-06 | Phase 5 | Complete |
-| MKT-01 | Phase 5 | Pending |
-| MKT-02 | Phase 5 | Pending |
-| MKT-03 | Phase 5 | Pending |
+| MKT-01 | Phase 5 | Complete |
+| MKT-02 | Phase 5 | Complete |
+| MKT-03 | Phase 5 | Complete |
 | MKT-04 | Phase 5 | Pending |
 | DIGEST-01 | Phase 6 | Pending |
 | DIGEST-02 | Phase 6 | Pending |
