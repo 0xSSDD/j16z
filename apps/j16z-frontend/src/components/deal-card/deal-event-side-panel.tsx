@@ -2,7 +2,6 @@
 
 import { format } from 'date-fns';
 import { ExternalLink, FileText, Newspaper, Scale, Shield, TrendingUp, X } from 'lucide-react';
-import * as React from 'react';
 import type { Event } from '@/lib/types';
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -109,7 +108,9 @@ export function DealEventSidePanel({ eventId, events, onClose }: DealEventSidePa
           )}
           <div className="flex items-center gap-2 text-xs text-text-muted">
             <span>Severity:</span>
-            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border ${severityClass}`}>
+            <span
+              className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border ${severityClass}`}
+            >
               {event.severity}
             </span>
           </div>

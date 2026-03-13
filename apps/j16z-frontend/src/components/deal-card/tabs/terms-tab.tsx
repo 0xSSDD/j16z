@@ -89,6 +89,7 @@ function ClauseCard({ clause }: { clause: Clause }) {
       {clause.verbatimText && clause.verbatimText !== displayText && (
         <div className="mt-2">
           <button
+            type="button"
             onClick={() => setIsExpanded((prev) => !prev)}
             className="flex items-center gap-1 text-xs text-text-muted hover:text-text-main font-mono transition-colors"
           >

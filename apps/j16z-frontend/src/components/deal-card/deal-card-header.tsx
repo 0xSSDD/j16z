@@ -34,7 +34,7 @@ export function DealCardHeader({
   const router = useRouter();
 
   const daysUntilOutside = React.useMemo(() => {
-    return Math.ceil((new Date(deal.outsideDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+    return Math.ceil((new Date(deal.outsideDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
   }, [deal.outsideDate]);
 
   return (
@@ -43,6 +43,7 @@ export function DealCardHeader({
       <div className="flex items-start justify-between mb-3">
         <div>
           <button
+            type="button"
             onClick={() => router.push('/app/deals')}
             className="text-sm text-text-muted hover:text-text-main font-mono mb-1 flex items-center gap-1"
           >
@@ -63,6 +64,7 @@ export function DealCardHeader({
         {/* Action buttons */}
         <div className="flex items-center gap-2 shrink-0">
           <button
+            type="button"
             onClick={onAlertOpen}
             className="px-3 py-1.5 bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-xs transition-colors border border-border"
           >
@@ -70,6 +72,7 @@ export function DealCardHeader({
           </button>
           <div className="relative">
             <button
+              type="button"
               onClick={onExportToggle}
               className="px-3 py-1.5 bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-xs transition-colors border border-border"
             >
@@ -78,12 +81,14 @@ export function DealCardHeader({
             {isExportOpen && (
               <div className="absolute right-0 mt-2 w-40 bg-surface border border-border rounded-md shadow-lg z-20">
                 <button
+                  type="button"
                   onClick={onExportCSV}
                   className="w-full text-left px-4 py-2 text-xs font-mono text-text-main hover:bg-surfaceHighlight transition-colors"
                 >
                   Export CSV
                 </button>
                 <button
+                  type="button"
                   onClick={onExportJSON}
                   className="w-full text-left px-4 py-2 text-xs font-mono text-text-main hover:bg-surfaceHighlight transition-colors"
                 >
@@ -103,9 +108,7 @@ export function DealCardHeader({
           <div className="text-xs text-text-muted font-mono">↑ 0.3% (24h)</div>
         </div>
         <div className="group relative">
-          <div className="text-xs text-text-muted font-mono uppercase mb-1 flex items-center gap-1">
-            p_close_base
-          </div>
+          <div className="text-xs text-text-muted font-mono uppercase mb-1 flex items-center gap-1">p_close_base</div>
           <div className="flex items-baseline">
             <input
               type="number"

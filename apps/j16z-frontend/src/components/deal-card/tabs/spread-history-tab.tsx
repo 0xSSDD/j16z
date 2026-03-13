@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import { SpreadChart } from '@/components/ui/spread-chart';
 import type { Event, MarketSnapshot } from '@/lib/types';
 

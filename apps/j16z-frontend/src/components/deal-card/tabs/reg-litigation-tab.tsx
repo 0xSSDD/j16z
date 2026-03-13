@@ -2,7 +2,6 @@
 
 import { format } from 'date-fns';
 import { Scale, Shield } from 'lucide-react';
-import * as React from 'react';
 import type { Deal, Event } from '@/lib/types';
 
 interface RegLitigationTabProps {

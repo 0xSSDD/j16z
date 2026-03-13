@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import { MemoList } from '@/components/memo/memo-list';
 import { NewsSection } from '@/components/news-section';
 import type { Deal, NewsItem } from '@/lib/types';

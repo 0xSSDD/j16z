@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React from "react";
-import { X } from "lucide-react";
+import { X } from 'lucide-react';
+import React from 'react';
 
 interface KeyboardHelpModalProps {
   isOpen: boolean;
@@ -13,32 +13,39 @@ export function KeyboardHelpModal({ isOpen, onClose }: KeyboardHelpModalProps) {
 
   const shortcuts = [
     {
-      category: "Navigation",
+      category: 'Navigation',
       items: [
-        { keys: ["g", "i"], description: "Go to Inbox" },
-        { keys: ["g", "d"], description: "Go to Deals" },
-        { keys: ["g", "w"], description: "Go to Watchlists" },
-        { keys: ["g", "s"], description: "Go to Settings" },
-        { keys: ["⌘", "k"], description: "Open command palette" },
+        { keys: ['g', 'i'], description: 'Go to Inbox' },
+        { keys: ['g', 'd'], description: 'Go to Deals' },
+        { keys: ['g', 'w'], description: 'Go to Watchlists' },
+        { keys: ['g', 's'], description: 'Go to Settings' },
+        { keys: ['⌘', 'k'], description: 'Open command palette' },
       ],
     },
     {
-      category: "Inbox",
+      category: 'Inbox',
       items: [
-        { keys: ["↑", "↓"], description: "Navigate events" },
-        { keys: ["e"], description: "Mark event as read" },
-        { keys: ["v"], description: "View deal card" },
-        { keys: ["1"], description: "Toggle HIGH filter" },
-        { keys: ["2"], description: "Toggle MEDIUM filter" },
-        { keys: ["3"], description: "Toggle LOW filter" },
-        { keys: ["Esc"], description: "Close side panel" },
+        { keys: ['↑', '↓'], description: 'Navigate events' },
+        { keys: ['e'], description: 'Mark event as read' },
+        { keys: ['v'], description: 'View deal card' },
+        { keys: ['1'], description: 'Toggle HIGH filter' },
+        { keys: ['2'], description: 'Toggle MEDIUM filter' },
+        { keys: ['3'], description: 'Toggle LOW filter' },
+        { keys: ['Esc'], description: 'Close side panel' },
       ],
     },
     {
-      category: "General",
+      category: 'Deal Card',
       items: [
-        { keys: ["?"], description: "Show this help" },
+        { keys: ['1-5'], description: 'Switch tab (Terms, Events, Spread, News, Reg)' },
+        { keys: ['j', 'k'], description: 'Navigate events (Events tab)' },
+        { keys: ['Enter'], description: 'Open event detail' },
+        { keys: ['Esc'], description: 'Close event detail' },
       ],
+    },
+    {
+      category: 'General',
+      items: [{ keys: ['?'], description: 'Show this help' }],
     },
   ];
 
@@ -48,6 +55,7 @@ export function KeyboardHelpModal({ isOpen, onClose }: KeyboardHelpModalProps) {
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-text-main">Keyboard Shortcuts</h2>
           <button
+            type="button"
             onClick={onClose}
             className="rounded-lg p-1 text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-text-main"
           >
@@ -69,9 +77,7 @@ export function KeyboardHelpModal({ isOpen, onClose }: KeyboardHelpModalProps) {
                           <kbd className="rounded border border-border bg-surfaceHighlight px-2 py-1 font-mono text-xs text-text-main">
                             {key}
                           </kbd>
-                          {keyIdx < item.keys.length - 1 && (
-                            <span className="text-xs text-text-muted">then</span>
-                          )}
+                          {keyIdx < item.keys.length - 1 && <span className="text-xs text-text-muted">then</span>}
                         </React.Fragment>
                       ))}
                     </div>

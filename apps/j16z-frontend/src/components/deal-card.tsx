@@ -1,124 +1,34 @@
 'use client';
 
-import { AlertTriangle, CheckCircle, ChevronDown, ChevronRight, ExternalLink, FileText } from 'lucide-react';
+import * as Tabs from '@radix-ui/react-tabs';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { AlertConfigModal } from '@/components/alert-config-modal';
-import { MemoList } from '@/components/memo/memo-list';
-import { NewsSection } from '@/components/news-section';
-import { CollapsibleSection } from '@/components/ui/collapsible-section';
-import { EventTimeline } from '@/components/ui/event-timeline';
-import { SpreadChart } from '@/components/ui/spread-chart';
-import { StatusBadge } from '@/components/ui/status-badge';
+import { DealCardHeader } from '@/components/deal-card/deal-card-header';
+import { DealEventSidePanel } from '@/components/deal-card/deal-event-side-panel';
+import { EventsTab } from '@/components/deal-card/tabs/events-tab';
+import { NewsResearchTab } from '@/components/deal-card/tabs/news-research-tab';
+import { RegLitigationTab } from '@/components/deal-card/tabs/reg-litigation-tab';
+import { SpreadHistoryTab } from '@/components/deal-card/tabs/spread-history-tab';
+import { TermsTab } from '@/components/deal-card/tabs/terms-tab';
 import { getClauses, getFilings } from '@/lib/api';
 import { MOCK_CLAUSES, MOCK_DEALS, MOCK_EVENTS, MOCK_MARKET_SNAPSHOTS } from '@/lib/constants';
-import { formatDate } from '@/lib/date-utils';
-import type { Clause, ClauseType, Filing } from '@/lib/types';
+import type { Clause, Filing } from '@/lib/types';
 
 interface DealCardProps {
   dealId: string;
 }
 
-// Clause category groupings — mirrors s4_defm14a.py _group_clauses_by_category()
-const CLAUSE_CATEGORIES: Record<string, ClauseType[]> = {
-  'Termination Provisions': ['TERMINATION_FEE', 'REVERSE_TERMINATION_FEE', 'TICKING_FEE'],
-  Conditions: ['REGULATORY_EFFORTS', 'LITIGATION_CONDITION', 'FINANCING_CONDITION', 'HELL_OR_HIGH_WATER'],
-  'Protective Provisions': ['MAE', 'GO_SHOP', 'NO_SHOP', 'MATCHING_RIGHTS', 'SPECIFIC_PERFORMANCE'],
-  Other: ['OTHER'],
+const TABS = ['terms', 'events', 'spread-history', 'news-research', 'reg-litigation'] as const;
+type TabValue = (typeof TABS)[number];
+
+const TAB_LABELS: Record<TabValue, string> = {
+  terms: 'Terms',
+  events: 'Events',
+  'spread-history': 'Spread History',
+  'news-research': 'News & Research',
+  'reg-litigation': 'Reg & Litigation',
 };
-
-// Group clauses by analyst-facing category
-function groupClausesByCategory(clauses: Clause[]): Record<string, Clause[]> {
-  const result: Record<string, Clause[]> = {};
-  for (const [category, types] of Object.entries(CLAUSE_CATEGORIES)) {
-    const matches = clauses.filter((c) => types.includes(c.type));
-    if (matches.length > 0) {
-      result[category] = matches;
-    }
-  }
-  return result;
-}
-
-// Single clause card with collapsible verbatim quote
-function ClauseCard({ clause }: { clause: Clause }) {
-  const [isExpanded, setIsExpanded] = React.useState(false);
-
-  // Display text: prefer summary, fall back to value (mock compat), then verbatimText first 120 chars
-  const displayText = clause.summary ?? clause.value ?? clause.verbatimText?.slice(0, 120);
-
-  // Source attribution: prefer extractedAt + filingId, fall back to legacy fields
-  const sourceAttr = clause.extractedAt
-    ? `Extracted ${formatDate(clause.extractedAt)}`
-    : clause.sourceFilingType
-      ? `${clause.sourceFilingType} ${clause.sourceSection ?? ''}`.trim()
-      : null;
-
-  // Provenance URL for EDGAR source link
-  const sourceHref = clause.sourceUrl ?? '#';
-
-  const isLowConfidence = typeof clause.confidenceScore === 'number' && clause.confidenceScore < 0.5;
-
-  return (
-    <div className="p-3 bg-surface rounded-md border border-border">
-      {/* Clause header */}
-      <div className="flex items-start gap-2 mb-1">
-        <span className="text-xs font-mono font-medium text-primary-500 uppercase flex-1">
-          {clause.title ?? clause.type.replace(/_/g, ' ')}
-        </span>
-        {/* Low-confidence warning */}
-        {isLowConfidence && (
-          <AlertTriangle
-            className="h-3.5 w-3.5 text-yellow-500 shrink-0 mt-0.5"
-            aria-label="Low confidence extraction"
-          />
-        )}
-        {/* Analyst-verified badge */}
-        {clause.analystVerified && (
-          <CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" aria-label="Analyst verified" />
-        )}
-      </div>
-
-      {/* Summary / value */}
-      {displayText && <div className="text-sm text-text-main font-mono mb-1">{displayText}</div>}
-
-      {/* Source attribution row */}
-      {(sourceAttr || sourceHref !== '#') && (
-        <div className="flex items-center gap-2 mt-1">
-          {sourceAttr && <span className="text-xs text-text-muted font-mono">{sourceAttr}</span>}
-          {sourceHref !== '#' && (
-            <a
-              href={sourceHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 font-mono"
-            >
-              <ExternalLink className="h-3 w-3" />
-              View on EDGAR
-            </a>
-          )}
-        </div>
-      )}
-
-      {/* Collapsible verbatim quote (per locked decision: collapsed by default) */}
-      {clause.verbatimText && clause.verbatimText !== displayText && (
-        <div className="mt-2">
-          <button
-            onClick={() => setIsExpanded((prev) => !prev)}
-            className="flex items-center gap-1 text-xs text-text-muted hover:text-text-main font-mono transition-colors"
-          >
-            {isExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-            {isExpanded ? 'Hide' : 'Show'} verbatim quote
-          </button>
-          {isExpanded && (
-            <div className="mt-2 p-2 bg-background border border-border rounded text-xs text-text-muted font-mono leading-relaxed whitespace-pre-wrap">
-              {clause.verbatimText}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
 
 export function DealCard({ dealId }: DealCardProps) {
   const router = useRouter();
@@ -127,13 +37,16 @@ export function DealCard({ dealId }: DealCardProps) {
   const marketSnapshots = MOCK_MARKET_SNAPSHOTS.filter((s) => s.dealId === dealId);
 
   const [clauses, setClauses] = React.useState<Clause[]>([]);
-  const [pCloseBase, setPCloseBase] = React.useState(deal?.p_close_base || 0);
-  const [spreadThreshold, setSpreadThreshold] = React.useState(deal?.spread_entry_threshold || 0);
-  const [eventTypeFilter, setEventTypeFilter] = React.useState<string[]>([]);
+  const [pCloseBase, setPCloseBase] = React.useState(deal?.p_close_base ?? 0);
+  const [spreadThreshold, setSpreadThreshold] = React.useState(deal?.spread_entry_threshold ?? 0);
   const [isAlertModalOpen, setIsAlertModalOpen] = React.useState(false);
   const [isExportOpen, setIsExportOpen] = React.useState(false);
   const [filings, setFilings] = React.useState<Filing[]>([]);
-  const [activeTab, setActiveTab] = React.useState<'overview' | 'memo'>('overview');
+
+  // New tab + sidebar state
+  const [activeTab, setActiveTab] = React.useState<TabValue>('terms');
+  const [selectedEventId, setSelectedEventId] = React.useState<string | null>(null);
+  const [focusedEventIndex, setFocusedEventIndex] = React.useState(0);
 
   // Fetch clauses from real API (falls back to mock data via getClauses when USE_MOCK_DATA=true)
   React.useEffect(() => {
@@ -141,7 +54,6 @@ export function DealCard({ dealId }: DealCardProps) {
     getClauses(dealId)
       .then(setClauses)
       .catch(() => {
-        // Fall back to mock data on error for development
         setClauses(MOCK_CLAUSES.filter((c) => c.dealId === dealId));
       });
   }, [dealId]);
@@ -154,7 +66,6 @@ export function DealCard({ dealId }: DealCardProps) {
         const data = await getFilings(dealId);
         setFilings(data);
       } catch {
-        // Backend not running or no filings — stay empty
         setFilings([]);
       }
     }
@@ -196,32 +107,61 @@ export function DealCard({ dealId }: DealCardProps) {
     setIsExportOpen(false);
   };
 
+  // Keyboard shortcuts: 1-5 switch tabs, j/k navigate events, Enter open, Esc close
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.metaKey || e.ctrlKey) {
-        if (e.key === 'd') {
-          e.preventDefault();
-          router.push(`/app/deals/${dealId}/draft`);
-        } else if (e.key === 'e') {
-          e.preventDefault();
-          setIsExportOpen((prev) => !prev);
-        } else if (['1', '2', '3', '4', '5'].includes(e.key)) {
-          e.preventDefault();
-          const sectionId = `section-${e.key}`;
-          document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
+      // Guard: skip when typing in inputs
+      const target = e.target as HTMLElement;
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target.getAttribute('contenteditable') !== null
+      ) {
+        return;
+      }
+
+      // Keys 1-5: switch tabs
+      if (!e.metaKey && !e.ctrlKey && ['1', '2', '3', '4', '5'].includes(e.key)) {
+        e.preventDefault();
+        const idx = parseInt(e.key) - 1;
+        if (idx >= 0 && idx < TABS.length) {
+          setActiveTab(TABS[idx]);
         }
+        return;
+      }
+
+      // j/k: navigate events (only when on events tab)
+      if (activeTab === 'events') {
+        if (e.key === 'j') {
+          e.preventDefault();
+          setFocusedEventIndex((prev) => Math.min(prev + 1, events.length - 1));
+        } else if (e.key === 'k') {
+          e.preventDefault();
+          setFocusedEventIndex((prev) => Math.max(prev - 1, 0));
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          const focused = events[focusedEventIndex];
+          if (focused) {
+            setSelectedEventId(focused.id);
+          }
+        }
+      }
+
+      // Esc: close sidebar
+      if (e.key === 'Escape') {
+        setSelectedEventId(null);
+      }
+
+      // Cmd+D: go to draft
+      if (e.metaKey && e.key === 'd') {
+        e.preventDefault();
+        router.push(`/app/deals/${dealId}/draft`);
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [dealId, router]);
-
-  const daysUntilOutside = React.useMemo(() => {
-    if (!deal) return 0;
-    return Math.ceil((new Date(deal.outsideDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deal?.outsideDate]);
+  }, [activeTab, events, focusedEventIndex, dealId, router]);
 
   if (!deal) {
     return (
@@ -229,360 +169,97 @@ export function DealCard({ dealId }: DealCardProps) {
         <div className="text-center">
           <h1 className="text-2xl font-mono font-bold text-zinc-100 mb-2">Deal Not Found</h1>
           <p className="text-sm text-zinc-500 font-mono mb-4">The deal you&apos;re looking for doesn&apos;t exist.</p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setIsAlertModalOpen(true)}
-              className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 rounded-md font-mono text-sm transition-colors"
-            >
-              Alerts
-            </button>
-            <div className="relative">
-              <button
-                onClick={() => setIsExportOpen(!isExportOpen)}
-                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 rounded-md font-mono text-sm transition-colors"
-              >
-                Export
-              </button>
-              {isExportOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-md shadow-lg z-10">
-                  <button
-                    onClick={exportDealCSV}
-                    className="w-full text-left px-4 py-2 text-sm font-mono text-zinc-100 hover:bg-zinc-800 transition-colors"
-                  >
-                    Export CSV
-                  </button>
-                  <button
-                    onClick={exportDealJSON}
-                    className="w-full text-left px-4 py-2 text-sm font-mono text-zinc-100 hover:bg-zinc-800 transition-colors"
-                  >
-                    Export JSON
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+          <button
+            onClick={() => router.push('/app/deals')}
+            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 rounded-md font-mono text-sm transition-colors"
+          >
+            Back to Deals
+          </button>
         </div>
       </div>
     );
   }
 
-  const filteredEvents = eventTypeFilter.length > 0 ? events.filter((e) => eventTypeFilter.includes(e.type)) : events;
-
-  // Filing type badge color coding
-  const getFilingBadgeClass = (filingType: string): string => {
-    if (['S-4', 'S-4/A', 'DEFM14A', 'PREM14A'].includes(filingType)) {
-      return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-    }
-    if (['SC TO-T', 'SC TO-T/A', 'SC TO-I', 'SC TO-I/A', 'SC 14D9', 'SC 14D9/A'].includes(filingType)) {
-      return 'bg-orange-500/10 text-orange-400 border-orange-500/20';
-    }
-    if (['8-K', '8-K/A'].includes(filingType)) {
-      return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
-    }
-    return 'bg-surface text-text-muted border-border';
-  };
+  // Suppress unused variable warning — filings available for future filings section
+  void filings;
 
   return (
-    <div className="flex flex-col gap-6 p-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <button
-            onClick={() => router.push('/app/deals')}
-            className="text-sm text-text-muted hover:text-text-main font-mono mb-2 flex items-center gap-1"
+    <div className="flex flex-col h-full">
+      {/* Sticky header — does NOT scroll away or change per tab */}
+      <DealCardHeader
+        deal={deal}
+        pCloseBase={pCloseBase}
+        onPCloseChange={setPCloseBase}
+        spreadThreshold={spreadThreshold}
+        onSpreadThresholdChange={setSpreadThreshold}
+        isExportOpen={isExportOpen}
+        onExportToggle={() => setIsExportOpen((prev) => !prev)}
+        onExportCSV={exportDealCSV}
+        onExportJSON={exportDealJSON}
+        onAlertOpen={() => setIsAlertModalOpen(true)}
+      />
+
+      {/* Content area: tabs + optional sidebar */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Main tab content */}
+        <div className={`flex-1 overflow-y-auto ${selectedEventId ? 'pr-[400px]' : ''}`}>
+          <Tabs.Root
+            value={activeTab}
+            onValueChange={(val) => setActiveTab(val as TabValue)}
           >
-            ← Back to Deals
-          </button>
-          <h1 className="text-3xl font-mono font-bold text-text-main mb-2">
-            {deal.acquirerName} → {deal.companyName}
-          </h1>
-          <div className="flex items-center gap-4 flex-wrap">
-            <StatusBadge status={deal.status} />
-            <span className="text-sm text-text-muted font-mono">Announced: {formatDate(deal.announcementDate)}</span>
-            <span className="text-sm text-primary-500 font-mono">
-              Outside: {daysUntilOutside > 0 ? `⏱ ${daysUntilOutside}d` : 'CLOSED'}
-            </span>
-          </div>
+            {/* Tab list */}
+            <Tabs.List className="flex items-center border-b border-border px-4 gap-0">
+              {TABS.map((tab) => (
+                <Tabs.Trigger
+                  key={tab}
+                  value={tab}
+                  className="px-4 py-2.5 text-sm font-mono font-medium text-text-muted hover:text-text-main data-[state=active]:text-text-main data-[state=active]:border-b-2 data-[state=active]:border-aurora-primary transition-colors -mb-px"
+                >
+                  {TAB_LABELS[tab]}
+                </Tabs.Trigger>
+              ))}
+            </Tabs.List>
+
+            {/* Tab panels */}
+            <Tabs.Content value="terms">
+              <TermsTab clauses={clauses} deal={deal} />
+            </Tabs.Content>
+
+            <Tabs.Content value="events">
+              <EventsTab
+                events={events}
+                focusedIndex={focusedEventIndex}
+                selectedEventId={selectedEventId}
+                onSelect={(id) => setSelectedEventId(id)}
+                onFocusChange={setFocusedEventIndex}
+              />
+            </Tabs.Content>
+
+            <Tabs.Content value="spread-history">
+              <SpreadHistoryTab dealId={dealId} marketSnapshots={marketSnapshots} events={events} />
+            </Tabs.Content>
+
+            <Tabs.Content value="news-research">
+              <NewsResearchTab deal={deal} />
+            </Tabs.Content>
+
+            <Tabs.Content value="reg-litigation">
+              <RegLitigationTab events={events} deal={deal} />
+            </Tabs.Content>
+          </Tabs.Root>
         </div>
+
+        {/* Event detail sidebar — slides in from right */}
+        {selectedEventId && (
+          <div className="fixed right-0 top-0 h-full z-20 shadow-xl transition-transform">
+            <DealEventSidePanel
+              eventId={selectedEventId}
+              events={events}
+              onClose={() => setSelectedEventId(null)}
+            />
+          </div>
+        )}
       </div>
-
-      {/* Tab navigation */}
-      <div className="flex items-center gap-0 border-b border-border">
-        <button
-          type="button"
-          onClick={() => setActiveTab('overview')}
-          className={`px-4 py-2 font-mono text-sm border-b-2 transition-colors ${
-            activeTab === 'overview'
-              ? 'border-amber-500 text-amber-400'
-              : 'border-transparent text-text-muted hover:text-text-main'
-          }`}
-        >
-          Overview
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('memo')}
-          className={`flex items-center gap-1.5 px-4 py-2 font-mono text-sm border-b-2 transition-colors ${
-            activeTab === 'memo'
-              ? 'border-amber-500 text-amber-400'
-              : 'border-transparent text-text-muted hover:text-text-main'
-          }`}
-        >
-          <FileText className="h-3.5 w-3.5" />
-          Memo
-        </button>
-      </div>
-
-      {/* Memo tab content */}
-      {activeTab === 'memo' && <MemoList dealId={dealId} />}
-
-      {/* Overview tab content */}
-      {activeTab === 'overview' && (
-        <>
-          {/* Key Metrics Panel */}
-          <div className="grid grid-cols-5 gap-4 p-4 bg-background border border-border rounded-lg">
-            <div>
-              <div className="text-xs text-text-muted font-mono uppercase mb-1">Spread</div>
-              <div className="text-2xl font-mono font-bold text-primary-500">{deal.currentSpread.toFixed(1)}%</div>
-              <div className="text-xs text-text-muted font-mono">↑ 0.3% (24h)</div>
-            </div>
-            <div className="group relative">
-              <div className="text-xs text-text-muted font-mono uppercase mb-1 flex items-center gap-1">
-                p_close_base
-                <span className="text-text-dim opacity-0 group-hover:opacity-100 transition-opacity">✏️</span>
-              </div>
-              <input
-                type="number"
-                value={pCloseBase}
-                onChange={(e) => setPCloseBase(Number(e.target.value))}
-                placeholder="Click to edit"
-                className="text-2xl font-mono font-bold text-text-main bg-transparent border-b border-transparent hover:border-border focus:border-primary-500 outline-none w-20 transition-colors cursor-text"
-              />
-              <span className="text-2xl font-mono font-bold text-text-main">%</span>
-            </div>
-            <div>
-              <div className="text-xs text-text-muted font-mono uppercase mb-1">EV</div>
-              <div className="text-2xl font-mono font-bold text-green-500">
-                {((deal.currentSpread * pCloseBase) / 100).toFixed(2)}%
-              </div>
-            </div>
-            <div>
-              <div className="text-xs text-text-muted font-mono uppercase mb-1">Deal Value</div>
-              <div className="text-2xl font-mono font-bold text-text-main">
-                ${(deal.reportedEquityTakeoverValue / 1e9).toFixed(1)}B
-              </div>
-            </div>
-            <div className="group relative">
-              <div className="text-xs text-text-muted font-mono uppercase mb-1 flex items-center gap-1">
-                Entry Threshold
-                <span className="text-text-dim opacity-0 group-hover:opacity-100 transition-opacity">✏️</span>
-              </div>
-              <input
-                type="number"
-                value={spreadThreshold}
-                onChange={(e) => setSpreadThreshold(Number(e.target.value))}
-                placeholder="Click to edit"
-                className="text-2xl font-mono font-bold text-text-main bg-transparent border-b border-transparent hover:border-border focus:border-primary-500 outline-none w-16 transition-colors cursor-text"
-              />
-              <span className="text-2xl font-mono font-bold text-text-main">%</span>
-            </div>
-          </div>
-
-          {/* Deal Terms — grouped by category with collapsible verbatim quotes */}
-          <div id="section-1">
-            <CollapsibleSection title="Deal Terms" defaultOpen={true}>
-              {clauses.length > 0 ? (
-                (() => {
-                  const grouped = groupClausesByCategory(clauses);
-                  const categoryNames = Object.keys(grouped);
-                  if (categoryNames.length === 0) {
-                    // Ungrouped fallback (mock data with legacy shape)
-                    return (
-                      <div className="space-y-3">
-                        {clauses.map((clause) => (
-                          <ClauseCard key={clause.id} clause={clause} />
-                        ))}
-                      </div>
-                    );
-                  }
-                  return (
-                    <div className="space-y-6">
-                      {categoryNames.map((category) => (
-                        <div key={category}>
-                          <h4 className="text-xs font-mono font-semibold text-text-muted uppercase tracking-wider mb-3 border-b border-border pb-1">
-                            {category}
-                          </h4>
-                          <div className="space-y-3">
-                            {grouped[category].map((clause) => (
-                              <ClauseCard key={clause.id} clause={clause} />
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })()
-              ) : (
-                <p className="text-sm text-text-muted font-mono">No deal terms available.</p>
-              )}
-            </CollapsibleSection>
-          </div>
-
-          {/* Events Timeline */}
-          <div id="section-2">
-            <CollapsibleSection title="Events" defaultOpen={true}>
-              <div className="mb-4 flex items-center gap-2 flex-wrap">
-                {['FILING', 'COURT', 'AGENCY', 'SPREAD_MOVE', 'NEWS'].map((type) => (
-                  <button
-                    key={type}
-                    onClick={() => {
-                      setEventTypeFilter((prev) =>
-                        prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
-                      );
-                    }}
-                    className={`px-3 py-1.5 rounded-md font-mono text-xs transition-colors ${
-                      eventTypeFilter.includes(type)
-                        ? 'bg-primary-500 text-white'
-                        : 'bg-surface text-text-muted hover:bg-surfaceHighlight'
-                    }`}
-                  >
-                    {type}
-                  </button>
-                ))}
-                {eventTypeFilter.length > 0 && (
-                  <button
-                    onClick={() => setEventTypeFilter([])}
-                    className="text-xs font-mono text-text-muted hover:text-text-main underline"
-                  >
-                    Clear filters
-                  </button>
-                )}
-              </div>
-              {filteredEvents.length > 0 ? (
-                <EventTimeline events={filteredEvents} />
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-sm text-text-muted font-mono mb-2">
-                    {eventTypeFilter.length > 0 ? 'No events match the selected filters.' : 'No events recorded yet.'}
-                  </p>
-                  {eventTypeFilter.length === 0 && (
-                    <p className="text-xs text-text-dim font-mono">
-                      Events will appear here as the deal progresses through regulatory reviews, filings, and court
-                      proceedings.
-                    </p>
-                  )}
-                </div>
-              )}
-            </CollapsibleSection>
-          </div>
-
-          {/* Spread Chart */}
-          <div id="section-3">
-            <CollapsibleSection title="Spread History" defaultOpen={false}>
-              {marketSnapshots.length > 0 ? (
-                <SpreadChart data={marketSnapshots} events={events} />
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-sm text-text-muted font-mono mb-2">No spread history available.</p>
-                  <p className="text-xs text-text-dim font-mono">
-                    Historical spread data will be displayed here once market snapshots are recorded.
-                  </p>
-                </div>
-              )}
-            </CollapsibleSection>
-          </div>
-
-          {/* News & Research */}
-          <div id="section-4">
-            <CollapsibleSection title="News & Research" defaultOpen={false}>
-              <NewsSection dealId={dealId} />
-            </CollapsibleSection>
-          </div>
-
-          {/* Recent Filings */}
-          {filings.length > 0 && (
-            <CollapsibleSection title="Recent Filings" defaultOpen={true}>
-              <div className="space-y-2">
-                {filings.slice(0, 5).map((filing) => (
-                  <div
-                    key={filing.id}
-                    className="flex items-center gap-3 p-3 bg-surface rounded-md border border-border"
-                  >
-                    <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-mono font-medium border ${getFilingBadgeClass(filing.filingType)}`}
-                    >
-                      {filing.filingType}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs text-text-main font-mono truncate">
-                        {filing.filerName ?? filing.filerCik}
-                      </div>
-                      <div className="text-xs text-text-muted font-mono">
-                        {formatDate(filing.filedDate)}
-                        {filing.rawContent === null && <span className="ml-2 text-text-dim">· Pending</span>}
-                      </div>
-                    </div>
-                    <a
-                      href={filing.rawUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-indigo-400 hover:text-indigo-300 text-xs underline shrink-0"
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                      View on EDGAR
-                    </a>
-                  </div>
-                ))}
-              </div>
-            </CollapsibleSection>
-          )}
-
-          {/* Regulatory & Litigation */}
-          <div id="section-5">
-            <CollapsibleSection title="Regulatory & Litigation" defaultOpen={false}>
-              <div className="space-y-4">
-                <div>
-                  <h4 className="text-sm font-mono font-medium text-text-main mb-2">Regulatory Status</h4>
-                  {deal.regulatoryFlags.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {deal.regulatoryFlags.map((flag) => (
-                        <span
-                          key={flag}
-                          className="px-3 py-1.5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-md font-mono text-xs"
-                        >
-                          {flag.replace(/_/g, ' ')}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <div>
-                      <p className="text-sm text-text-muted font-mono mb-1">No regulatory issues identified.</p>
-                      <p className="text-xs text-text-dim font-mono">
-                        This deal has no active regulatory reviews or concerns flagged.
-                      </p>
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <h4 className="text-sm font-mono font-medium text-text-main mb-2">Litigation</h4>
-                  {deal.litigationCount > 0 ? (
-                    <p className="text-sm text-text-main font-mono">
-                      {deal.litigationCount} active {deal.litigationCount === 1 ? 'case' : 'cases'}
-                    </p>
-                  ) : (
-                    <div>
-                      <p className="text-sm text-text-muted font-mono mb-1">No active litigation.</p>
-                      <p className="text-xs text-text-dim font-mono">
-                        This deal currently has no pending legal challenges or shareholder lawsuits.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </CollapsibleSection>
-          </div>
-        </> /* end overview tab */
-      )}
 
       <AlertConfigModal isOpen={isAlertModalOpen} onClose={() => setIsAlertModalOpen(false)} dealId={dealId} />
     </div>
