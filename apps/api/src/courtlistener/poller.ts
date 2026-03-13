@@ -3,7 +3,7 @@ import { and, eq, isNotNull, isNull, sql } from 'drizzle-orm';
 import { updateIngestionStatus } from '../agency/event-factory.js';
 import { adminDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
-import { COURTLISTENER_API_BASE, docketEntrySchema, docketSearchResponseSchema } from './types.js';
+import { COURTLISTENER_API_BASE, type DocketSearchResult, docketEntrySchema, docketSearchResponseSchema } from './types.js';
 import { createCourtEvent, getCourtMaterialityScore, getCourtSeverity } from './event-factory.js';
 
 // ---------------------------------------------------------------------------
@@ -124,7 +124,7 @@ export async function handleCourtListenerPoll(job: Job): Promise<void> {
         `&q=caseName:"${encodeURIComponent(deal.target)}" OR caseName:"${encodeURIComponent(deal.acquirer)}"` +
         `&order_by=score+desc&count=${MAX_DOCKET_RESULTS}`;
 
-      let searchData: { count: number; results: Array<{ id: number; case_name: string; docket_number: string | null; court: string; date_filed: string | null }> };
+      let searchData: { count: number; results: DocketSearchResult[] };
 
       try {
         const searchRes = await fetch(searchUrl, { headers: courtListenerHeaders() });
@@ -144,7 +144,7 @@ export async function handleCourtListenerPoll(job: Job): Promise<void> {
       }
 
       for (const docket of searchData.results) {
-        const alreadySubscribed = await hasDocketSubscription(docket.id);
+        const alreadySubscribed = await hasDocketSubscription(docket.docket_id);
 
         if (!alreadySubscribed) {
           // Subscribe to docket alerts via v4 endpoint (NOT v3)
@@ -156,17 +156,17 @@ export async function handleCourtListenerPoll(job: Job): Promise<void> {
                 ...courtListenerHeaders(),
                 'Content-Type': 'application/x-www-form-urlencoded',
               },
-              body: `docket=${docket.id}`,
+              body: `docket=${docket.docket_id}`,
             });
 
             if (subRes.ok) {
               const subBody = await subRes.json() as { id?: number };
               alertId = typeof subBody.id === 'number' ? subBody.id : undefined;
             } else {
-              console.warn(`[courtlistener_poll] Docket-alert subscription failed for docket ${docket.id}: HTTP ${subRes.status}`);
+              console.warn(`[courtlistener_poll] Docket-alert subscription failed for docket ${docket.docket_id}: HTTP ${subRes.status}`);
             }
           } catch (subErr) {
-            console.warn(`[courtlistener_poll] Subscription error for docket ${docket.id}:`, subErr instanceof Error ? subErr.message : String(subErr));
+            console.warn(`[courtlistener_poll] Subscription error for docket ${docket.docket_id}:`, subErr instanceof Error ? subErr.message : String(subErr));
           }
 
           // Create CASE_DISCOVERED event regardless of whether subscription succeeded
@@ -174,18 +174,18 @@ export async function handleCourtListenerPoll(job: Job): Promise<void> {
             firmId: deal.firmId,
             dealId: deal.id,
             subType: 'CASE_DISCOVERED',
-            title: `Case discovered: ${docket.case_name}`,
-            description: `CourtListener docket ${docket.docket_number ?? docket.id} in ${docket.court} — newly matched to deal.`,
-            sourceUrl: `${COURTLISTENER_API_BASE}/docket/${docket.id}/`,
+            title: `Case discovered: ${docket.caseName}`,
+            description: `CourtListener docket ${docket.docketNumber ?? docket.docket_id} in ${docket.court} — newly matched to deal.`,
+            sourceUrl: `${COURTLISTENER_API_BASE}/docket/${docket.docket_id}/`,
             materialityScore: getCourtMaterialityScore('CASE_DISCOVERED'),
             severity: getCourtSeverity(getCourtMaterialityScore('CASE_DISCOVERED')),
-            timestamp: docket.date_filed ? new Date(docket.date_filed) : new Date(),
+            timestamp: docket.dateFiled ? new Date(docket.dateFiled) : new Date(),
             metadata: {
-              courtlistenerDocketId: docket.id,
+              courtlistenerDocketId: docket.docket_id,
               courtlistenerAlertId: alertId ?? null,
-              caseName: docket.case_name,
+              caseName: docket.caseName,
               court: docket.court,
-              docketNumber: docket.docket_number,
+              docketNumber: docket.docketNumber ?? null,
             },
           });
 
@@ -196,12 +196,12 @@ export async function handleCourtListenerPoll(job: Job): Promise<void> {
 
           try {
             const entriesRes = await fetch(
-              `${COURTLISTENER_API_BASE}/api/rest/v4/docket-entries/?docket=${docket.id}&order_by=-date_filed`,
+              `${COURTLISTENER_API_BASE}/api/rest/v4/docket-entries/?docket=${docket.docket_id}&order_by=-date_filed`,
               { headers: courtListenerHeaders() },
             );
 
             if (!entriesRes.ok) {
-              console.warn(`[courtlistener_poll] Entries fetch failed for docket ${docket.id}: HTTP ${entriesRes.status}`);
+              console.warn(`[courtlistener_poll] Entries fetch failed for docket ${docket.docket_id}: HTTP ${entriesRes.status}`);
               continue;
             }
 
@@ -214,7 +214,7 @@ export async function handleCourtListenerPoll(job: Job): Promise<void> {
               })
               .filter((e): e is NonNullable<typeof e> => e !== null);
           } catch (fetchErr) {
-            console.warn(`[courtlistener_poll] Entries fetch error for docket ${docket.id}:`, fetchErr instanceof Error ? fetchErr.message : String(fetchErr));
+            console.warn(`[courtlistener_poll] Entries fetch error for docket ${docket.docket_id}:`, fetchErr instanceof Error ? fetchErr.message : String(fetchErr));
             continue;
           }
 
@@ -232,17 +232,17 @@ export async function handleCourtListenerPoll(job: Job): Promise<void> {
               subType,
               title: entry.description ?? `Docket entry #${entry.entry_number ?? entry.id}`,
               description: entry.description ?? `New docket entry filed on ${entry.date_filed ?? 'unknown date'}.`,
-              sourceUrl: `${COURTLISTENER_API_BASE}/docket/${docket.id}/#entry-${entry.id}`,
+              sourceUrl: `${COURTLISTENER_API_BASE}/docket/${docket.docket_id}/#entry-${entry.id}`,
               materialityScore: score,
               severity: getCourtSeverity(score),
               timestamp: entry.date_filed ? new Date(entry.date_filed) : new Date(),
               metadata: {
                 sourceGuid,
-                courtlistenerDocketId: docket.id,
+                courtlistenerDocketId: docket.docket_id,
                 courtlistenerEntryId: entry.id,
-                caseName: docket.case_name,
+                caseName: docket.caseName,
                 court: docket.court,
-                docketNumber: docket.docket_number,
+                docketNumber: docket.docketNumber ?? null,
               },
             });
 

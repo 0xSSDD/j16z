@@ -22,11 +22,11 @@ export const COURTLISTENER_IPS = new Set(['34.210.230.218', '54.189.59.91']);
  */
 export const docketSearchResultSchema = z
   .object({
-    id: z.number(),
-    case_name: z.string(),
-    docket_number: z.string().nullable(),
+    docket_id: z.number(),
+    caseName: z.string(),
+    docketNumber: z.string().nullable().optional(),
     court: z.string(),
-    date_filed: z.string().nullable(),
+    dateFiled: z.string().nullable().optional(),
   })
   .passthrough();
 
