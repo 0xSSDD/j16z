@@ -23,9 +23,9 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 ## Current Position
 
 Phase: 4 of 7 (CourtListener, FTC/DOJ, RSS Ingestion)
-Plan: 1 of 3 (04-01 complete — CourtListener integration)
-Status: Phase 4 in progress — 04-01 done, 04-02 (FTC/DOJ canary) next
-Last activity: 2026-03-13 — Plan 04-01 complete (CourtListener v4 webhook + polling integration)
+Plan: 2 of 3 (04-02 complete — FTC/DOJ canary monitor + integrations health)
+Status: Phase 4 in progress — 04-01 done, 04-02 done, 04-03 (frontend integrations tab + RSS scoring) next
+Last activity: 2026-03-13 — Plan 04-02 complete (FTC/DOJ canary monitor, PACER health, source display names)
 
 Progress: [█████████░] 57%
 
@@ -43,7 +43,7 @@ Progress: [█████████░] 57%
 | 01-backend-foundation-auth | 3 | 24 min | 8 min | COMPLETE |
 | 02-sec-edgar-ingestion | 3 | 52 min | 17 min | COMPLETE |
 | 03-llm-extraction-pipeline | 3 | 21 min | 7 min | COMPLETE |
-| 04-courtlistener-ftcdoj-rss | 1+ | 4 min | 4 min | IN PROGRESS |
+| 04-courtlistener-ftcdoj-rss | 2+ | 6 min | 3 min | IN PROGRESS |
 
 **Recent Trend:**
 - Last 5 plans: 03-01 (7 min), 03-02 (8 min), 03-03 (6 min), 04-01 (4 min)
@@ -97,6 +97,9 @@ Recent decisions affecting current work:
 - [04-01]: v4 endpoints exclusively: /api/rest/v4/search/, /api/rest/v4/docket-alerts/, /api/rest/v4/docket-entries/ — v3 deprecated
 - [04-01]: CASE_DISCOVERED events store courtlistenerDocketId in metadata for webhook→deal lookup (no separate subscription table)
 - [04-01]: updateIngestionStatus reused from agency/event-factory.ts — not duplicated in courtlistener/
+- [04-02]: Canary baseline stored in ingestion_status.metadata jsonb (no separate table); 2-consecutive-zero threshold prevents weekend/holiday false positives
+- [04-02]: PACER_PASSWORD_LAST_CHANGED env var only for credential rotation date — no PACER credentials in DB
+- [04-02]: SOURCE_DISPLAY_NAMES mapping kept local to integrations.ts (not shared constant) — only used in one place
 
 ### Pending Todos
 
@@ -113,5 +116,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-13
-Stopped at: Completed 04-01-PLAN.md — CourtListener v4 webhook push + polling integration
-Resume file: .planning/phases/04-courtlistener-ftcdoj-rss-ingestion/04-02-PLAN.md (FTC/DOJ canary + integrations health)
+Stopped at: Completed 04-02-PLAN.md — FTC/DOJ canary monitor + PACER health + integrations display names
+Resume file: .planning/phases/04-courtlistener-ftcdoj-rss-ingestion/04-03-PLAN.md (frontend IntegrationsTab + RSS scoring + CourtListener tests)
