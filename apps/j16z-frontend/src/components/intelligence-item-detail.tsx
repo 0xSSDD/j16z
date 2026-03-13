@@ -47,30 +47,30 @@ export const DetailView: React.FC<DetailViewProps> = ({ item, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/60 backdrop-blur-sm">
-      <div className="flex h-full w-full max-w-4xl flex-col border-l border-slate-800 bg-slate-950 shadow-2xl animate-in slide-in-from-right duration-300">
-        <div className="flex h-16 items-center justify-between border-b border-slate-800 bg-slate-900 px-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-end bg-background/60 backdrop-blur-sm">
+      <div className="flex h-full w-full max-w-4xl flex-col border-l border-border bg-background shadow-2xl animate-in slide-in-from-right duration-300">
+        <div className="flex h-16 items-center justify-between border-b border-border bg-surface px-6">
           <div className="flex items-center gap-4">
-            <div className="border border-slate-700 bg-slate-800 px-2 py-1 text-xs font-mono text-slate-400">
+            <div className="border border-border bg-surfaceHighlight px-2 py-1 text-xs font-mono text-text-muted">
               {item.source}
             </div>
-            <div className="h-4 w-px bg-slate-700" />
-            <span className="text-sm font-mono text-slate-500">{new Date(item.timestamp).toLocaleString()}</span>
+            <div className="h-4 w-px bg-border" />
+            <span className="text-sm font-mono text-text-muted">{new Date(item.timestamp).toLocaleString()}</span>
           </div>
           <div className="flex items-center gap-2">
-            <button className="p-2 text-slate-400 transition-colors hover:text-white">
+            <button className="p-2 text-text-muted transition-colors hover:text-text-main">
               <Share2 className="h-4 w-4" />
             </button>
-            <button className="p-2 text-slate-400 transition-colors hover:text-white">
+            <button className="p-2 text-text-muted transition-colors hover:text-text-main">
               <Printer className="h-4 w-4" />
             </button>
-            <button className="p-2 text-slate-400 transition-colors hover:text-white">
+            <button className="p-2 text-text-muted transition-colors hover:text-text-main">
               <Download className="h-4 w-4" />
             </button>
-            <div className="mx-2 h-6 w-px bg-slate-800" />
+            <div className="mx-2 h-6 w-px bg-border" />
             <button
               onClick={onClose}
-              className="rounded-lg p-2 text-slate-400 transition-all hover:bg-slate-800 hover:text-white"
+              className="rounded-lg p-2 text-text-muted transition-all hover:bg-surfaceHighlight hover:text-text-main"
             >
               <X className="h-5 w-5" />
             </button>
@@ -79,7 +79,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ item, onClose }) => {
 
         <div className="flex flex-1 gap-8 overflow-auto p-8">
           <div className="flex-1">
-            <h1 className="mb-2 text-2xl font-bold text-white leading-tight">{item.title}</h1>
+            <h1 className="mb-2 text-2xl font-bold text-text-main leading-tight">{item.title}</h1>
             <div className="mb-8 flex gap-2">
               {item.tags.map((tag) => (
                 <span
@@ -90,48 +90,48 @@ export const DetailView: React.FC<DetailViewProps> = ({ item, onClose }) => {
                 </span>
               ))}
             </div>
-            <div className="prose prose-invert prose-slate max-w-none leading-relaxed">
-              <pre className="whitespace-pre-wrap text-sm leading-7 text-slate-300">{item.content}</pre>
+            <div className="prose prose-invert max-w-none leading-relaxed">
+              <pre className="whitespace-pre-wrap text-sm leading-7 text-text-muted">{item.content}</pre>
             </div>
           </div>
 
           <div className="w-80 shrink-0 space-y-6">
-            <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+            <div className="rounded-xl border border-border bg-surface p-4">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
-                  <Sparkles className="h-4 w-4 text-purple-400" />
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-text-main">
+                  <Sparkles className="h-4 w-4 text-text-muted" />
                   AI Synthesis (Mock)
                 </h3>
                 {!summary && (
                   <button
                     onClick={handleSummarize}
                     disabled={loadingSummary}
-                    className="rounded bg-purple-600 px-2 py-1 text-xs text-white transition-colors hover:bg-purple-700 disabled:opacity-50"
+                    className="rounded bg-primary-500 px-2 py-1 text-xs text-background transition-colors hover:bg-primary-600 disabled:opacity-50"
                   >
                     {loadingSummary ? 'Generating...' : 'Generate'}
                   </button>
                 )}
               </div>
               {summary ? (
-                <div className="animate-in fade-in text-sm leading-6 text-slate-300">{summary}</div>
+                <div className="animate-in fade-in text-sm leading-6 text-text-muted">{summary}</div>
               ) : (
-                <div className="py-4 text-center text-xs italic text-slate-600">
+                <div className="py-4 text-center text-xs italic text-text-dim">
                   For this demo, the content below is generated locally without calling external APIs.
                 </div>
               )}
             </div>
 
-            <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+            <div className="rounded-xl border border-border bg-surface p-4">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
-                  <ShieldAlert className="h-4 w-4 text-rose-400" />
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-text-main">
+                  <ShieldAlert className="h-4 w-4 text-red-400" />
                   Risk Radar (Mock)
                 </h3>
                 {!risks && (
                   <button
                     onClick={handleRiskAnalysis}
                     disabled={loadingRisks}
-                    className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-300 transition-colors hover:bg-slate-700 disabled:opacity-50"
+                    className="rounded border border-border bg-surfaceHighlight px-2 py-1 text-xs text-text-main transition-colors hover:bg-surface disabled:opacity-50"
                   >
                     {loadingRisks ? 'Scanning...' : 'Scan'}
                   </button>
@@ -140,46 +140,46 @@ export const DetailView: React.FC<DetailViewProps> = ({ item, onClose }) => {
               {risks ? (
                 <div className="space-y-3 animate-in fade-in">
                   {risks.map((risk, idx) => (
-                    <div key={idx} className="rounded border border-slate-800 bg-slate-950 p-3">
+                    <div key={idx} className="rounded border border-border bg-background p-3">
                       <div className="mb-1 flex items-start justify-between">
-                        <span className="text-xs font-bold text-slate-200">{risk.category}</span>
+                        <span className="text-xs font-bold text-text-main">{risk.category}</span>
                         <span
                           className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${
                             risk.severity === 'High'
-                              ? 'bg-rose-500/20 text-rose-500'
+                              ? 'bg-red-500/20 text-red-500'
                               : risk.severity === 'Medium'
-                                ? 'bg-amber-500/20 text-amber-500'
-                                : 'bg-blue-500/20 text-blue-500'
+                                ? 'bg-primary-500/20 text-primary-500'
+                                : 'bg-primary-500/10 text-primary-500'
                           }`}
                         >
                           {risk.severity}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-400">{risk.description}</p>
+                      <p className="text-xs text-text-muted">{risk.description}</p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="py-4 text-center text-xs italic text-slate-600">
+                <div className="py-4 text-center text-xs italic text-text-dim">
                   Scan for Regulatory, Financial, and Reputation risks (mocked output).
                 </div>
               )}
             </div>
 
-            <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
-              <h3 className="mb-4 text-sm font-semibold text-white">Detected Entities</h3>
+            <div className="rounded-xl border border-border bg-surface p-4">
+              <h3 className="mb-4 text-sm font-semibold text-text-main">Detected Entities</h3>
               <div className="space-y-2">
-                <div className="flex justify-between text-xs border-b border-slate-800 py-1">
-                  <span className="text-slate-400">Microsoft</span>
-                  <span className="text-emerald-500">ORG</span>
+                <div className="flex justify-between text-xs border-b border-border py-1">
+                  <span className="text-text-muted">Microsoft</span>
+                  <span className="text-primary-500">ORG</span>
                 </div>
-                <div className="flex justify-between text-xs border-b border-slate-800 py-1">
-                  <span className="text-slate-400">FTC</span>
-                  <span className="text-blue-500">GOV</span>
+                <div className="flex justify-between text-xs border-b border-border py-1">
+                  <span className="text-text-muted">FTC</span>
+                  <span className="text-primary-500">GOV</span>
                 </div>
-                <div className="flex justify-between text-xs border-b border-slate-800 py-1">
-                  <span className="text-slate-400">Activision</span>
-                  <span className="text-emerald-500">ORG</span>
+                <div className="flex justify-between text-xs border-b border-border py-1">
+                  <span className="text-text-muted">Activision</span>
+                  <span className="text-primary-500">ORG</span>
                 </div>
               </div>
             </div>

@@ -47,7 +47,7 @@ export function DealDiscovery() {
           <button
             onClick={handleSearch}
             disabled={isSearching || !ticker.trim()}
-            className="px-6 py-2 bg-primary-500 hover:bg-primary-600 disabled:bg-surface disabled:text-text-dim text-white rounded-md font-mono text-sm transition-colors"
+            className="px-6 py-2 bg-primary-500 hover:bg-primary-600 disabled:bg-surface disabled:text-text-dim text-background rounded-md font-mono text-sm transition-colors"
           >
             {isSearching ? 'Searching...' : 'Search'}
           </button>

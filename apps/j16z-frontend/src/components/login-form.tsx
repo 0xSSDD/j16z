@@ -128,7 +128,7 @@ export const LoginForm: React.FC = () => {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
       {/* Subtle ambient glow */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/5 blur-[120px]" />
+        <div className="absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-500/5 blur-[120px]" />
       </div>
 
       <div className="relative w-full max-w-sm">
@@ -159,7 +159,7 @@ export const LoginForm: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@firm.com"
-                className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-text-main placeholder-text-dim outline-none transition-colors focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/20"
+                className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-text-main placeholder-text-dim outline-none transition-colors focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/20"
               />
             </div>
 
@@ -177,14 +177,14 @@ export const LoginForm: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   minLength={8}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-text-main placeholder-text-dim outline-none transition-colors focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/20"
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-text-main placeholder-text-dim outline-none transition-colors focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/20"
                 />
               </div>
             )}
 
             {/* Feedback messages */}
             {message && (
-              <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-400">
+              <div className="rounded-lg border border-primary-500/20 bg-primary-500/10 px-3 py-2.5 text-sm text-primary-400">
                 {message}
               </div>
             )}
@@ -198,7 +198,7 @@ export const LoginForm: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-black shadow-sm transition-all hover:bg-amber-400 disabled:opacity-60"
+              className="w-full rounded-lg bg-primary-500 px-4 py-2.5 text-sm font-semibold text-background shadow-sm transition-all hover:bg-primary-400 disabled:opacity-60"
             >
               {loading
                 ? 'Please wait...'
@@ -255,7 +255,7 @@ export const LoginForm: React.FC = () => {
                       clearFeedback();
                       setMode('password-login');
                     }}
-                    className="font-medium text-amber-500 hover:text-amber-400"
+                    className="font-medium text-primary-500 hover:text-primary-400"
                   >
                     Sign in
                   </button>
@@ -269,7 +269,7 @@ export const LoginForm: React.FC = () => {
                       clearFeedback();
                       setMode('password-signup');
                     }}
-                    className="font-medium text-amber-500 hover:text-amber-400"
+                    className="font-medium text-primary-500 hover:text-primary-400"
                   >
                     Sign up
                   </button>

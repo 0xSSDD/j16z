@@ -219,14 +219,14 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
                       key={command.id}
                       className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                         idx === selectedIndex
-                          ? 'bg-amber-500 text-zinc-950'
+                          ? 'bg-primary-500 text-background'
                           : 'text-text-muted hover:bg-surfaceHighlight hover:text-text-main'
                       }`}
                       onClick={() => handleSelect(command)}
                       onMouseEnter={() => setSelectedIndex(idx)}
                     >
                       <command.icon
-                        className={`h-4 w-4 ${idx === selectedIndex ? 'text-zinc-950' : 'text-text-dim'}`}
+                        className={`h-4 w-4 ${idx === selectedIndex ? 'text-background' : 'text-text-dim'}`}
                       />
                       <span className="flex-1">{command.name}</span>
                       {command.category === 'deal' && <span className="text-[10px] font-mono opacity-60">Deal</span>}
@@ -251,14 +251,14 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
                     key={command.id}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                       actualIndex === selectedIndex
-                        ? 'bg-amber-500 text-zinc-950'
+                        ? 'bg-primary-500 text-background'
                         : 'text-text-muted hover:bg-surfaceHighlight hover:text-text-main'
                     }`}
                     onClick={() => handleSelect(command)}
                     onMouseEnter={() => setSelectedIndex(actualIndex)}
                   >
                     <command.icon
-                      className={`h-4 w-4 ${actualIndex === selectedIndex ? 'text-zinc-950' : 'text-text-dim'}`}
+                      className={`h-4 w-4 ${actualIndex === selectedIndex ? 'text-background' : 'text-text-dim'}`}
                     />
                     <span className="flex-1">{command.name}</span>
                     {command.category === 'deal' && <span className="text-[10px] font-mono opacity-60">Deal</span>}
@@ -275,13 +275,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
                 key={command.id}
                 className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                   idx === selectedIndex
-                    ? 'bg-amber-500 text-zinc-950'
+                    ? 'bg-primary-500 text-background'
                     : 'text-text-muted hover:bg-surfaceHighlight hover:text-text-main'
                 }`}
                 onClick={() => handleSelect(command)}
                 onMouseEnter={() => setSelectedIndex(idx)}
               >
-                <command.icon className={`h-4 w-4 ${idx === selectedIndex ? 'text-zinc-950' : 'text-text-dim'}`} />
+                <command.icon className={`h-4 w-4 ${idx === selectedIndex ? 'text-background' : 'text-text-dim'}`} />
                 <span className="flex-1">{command.name}</span>
                 {command.category === 'deal' && <span className="text-[10px] font-mono opacity-60">Deal</span>}
                 {command.category === 'action' && <span className="text-[10px] font-mono opacity-60">Action</span>}

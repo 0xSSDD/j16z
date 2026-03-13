@@ -6,11 +6,11 @@ interface EventTimelineProps {
 }
 
 const EVENT_ICON_CONFIG: Record<string, { icon: typeof FileText; color: string }> = {
-  FILING: { icon: FileText, color: 'text-emerald-400' },
-  COURT: { icon: Scale, color: 'text-violet-400' },
-  AGENCY: { icon: Shield, color: 'text-amber-400' },
-  SPREAD_MOVE: { icon: TrendingUp, color: 'text-cyan-400' },
-  NEWS: { icon: Newspaper, color: 'text-sky-400' },
+  FILING: { icon: FileText, color: 'text-primary-400' },
+  COURT: { icon: Scale, color: 'text-text-muted' },
+  AGENCY: { icon: Shield, color: 'text-primary-500' },
+  SPREAD_MOVE: { icon: TrendingUp, color: 'text-primary-300' },
+  NEWS: { icon: Newspaper, color: 'text-primary-400' },
 };
 
 const SUBTYPE_LABELS: Record<string, string> = {
@@ -31,8 +31,8 @@ const EventIcon = ({ type }: { type: Event['type'] }) => {
 export function EventTimeline({ events }: EventTimelineProps) {
   const severityColors: Record<string, string> = {
     CRITICAL: 'border-red-500 bg-red-500/10',
-    WARNING: 'border-yellow-500 bg-yellow-500/10',
-    INFO: 'border-zinc-500 bg-zinc-500/10',
+    WARNING: 'border-primary-500 bg-primary-500/10',
+    INFO: 'border-border bg-surface',
   };
 
   return (
@@ -51,7 +51,7 @@ export function EventTimeline({ events }: EventTimelineProps) {
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-mono text-xs text-muted-foreground">
+                  <span className="font-mono text-xs text-text-muted">
                     {new Date(event.timestamp).toLocaleString('en-US', {
                       month: 'short',
                       day: 'numeric',
@@ -65,18 +65,18 @@ export function EventTimeline({ events }: EventTimelineProps) {
                   >
                     {event.severity}
                   </span>
-                  <span className="px-2 py-0.5 rounded text-xs font-mono bg-secondary text-muted-foreground">
+                  <span className="px-2 py-0.5 rounded text-xs font-mono bg-surface text-text-muted">
                     {SUBTYPE_LABELS[event.subtype] ?? event.subtype}
                   </span>
                 </div>
-                <h4 className="font-mono text-sm font-medium text-foreground mb-2">{event.title}</h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">{event.summary}</p>
+                <h4 className="font-mono text-sm font-medium text-text-main mb-2">{event.title}</h4>
+                <p className="text-sm text-text-muted leading-relaxed">{event.summary}</p>
                 {event.sourceUrl && (
                   <a
                     href={event.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 mt-2 text-xs text-amber-500 hover:text-amber-400 font-mono"
+                    className="inline-flex items-center gap-1 mt-2 text-xs text-primary-500 hover:text-primary-400 font-mono"
                   >
                     View Source →
                   </a>

@@ -25,7 +25,7 @@ export const FeedManager: React.FC = () => {
         <div className="flex items-center justify-between border-b border-border bg-surface p-4">
           <div className="flex gap-4">
             <div className="flex items-center gap-2 text-xs text-text-main">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="h-2 w-2 rounded-full bg-primary-500" />
               <span className="font-bold uppercase">API (4)</span>
             </div>
             <div className="flex items-center gap-2 text-xs text-text-main">
@@ -73,7 +73,7 @@ export const FeedManager: React.FC = () => {
                 </td>
                 <td className="px-4 py-3">
                   {source.status === 'active' ? (
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-emerald-500">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-primary-500">
                       <CheckCircle2 className="h-3.5 w-3.5" />
                       <span>Active</span>
                     </div>
@@ -83,7 +83,7 @@ export const FeedManager: React.FC = () => {
                       <span>Sync</span>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-rose-500">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-red-500">
                       <XCircle className="h-3.5 w-3.5" />
                       <span>Error</span>
                     </div>
@@ -96,11 +96,11 @@ export const FeedManager: React.FC = () => {
                       <Settings2 className="h-3.5 w-3.5" />
                     </button>
                     {source.status === 'active' ? (
-                      <button className="p-1.5 text-text-dim hover:bg-rose-500/10 hover:text-rose-500">
+                      <button className="p-1.5 text-text-dim hover:bg-red-500/10 hover:text-red-500">
                         <Pause className="h-3.5 w-3.5" />
                       </button>
                     ) : (
-                      <button className="p-1.5 text-text-dim hover:bg-emerald-500/10 hover:text-emerald-500">
+                      <button className="p-1.5 text-text-dim hover:bg-primary-500/10 hover:text-primary-500">
                         <Play className="h-3.5 w-3.5" />
                       </button>
                     )}

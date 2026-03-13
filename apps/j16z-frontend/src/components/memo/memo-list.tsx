@@ -145,7 +145,7 @@ export function MemoList({ dealId }: MemoListProps) {
                   ? 'Private — click to make visible to firm'
                   : 'Visible to firm — click to make private'
               }
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:border-amber-500/40 hover:text-amber-400"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:border-primary-500/40 hover:text-primary-400"
               style={{
                 borderColor: activeMemo.visibility === 'firm' ? 'rgb(245 158 11 / 0.3)' : undefined,
                 color: activeMemo.visibility === 'firm' ? 'rgb(251 191 36)' : undefined,
@@ -190,7 +190,7 @@ export function MemoList({ dealId }: MemoListProps) {
           <button
             type="button"
             onClick={() => setShowTitleInput(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-md font-mono text-xs transition-colors border border-amber-500/20"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-500/10 hover:bg-primary-500/20 text-primary-400 rounded-md font-mono text-xs transition-colors border border-primary-500/20"
           >
             <Plus className="h-3 w-3" />
             New Memo
@@ -220,7 +220,7 @@ export function MemoList({ dealId }: MemoListProps) {
             type="button"
             onClick={handleCreateMemo}
             disabled={isCreating || !newMemoTitle.trim()}
-            className="px-3 py-1 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-black rounded font-mono text-xs font-medium transition-colors"
+            className="px-3 py-1 bg-primary-500 hover:bg-primary-400 disabled:opacity-50 disabled:cursor-not-allowed text-background rounded font-mono text-xs font-medium transition-colors"
           >
             {isCreating ? 'Creating...' : 'Create'}
           </button>

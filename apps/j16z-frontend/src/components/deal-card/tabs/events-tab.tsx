@@ -53,7 +53,7 @@ export function EventsTab({ events, focusedIndex, selectedEventId, onSelect, onF
       {events.map((event, index) => {
         const meta = EVENT_TYPE_META[event.type];
         const Icon = meta?.icon ?? FileText;
-        const dotClass = SEVERITY_DOT[event.severity] ?? 'bg-zinc-500';
+        const dotClass = SEVERITY_DOT[event.severity] ?? 'bg-text-dim';
         const isFocused = index === focusedIndex;
         const isSelected = event.id === selectedEventId;
 

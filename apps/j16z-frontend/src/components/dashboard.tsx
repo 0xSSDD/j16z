@@ -44,7 +44,7 @@ const MetricCard = ({
         <Icon className="h-5 w-5 opacity-50" />
       </div>
       <div className="flex items-center gap-2 text-xs font-mono">
-        <span className={`flex items-center ${alertLevel === 'normal' ? 'text-emerald-500' : 'text-current'}`}>
+        <span className={`flex items-center ${alertLevel === 'normal' ? 'text-primary-500' : 'text-current'}`}>
           <ArrowUpRight className="mr-1 h-3 w-3" />
           {trend}
         </span>
@@ -81,7 +81,7 @@ const WatchlistItem = ({
       </div>
       <div>
         <div className="text-xs font-bold text-text-main">{name}</div>
-        <div className={`text-[10px] ${change >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+        <div className={`text-[10px] ${change >= 0 ? 'text-primary-500' : 'text-rose-500'}`}>
           {change >= 0 ? '+' : ''}
           {change}%
         </div>
@@ -208,7 +208,7 @@ export const Dashboard: React.FC = () => {
                   <div
                     className={`text-[10px] font-bold uppercase ${
                       source.status === 'active'
-                        ? 'text-emerald-500'
+                        ? 'text-primary-500'
                         : source.status === 'pending'
                           ? 'text-primary-500'
                           : 'text-rose-500'

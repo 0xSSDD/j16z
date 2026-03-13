@@ -72,10 +72,10 @@ export function DataAgeBadge({ lastUpdated }: DataAgeBadgeProps) {
 
   if (ageMinutes < 5) {
     // Green
-    colorClasses = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+    colorClasses = 'bg-primary-500/10 text-primary-400 border-primary-500/20';
   } else if (ageMinutes < 30) {
     // Yellow
-    colorClasses = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+    colorClasses = 'bg-primary-500/10 text-primary-400 border-primary-500/20';
   } else {
     // Red
     colorClasses = 'bg-red-500/10 text-red-400 border-red-500/20';
@@ -87,7 +87,7 @@ export function DataAgeBadge({ lastUpdated }: DataAgeBadgeProps) {
     >
       <span
         className={`h-1.5 w-1.5 rounded-full ${
-          ageMinutes < 5 ? 'bg-emerald-400' : ageMinutes < 30 ? 'bg-amber-400' : 'bg-red-400'
+          ageMinutes < 5 ? 'bg-primary-400' : ageMinutes < 30 ? 'bg-primary-400' : 'bg-red-400'
         }`}
       />
       {label}

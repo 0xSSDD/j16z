@@ -106,8 +106,8 @@ export function AlertRulesTab() {
 
       {/* Webhook Secret Banner */}
       {newlyCreatedSecret && (
-        <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4">
-          <p className="mb-2 text-sm font-medium text-amber-400">
+        <div className="rounded-lg border border-primary-500/20 bg-primary-500/5 p-4">
+          <p className="mb-2 text-sm font-medium text-primary-500">
             Webhook Secret (copy now -- it will not be shown again)
           </p>
           <div className="flex items-center gap-2">
@@ -118,14 +118,14 @@ export function AlertRulesTab() {
               onClick={() => {
                 navigator.clipboard.writeText(newlyCreatedSecret);
               }}
-              className="rounded p-1.5 text-amber-400 transition-colors hover:bg-amber-500/10"
+              className="rounded p-1.5 text-primary-500 transition-colors hover:bg-primary-500/10"
             >
               <Copy className="h-4 w-4" />
             </button>
           </div>
           <button
             onClick={() => setNewlyCreatedSecret(null)}
-            className="mt-2 text-xs text-amber-400/70 underline hover:text-amber-400"
+            className="mt-2 text-xs text-primary-500/70 underline hover:text-primary-500"
           >
             I have copied the secret
           </button>
@@ -140,7 +140,7 @@ export function AlertRulesTab() {
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 rounded-md bg-[var(--aurora-primary)] px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
+          className="flex items-center gap-2 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary-600"
         >
           <Plus className="h-4 w-4" />
           New Rule
@@ -168,7 +168,7 @@ export function AlertRulesTab() {
                   <div className="flex items-center gap-2">
                     <h3 className="font-medium text-[var(--text-main)]">{rule.name}</h3>
                     {rule.dealId && (
-                      <span className="rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-medium text-indigo-400 border border-indigo-500/20">
+                      <span className="rounded-full bg-primary-500/10 px-2 py-0.5 text-[10px] font-medium text-primary-500 border border-primary-500/20">
                         Per-deal
                       </span>
                     )}
@@ -377,7 +377,7 @@ function CreateRuleModal({
           <button
             onClick={handleSubmit}
             disabled={!name.trim() || channels.length === 0 || saving}
-            className="flex items-center gap-2 rounded-md bg-[var(--aurora-primary)] px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary-600 disabled:opacity-50"
           >
             {saving && <Loader2 className="h-4 w-4 animate-spin" />}
             Create Rule

@@ -6,11 +6,11 @@ import * as React from 'react';
 import { MOCK_EVENTS } from '@/lib/constants';
 
 const EVENT_TYPE_STYLE: Record<string, { color: string; bg: string; icon: typeof FileText }> = {
-  FILING: { color: 'text-emerald-400', bg: 'bg-emerald-500/10', icon: FileText },
-  COURT: { color: 'text-violet-400', bg: 'bg-violet-500/10', icon: Scale },
-  AGENCY: { color: 'text-amber-400', bg: 'bg-amber-500/10', icon: Shield },
-  SPREAD_MOVE: { color: 'text-cyan-400', bg: 'bg-cyan-500/10', icon: TrendingUp },
-  NEWS: { color: 'text-sky-400', bg: 'bg-sky-500/10', icon: Newspaper },
+  FILING: { color: 'text-primary-500', bg: 'bg-primary-500/10', icon: FileText },
+  COURT: { color: 'text-text-muted', bg: 'bg-surface', icon: Scale },
+  AGENCY: { color: 'text-primary-500', bg: 'bg-primary-500/10', icon: Shield },
+  SPREAD_MOVE: { color: 'text-text-muted', bg: 'bg-surface', icon: TrendingUp },
+  NEWS: { color: 'text-text-muted', bg: 'bg-surface', icon: Newspaper },
 };
 
 export function NotificationsInbox() {
@@ -65,7 +65,7 @@ export function NotificationsInbox() {
             key={type}
             onClick={() => setFilter(type)}
             className={`px-3 py-1.5 rounded-md font-mono text-xs transition-colors ${
-              filter === type ? 'bg-primary-500 text-white' : 'bg-surface text-text-muted hover:bg-surfaceHighlight'
+              filter === type ? 'bg-primary-500 text-background' : 'bg-surface text-text-muted hover:bg-surfaceHighlight'
             }`}
           >
             {type === 'all' ? 'All' : type}

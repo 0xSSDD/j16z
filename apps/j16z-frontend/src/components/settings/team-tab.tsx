@@ -78,7 +78,7 @@ function InviteModal({ isOpen, onClose, onInvite }: InviteModalProps) {
             </button>
             <button
               type="submit"
-              className="flex-1 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
+              className="flex-1 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary-600"
             >
               Send Invitation
             </button>
@@ -144,7 +144,7 @@ function EditMemberModal({ isOpen, member, onClose, onUpdate }: EditMemberModalP
             </button>
             <button
               type="submit"
-              className="flex-1 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
+              className="flex-1 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary-600"
             >
               Update Permissions
             </button>
@@ -242,8 +242,8 @@ export function TeamTab() {
   const getRoleBadge = (role: UserRole) => {
     const styles = {
       admin: 'bg-red-500/10 text-red-500 border-red-500/30',
-      pm: 'bg-blue-500/10 text-blue-500 border-blue-500/30',
-      analyst: 'bg-green-500/10 text-green-500 border-green-500/30',
+      pm: 'bg-primary-500/10 text-primary-500 border-primary-500/30',
+      analyst: 'bg-primary-500/10 text-primary-500 border-primary-500/30',
     };
     const labels = {
       admin: 'Admin',
@@ -280,7 +280,7 @@ export function TeamTab() {
         </div>
         <button
           onClick={() => setShowInviteModal(true)}
-          className="flex items-center gap-2 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
+          className="flex items-center gap-2 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary-600"
         >
           <Plus className="h-4 w-4" />
           Invite Member
@@ -297,7 +297,7 @@ export function TeamTab() {
               className="flex items-center justify-between rounded-lg border border-border bg-surface p-4"
             >
               <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-primary-500 to-amber-600 text-sm font-bold text-white">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-primary-500 to-primary-600 text-sm font-bold text-background">
                   {member.name
                     .split(' ')
                     .map((n) => n[0])
@@ -366,7 +366,7 @@ export function TeamTab() {
 
                 <div className="flex items-center gap-4">
                   {getRoleBadge(member.role)}
-                  <span className="rounded-full bg-yellow-500/10 px-2 py-0.5 text-xs font-medium text-yellow-500">
+                  <span className="rounded-full bg-primary-500/10 px-2 py-0.5 text-xs font-medium text-primary-500">
                     Pending
                   </span>
                   <button
@@ -394,11 +394,11 @@ export function TeamTab() {
             <span>Full access to all features, team management, and settings</span>
           </div>
           <div className="flex gap-2">
-            <span className="font-medium text-blue-500">Portfolio Manager:</span>
+            <span className="font-medium text-primary-500">Portfolio Manager:</span>
             <span>Manage positions, view all deals, configure alerts</span>
           </div>
           <div className="flex gap-2">
-            <span className="font-medium text-green-500">Analyst:</span>
+            <span className="font-medium text-primary-500">Analyst:</span>
             <span>View and analyze deals, create watchlists, receive alerts</span>
           </div>
         </div>

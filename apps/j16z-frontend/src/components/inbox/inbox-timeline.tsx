@@ -30,11 +30,11 @@ interface EnrichedEvent extends Event {
 }
 
 const EVENT_TYPE_CONFIG: Record<string, { icon: typeof FileText; color: string; label: string }> = {
-  FILING: { icon: FileText, color: 'text-emerald-400', label: 'Filing' },
-  COURT: { icon: Scale, color: 'text-violet-400', label: 'Court' },
-  AGENCY: { icon: Shield, color: 'text-amber-400', label: 'Agency' },
-  SPREAD_MOVE: { icon: TrendingUp, color: 'text-cyan-400', label: 'Spread' },
-  NEWS: { icon: Newspaper, color: 'text-sky-400', label: 'News' },
+  FILING: { icon: FileText, color: 'text-primary-500', label: 'Filing' },
+  COURT: { icon: Scale, color: 'text-text-muted', label: 'Court' },
+  AGENCY: { icon: Shield, color: 'text-primary-400', label: 'Agency' },
+  SPREAD_MOVE: { icon: TrendingUp, color: 'text-primary-300', label: 'Spread' },
+  NEWS: { icon: Newspaper, color: 'text-primary-400', label: 'News' },
 };
 
 const SUBTYPE_LABELS: Record<string, string> = {
@@ -239,7 +239,7 @@ export function InboxTimeline({
       case 'WARNING':
         return 'text-yellow-500';
       case 'INFO':
-        return 'text-green-500';
+        return 'text-primary-500';
       default:
         return 'text-text-muted';
     }

@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { createRSSFeed, deleteRSSFeed, getRSSFeeds, type RSSFeedRecord, updateRSSFeed } from '@/lib/api';
 
 const STATUS_STYLES: Record<string, { label: string; color: string; bg: string }> = {
-  active: { label: 'Active', color: 'text-green-400', bg: 'bg-green-500/10 border-green-500/20' },
+  active: { label: 'Active', color: 'text-primary-500', bg: 'bg-primary-500/10 border-primary-500/20' },
   paused: { label: 'Paused', color: 'text-yellow-400', bg: 'bg-yellow-500/10 border-yellow-500/20' },
   error: { label: 'Error', color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20' },
 };
@@ -128,7 +128,7 @@ export function RSSFeedsTab() {
           <h2 className="text-lg font-semibold text-text-main">RSS Feeds</h2>
           <p className="text-sm text-text-muted">
             {feeds.length} feed{feeds.length !== 1 ? 's' : ''} configured
-            {activeFeeds.length > 0 && <span className="text-green-400"> · {activeFeeds.length} active</span>}
+            {activeFeeds.length > 0 && <span className="text-primary-500"> · {activeFeeds.length} active</span>}
             {pausedFeeds.length > 0 && <span className="text-yellow-400"> · {pausedFeeds.length} paused</span>}
             {errorFeeds.length > 0 && <span className="text-red-400"> · {errorFeeds.length} error</span>}
           </p>
@@ -136,7 +136,7 @@ export function RSSFeedsTab() {
         <button
           type="button"
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
+          className="flex items-center gap-2 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary-600"
         >
           <Plus className="h-4 w-4" />
           Add Feed
@@ -279,7 +279,7 @@ export function RSSFeedsTab() {
                   type="button"
                   onClick={handleAddFeed}
                   disabled={submitting}
-                  className="flex-1 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600 disabled:opacity-50"
+                  className="flex-1 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary-600 disabled:opacity-50"
                 >
                   {submitting ? 'Adding...' : 'Add Feed'}
                 </button>

@@ -237,17 +237,17 @@ export const Settings: React.FC = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between p-3 transition-colors hover:bg-surface/50">
             <div className="flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="h-2 w-2 rounded-full bg-primary-500" />
               <span className="text-sm font-bold text-text-main">SEC EDGAR API</span>
             </div>
-            <span className="text-xs font-mono text-emerald-500">CONNECTED</span>
+            <span className="text-xs font-mono text-primary-500">CONNECTED</span>
           </div>
           <div className="flex items-center justify-between p-3 transition-colors hover:bg-surface/50">
             <div className="flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="h-2 w-2 rounded-full bg-primary-500" />
               <span className="text-sm font-bold text-text-main">CourtListener</span>
             </div>
-            <span className="text-xs font-mono text-emerald-500">CONNECTED</span>
+            <span className="text-xs font-mono text-primary-500">CONNECTED</span>
           </div>
           <div className="flex items-center justify-between p-3 transition-colors hover:bg-surface/50">
             <div className="flex items-center gap-3">

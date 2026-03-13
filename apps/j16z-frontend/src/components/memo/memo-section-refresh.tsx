@@ -206,7 +206,7 @@ export function SectionRefreshButton({ editor, sectionTitle, dealId }: SectionRe
       onClick={handleRefresh}
       disabled={loading}
       title={`Refresh ${sectionTitle}`}
-      className="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-mono text-text-muted hover:text-amber-400 hover:bg-amber-500/10 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      className="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-mono text-text-muted hover:text-primary-400 hover:bg-primary-500/10 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
       <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
       {loading ? 'Refreshing…' : 'Refresh'}

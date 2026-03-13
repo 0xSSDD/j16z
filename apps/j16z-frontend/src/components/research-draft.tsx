@@ -39,10 +39,10 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <h1 className="text-2xl font-mono font-bold text-foreground mb-2">Deal Not Found</h1>
+          <h1 className="text-2xl font-mono font-bold text-text-main mb-2">Deal Not Found</h1>
           <button
             onClick={() => router.push('/app/deals')}
-            className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 dark:text-zinc-950 rounded-md font-mono text-sm transition-colors"
+            className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-background rounded-md font-mono text-sm transition-colors"
           >
             Back to Deals
           </button>
@@ -109,31 +109,31 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push(`/app/deals/${dealId}`)}
-            className="text-sm text-muted-foreground hover:text-foreground font-mono flex items-center gap-1"
+            className="text-sm text-text-muted hover:text-text-main font-mono flex items-center gap-1"
           >
             ← Back to Deal
           </button>
-          <h1 className="text-lg font-mono font-bold text-foreground">
+          <h1 className="text-lg font-mono font-bold text-text-main">
             Research Draft: {deal.acquirerSymbol} / {deal.symbol}
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          {lastSaved && <span className="text-xs text-muted-foreground font-mono">Saved {formatTime(lastSaved)}</span>}
+          {lastSaved && <span className="text-xs text-text-muted font-mono">Saved {formatTime(lastSaved)}</span>}
           <button
             onClick={copyToClipboard}
-            className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-md font-mono text-sm transition-colors"
+            className="px-3 py-1.5 bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
           >
             Copy
           </button>
           <button
             onClick={exportMarkdown}
-            className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-md font-mono text-sm transition-colors"
+            className="px-3 py-1.5 bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
           >
             Export .md
           </button>
           <button
             onClick={exportDocx}
-            className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-zinc-950 dark:text-zinc-950 rounded-md font-mono text-sm transition-colors"
+            className="px-3 py-1.5 bg-primary-500 hover:bg-primary-600 text-background rounded-md font-mono text-sm transition-colors"
           >
             Export .docx
           </button>
@@ -145,7 +145,7 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="w-full h-full bg-background text-foreground font-mono text-sm p-6 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
+          className="w-full h-full bg-background text-text-main font-mono text-sm p-6 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
           placeholder="Start writing your research memo..."
         />
       </div>

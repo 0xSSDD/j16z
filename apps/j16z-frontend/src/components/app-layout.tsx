@@ -51,7 +51,7 @@ const SidebarItem = ({
 
 const Logo = () => (
   <div className="flex items-center gap-2.5">
-    <div className="relative flex h-7 w-7 items-center justify-center overflow-hidden rounded-lg border border-zinc-700 bg-gradient-to-br from-zinc-800 to-black shadow-inner">
+    <div className="relative flex h-7 w-7 items-center justify-center overflow-hidden rounded-lg border border-border bg-gradient-to-br from-surface to-background shadow-inner">
       <div className="flex h-3.5 items-end gap-[2px]">
         <div className="h-2 w-1 rounded-sm bg-primary-500/40" />
         <div className="h-3.5 w-1 rounded-sm bg-primary-500" />
@@ -198,13 +198,13 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
           <div className="mt-auto border-t border-border p-4">
             <SidebarItem href="/app/settings" icon={SettingsIcon} label="Settings" />
             <div className="mt-2 flex items-center gap-3 rounded-lg border border-border/50 bg-surface px-4 py-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded bg-gradient-to-tr from-primary-500 to-amber-600 text-xs font-bold text-white shadow-sm">
+              <div className="flex h-8 w-8 items-center justify-center rounded bg-gradient-to-tr from-primary-500 to-primary-600 text-xs font-bold text-background shadow-sm">
                 DA
               </div>
               <div className="flex min-w-0 flex-1 flex-col">
                 <span className="truncate text-xs font-bold text-text-main">David&apos;s Analyst</span>
-                <span className="flex items-center gap-1 text-[10px] text-emerald-500">
-                  <span className="h-1 w-1 animate-pulse rounded-full bg-emerald-500" />
+                <span className="flex items-center gap-1 text-[10px] text-primary-500">
+                  <span className="h-1 w-1 animate-pulse rounded-full bg-primary-500" />
                   Connected
                 </span>
               </div>
@@ -216,7 +216,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
           <header className="flex h-14 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-md">
             <div className="flex flex-1 items-center gap-4">
               <div className="flex items-center gap-2 text-xs font-mono text-text-dim">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                <span className="h-2 w-2 rounded-full bg-primary-500" />
                 SYSTEM_NOMINAL
                 <span className="text-border">/</span>
                 <span className="text-text-muted">LATENCY: 12ms</span>

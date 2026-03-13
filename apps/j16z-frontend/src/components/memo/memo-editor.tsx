@@ -178,7 +178,7 @@ export function MemoEditor({ initialContent, memoId, dealId, version, onVersionC
             title="Version history"
             className={`flex items-center gap-1 px-2 py-1 rounded font-mono text-xs transition-colors ${
               showSnapshotPanel
-                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30'
                 : 'text-text-muted hover:text-text-main hover:bg-surface border border-transparent'
             }`}
           >
@@ -223,10 +223,10 @@ export function MemoEditor({ initialContent, memoId, dealId, version, onVersionC
       {/* Save status indicator */}
       <div className="flex justify-end px-4 py-1 bg-background border-b border-border min-h-[28px]">
         {saveStatus === 'saving' && <span className="text-xs text-text-muted font-mono">Saving...</span>}
-        {saveStatus === 'saved' && <span className="text-xs text-green-500 font-mono">Saved</span>}
+        {saveStatus === 'saved' && <span className="text-xs text-primary-500 font-mono">Saved</span>}
         {saveStatus === 'error' && <span className="text-xs text-red-500 font-mono">{saveError ?? 'Save failed'}</span>}
         {saveStatus === 'conflict' && (
-          <span className="text-xs text-amber-400 font-mono">{saveError ?? 'Version conflict — reload'}</span>
+          <span className="text-xs text-primary-400 font-mono">{saveError ?? 'Version conflict — reload'}</span>
         )}
       </div>
 

@@ -59,7 +59,7 @@ function GenerateKeyModal({ isOpen, onClose, onGenerate, isLoading }: GenerateKe
             <button
               type="submit"
               disabled={isLoading || !name.trim()}
-              className="flex-1 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600 disabled:opacity-50"
+              className="flex-1 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary-600 disabled:opacity-50"
             >
               {isLoading ? 'Generating...' : 'Generate Key'}
             </button>
@@ -94,8 +94,8 @@ function ShowKeyModal({ isOpen, keyValue, onClose }: ShowKeyModalProps) {
         <h3 className="mb-4 text-lg font-semibold text-text-main">API Key Generated</h3>
 
         <div className="space-y-4">
-          <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-4">
-            <p className="text-sm font-medium text-yellow-500">Important</p>
+          <div className="rounded-lg border border-primary-500/30 bg-primary-500/10 p-4">
+            <p className="text-sm font-medium text-primary-500">Important</p>
             <p className="mt-1 text-xs text-text-muted">
               This is the only time you&apos;ll see this key. Copy it now and store it securely.
             </p>
@@ -129,7 +129,7 @@ function ShowKeyModal({ isOpen, keyValue, onClose }: ShowKeyModalProps) {
               >
                 {copied ? (
                   <>
-                    <Check className="h-4 w-4 text-green-500" />
+                    <Check className="h-4 w-4 text-primary-500" />
                     Copied
                   </>
                 ) : (
@@ -145,7 +145,7 @@ function ShowKeyModal({ isOpen, keyValue, onClose }: ShowKeyModalProps) {
           <button
             type="button"
             onClick={onClose}
-            className="w-full rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
+            className="w-full rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary-600"
           >
             I&apos;ve Saved My Key
           </button>
@@ -255,7 +255,7 @@ export function APIKeysTab() {
           <button
             type="button"
             onClick={() => setShowGenerateModal(true)}
-            className="flex items-center gap-2 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
+            className="flex items-center gap-2 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary-600"
           >
             <Plus className="h-4 w-4" />
             Generate New Key
@@ -295,7 +295,7 @@ export function APIKeysTab() {
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
                     <p className="font-medium text-text-main">{key.name}</p>
-                    <span className="rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-500">
+                    <span className="rounded-full border border-primary-500/30 bg-primary-500/10 px-2 py-0.5 text-xs font-medium text-primary-500">
                       Active
                     </span>
                   </div>

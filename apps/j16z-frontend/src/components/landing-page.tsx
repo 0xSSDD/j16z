@@ -118,7 +118,7 @@ const DealCardMockup = () => (
       <div className="grid grid-cols-3 gap-2">
         <div className="rounded border border-border bg-surface p-2 text-center">
           <p className="text-[10px] text-text-dim">Spread</p>
-          <p className="text-sm font-bold text-emerald-500">6.2%</p>
+          <p className="text-sm font-bold text-primary-500">6.2%</p>
         </div>
         <div className="rounded border border-border bg-surface p-2 text-center">
           <p className="text-[10px] text-text-dim">p(close)</p>
@@ -247,13 +247,13 @@ const PolymarketCard = () => (
         </div>
         <span className="text-xs font-bold text-text-main">Prediction Market</span>
       </div>
-      <span className="rounded border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-mono text-emerald-500">
+      <span className="rounded border border-primary-500/20 bg-primary-500/10 px-1.5 py-0.5 text-[10px] font-mono text-primary-500">
         LIVE
       </span>
     </div>
     <div className="mb-1 text-sm font-bold leading-tight text-text-main">Kroger / Albertsons closes?</div>
     <div className="mb-3 flex items-end gap-2">
-      <span className="text-2xl font-bold text-emerald-500">38%</span>
+      <span className="text-2xl font-bold text-primary-500">38%</span>
       <span className="mb-1 text-xs text-text-muted">Yes</span>
       <span className="mb-1 ml-auto flex items-center gap-0.5 text-xs text-red-400">
         <TrendingUp className="h-3 w-3" /> -12%
@@ -287,7 +287,7 @@ const SearchResultsCard = () => (
         </div>
         <div className="text-xs font-medium text-text-main">&quot;reverse termination fee&quot;</div>
       </div>
-      <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+      <div className="h-2 w-2 animate-pulse rounded-full bg-primary-500" />
     </div>
     <div className="space-y-2 p-3">
       <div className="group cursor-pointer rounded border border-border bg-background p-2 transition-colors hover:border-primary-500/30">
@@ -327,7 +327,7 @@ const SynthesisTerminal = () => (
       </div>
       <span className="ml-2 text-[10px] text-text-dim">j16z · deal intelligence</span>
       <div className="ml-auto flex items-center gap-2 text-[10px] text-text-muted">
-        <span className="h-2 w-2 rounded-full bg-emerald-500" /> MONITORING
+        <span className="h-2 w-2 rounded-full bg-primary-500" /> MONITORING
       </div>
     </div>
     <div className="flex flex-1 flex-col space-y-4 p-6 text-text-muted">
@@ -446,7 +446,7 @@ export const LandingPage: React.FC = () => {
             </Link>
             <Link
               href="/login"
-              className="rounded-full bg-primary-500 px-4 py-2 text-sm font-bold text-black transition-opacity hover:opacity-90"
+              className="rounded-full bg-primary-500 px-4 py-2 text-sm font-bold text-background transition-opacity hover:opacity-90"
             >
               Get Started
             </Link>
@@ -468,7 +468,7 @@ export const LandingPage: React.FC = () => {
           <div className="relative z-10 space-y-8">
             {/* Problem badge */}
             <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surfaceHighlight px-3 py-1 text-xs font-medium text-text-muted">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="h-2 w-2 rounded-full bg-primary-500" />
               Analysts spend 3–5 hrs/day chasing fragmented M&amp;A data
             </div>
 
@@ -488,7 +488,7 @@ export const LandingPage: React.FC = () => {
             <div className="flex flex-col gap-4 sm:flex-row">
               <Link
                 href="/login"
-                className="flex items-center justify-center gap-2 rounded-lg bg-primary-500 px-8 py-4 text-sm font-bold text-black transition-opacity hover:opacity-90"
+                className="flex items-center justify-center gap-2 rounded-lg bg-primary-500 px-8 py-4 text-sm font-bold text-background transition-opacity hover:opacity-90"
               >
                 Get Started
                 <ArrowRight className="h-4 w-4" />
@@ -664,8 +664,8 @@ export const LandingPage: React.FC = () => {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {/* SEC EDGAR */}
             <div className="rounded-xl border border-border bg-surface p-6">
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
-                <FileText className="h-5 w-5 text-blue-400" />
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-500/10">
+                <FileText className="h-5 w-5 text-primary-400" />
               </div>
               <p className="mb-1 font-sans font-bold text-text-main">SEC EDGAR</p>
               <p className="text-sm text-text-muted">
@@ -675,8 +675,8 @@ export const LandingPage: React.FC = () => {
 
             {/* CourtListener */}
             <div className="rounded-xl border border-border bg-surface p-6">
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10">
-                <Scale className="h-5 w-5 text-purple-400" />
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-500/10">
+                <Scale className="h-5 w-5 text-text-muted" />
               </div>
               <p className="mb-1 font-sans font-bold text-text-main">CourtListener</p>
               <p className="text-sm text-text-muted">
@@ -697,8 +697,8 @@ export const LandingPage: React.FC = () => {
 
             {/* Market Data */}
             <div className="rounded-xl border border-border bg-surface p-6">
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
-                <TrendingUp className="h-5 w-5 text-emerald-400" />
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-500/10">
+                <TrendingUp className="h-5 w-5 text-primary-400" />
               </div>
               <p className="mb-1 font-sans font-bold text-text-main">Market Data</p>
               <p className="text-sm text-text-muted">
@@ -708,8 +708,8 @@ export const LandingPage: React.FC = () => {
 
             {/* RSS / News */}
             <div className="rounded-xl border border-border bg-surface p-6">
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/10">
-                <Globe className="h-5 w-5 text-orange-400" />
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-500/10">
+                <Globe className="h-5 w-5 text-primary-400" />
               </div>
               <p className="mb-1 font-sans font-bold text-text-main">Curated RSS / News</p>
               <p className="text-sm text-text-muted">
@@ -755,7 +755,7 @@ export const LandingPage: React.FC = () => {
                 </p>
                 <a
                   href="mailto:hello@j16z.com"
-                  className="inline-flex items-center gap-2 rounded-lg bg-primary-500 px-8 py-3.5 text-sm font-bold text-black transition-opacity hover:opacity-90"
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary-500 px-8 py-3.5 text-sm font-bold text-background transition-opacity hover:opacity-90"
                 >
                   Contact us
                   <ArrowRight className="h-4 w-4" />
@@ -782,7 +782,7 @@ export const LandingPage: React.FC = () => {
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
                 href="/login"
-                className="flex items-center gap-2 rounded-lg bg-primary-500 px-8 py-4 text-sm font-bold text-black transition-opacity hover:opacity-90"
+                className="flex items-center gap-2 rounded-lg bg-primary-500 px-8 py-4 text-sm font-bold text-background transition-opacity hover:opacity-90"
               >
                 Get Started
                 <ArrowRight className="h-4 w-4" />
@@ -819,7 +819,7 @@ export const LandingPage: React.FC = () => {
             </a>
           </div>
           <div className="flex items-center gap-2 font-mono text-xs text-text-dim">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            <span className="h-1.5 w-1.5 rounded-full bg-primary-500" />
             SYSTEMS OPERATIONAL
           </div>
         </div>

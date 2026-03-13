@@ -87,10 +87,10 @@ export function WatchlistDetail({ watchlistId }: WatchlistDetailProps) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <h1 className="text-2xl font-mono font-bold text-foreground mb-2">Watchlist Not Found</h1>
+          <h1 className="text-2xl font-mono font-bold text-text-main mb-2">Watchlist Not Found</h1>
           <button
             onClick={() => router.push('/app/deals')}
-            className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 dark:text-zinc-950 rounded-md font-mono text-sm transition-colors"
+            className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-background rounded-md font-mono text-sm transition-colors"
           >
             Back to Deals
           </button>
@@ -108,19 +108,19 @@ export function WatchlistDetail({ watchlistId }: WatchlistDetailProps) {
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push('/app/deals')}
-            className="text-sm text-muted-foreground hover:text-foreground font-mono flex items-center gap-1"
+            className="text-sm text-text-muted hover:text-text-main font-mono flex items-center gap-1"
           >
             ← Back to Deals
           </button>
           <div>
-            <h1 className="text-lg font-mono font-bold text-foreground">{watchlist.name}</h1>
+            <h1 className="text-lg font-mono font-bold text-text-main">{watchlist.name}</h1>
             {watchlist.description && (
-              <p className="text-sm text-muted-foreground font-mono mt-1">{watchlist.description}</p>
+              <p className="text-sm text-text-muted font-mono mt-1">{watchlist.description}</p>
             )}
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground font-mono">
+          <span className="text-sm text-text-muted font-mono">
             {filteredDeals.length} {filteredDeals.length === 1 ? 'deal' : 'deals'}
           </span>
         </div>
@@ -131,10 +131,10 @@ export function WatchlistDetail({ watchlistId }: WatchlistDetailProps) {
         {filteredDeals.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <p className="text-muted-foreground font-mono mb-4">No deals in this watchlist yet.</p>
+              <p className="text-text-muted font-mono mb-4">No deals in this watchlist yet.</p>
               <button
                 onClick={() => router.push('/app/deals')}
-                className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 dark:text-zinc-950 rounded-md font-mono text-sm transition-colors"
+                className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-background rounded-md font-mono text-sm transition-colors"
               >
                 Browse Deals
               </button>

@@ -76,8 +76,8 @@ export function SpreadChart({ data, events = [] }: SpreadChartProps) {
               onClick={() => setTimeRange(range)}
               className={`px-3 py-1 rounded-md font-mono text-xs transition-colors ${
                 timeRange === range
-                  ? 'bg-amber-500 text-zinc-950 dark:text-zinc-950'
-                  : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+                  ? 'bg-primary-500 text-background'
+                  : 'bg-surface text-text-muted hover:bg-surface/80'
               }`}
             >
               {range}
@@ -86,39 +86,39 @@ export function SpreadChart({ data, events = [] }: SpreadChartProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-5 gap-4 p-3 bg-secondary rounded-md">
+      <div className="grid grid-cols-5 gap-4 p-3 bg-surface rounded-md">
         <div>
-          <div className="text-xs text-muted-foreground font-mono">Current</div>
-          <div className="text-lg font-mono font-bold text-amber-500">{stats.current.toFixed(1)}%</div>
+          <div className="text-xs text-text-muted font-mono">Current</div>
+          <div className="text-lg font-mono font-bold text-primary-500">{stats.current.toFixed(1)}%</div>
         </div>
         <div>
-          <div className="text-xs text-muted-foreground font-mono">24h Change</div>
-          <div className={`text-lg font-mono font-bold ${stats.change24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+          <div className="text-xs text-text-muted font-mono">24h Change</div>
+          <div className={`text-lg font-mono font-bold ${stats.change24h >= 0 ? 'text-primary-500' : 'text-red-500'}`}>
             {stats.change24h >= 0 ? '+' : ''}
             {stats.change24h.toFixed(1)}%
           </div>
         </div>
         <div>
-          <div className="text-xs text-muted-foreground font-mono">Min</div>
-          <div className="text-lg font-mono font-bold text-foreground">{stats.min.toFixed(1)}%</div>
+          <div className="text-xs text-text-muted font-mono">Min</div>
+          <div className="text-lg font-mono font-bold text-text-main">{stats.min.toFixed(1)}%</div>
         </div>
         <div>
-          <div className="text-xs text-muted-foreground font-mono">Max</div>
-          <div className="text-lg font-mono font-bold text-foreground">{stats.max.toFixed(1)}%</div>
+          <div className="text-xs text-text-muted font-mono">Max</div>
+          <div className="text-lg font-mono font-bold text-text-main">{stats.max.toFixed(1)}%</div>
         </div>
         <div>
-          <div className="text-xs text-muted-foreground font-mono">Avg</div>
-          <div className="text-lg font-mono font-bold text-foreground">{stats.avg.toFixed(1)}%</div>
+          <div className="text-xs text-text-muted font-mono">Avg</div>
+          <div className="text-lg font-mono font-bold text-text-main">{stats.avg.toFixed(1)}%</div>
         </div>
       </div>
 
       {eventMarkers.length > 0 && (
         <div className="flex gap-2 flex-wrap">
-          <span className="text-xs text-muted-foreground font-mono">Event Markers:</span>
+          <span className="text-xs text-text-muted font-mono">Event Markers:</span>
           {eventMarkers.map((event, idx) => {
             const Icon = event.type === 'COURT' ? Scale : event.type === 'AGENCY' ? Building2 : FileText;
             return (
-              <span key={idx} className="text-xs font-mono text-amber-500 flex items-center gap-1">
+              <span key={idx} className="text-xs font-mono text-primary-500 flex items-center gap-1">
                 <Icon className="h-3 w-3" />
                 {new Date(event.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
               </span>

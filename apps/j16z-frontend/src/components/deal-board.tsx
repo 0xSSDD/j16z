@@ -133,7 +133,7 @@ export function DealBoard() {
         if (count === 0) return <span className="text-text-dim text-xs">--</span>;
         return (
           <div className="flex items-center gap-1.5">
-            <span className="inline-flex items-center justify-center rounded-full bg-indigo-500/10 px-2 py-0.5 text-xs font-medium text-indigo-400 border border-indigo-500/20">
+            <span className="inline-flex items-center justify-center rounded-full bg-primary-500/10 px-2 py-0.5 text-xs font-medium text-primary-400 border border-primary-500/20">
               {count}
             </span>
             <span className="text-xs text-text-muted">SEC</span>
@@ -184,7 +184,7 @@ export function DealBoard() {
           <span className="cursor-help border-b border-dotted border-text-muted">EV</span>
         </Tooltip>
       ),
-      cell: ({ row }) => <span className="font-medium text-green-500">{row.original.ev.toFixed(2)}%</span>,
+      cell: ({ row }) => <span className="font-medium text-primary-500">{row.original.ev.toFixed(2)}%</span>,
     },
     {
       accessorKey: 'regulatoryFlags',
@@ -209,8 +209,8 @@ export function DealBoard() {
             )}
             {hasLitigation && (
               <div className="flex items-center gap-1">
-                <Scale className="h-3 w-3 text-amber-500" />
-                <span className="text-xs text-amber-500 font-medium">{row.original.litigationCount} Litigation</span>
+                <Scale className="h-3 w-3 text-primary-500" />
+                <span className="text-xs text-primary-500 font-medium">{row.original.litigationCount} Litigation</span>
               </div>
             )}
           </div>
@@ -371,7 +371,7 @@ export function DealBoard() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsAddDealModalOpen(true)}
-              className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-md font-mono text-sm transition-colors"
+              className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-background rounded-md font-mono text-sm transition-colors"
             >
               + Add Deal
             </button>

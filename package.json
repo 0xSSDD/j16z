@@ -5,6 +5,8 @@
   "packageManager": "pnpm@10.18.3",
   "scripts": {
     "dev": "pnpm --recursive --parallel --filter \"./apps/*\" run dev",
+    "dev:fe": "pnpm --filter j16z-frontend run dev",
+    "dev:be": "pnpm --filter @j16z/api run dev",
     "build": "pnpm --recursive --filter \"./packages/*\" run build && pnpm --recursive --parallel --filter \"./apps/*\" run build",
     "test": "vitest",
     "test:be": "vitest --project=j16z-backend",

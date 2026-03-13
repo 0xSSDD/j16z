@@ -32,15 +32,15 @@ const SOURCE_ICONS: Record<string, typeof FileText> = {
 };
 
 const SOURCE_COLORS: Record<string, string> = {
-  'SEC EDGAR': 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-  'FTC.gov': 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-  'DOJ.gov': 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-  CourtListener: 'text-violet-400 bg-violet-500/10 border-violet-500/20',
-  'RSS Feeds': 'text-sky-400 bg-sky-500/10 border-sky-500/20',
+  'SEC EDGAR': 'text-primary-500 bg-primary-500/10 border-primary-500/20',
+  'FTC.gov': 'text-primary-500 bg-primary-500/10 border-primary-500/20',
+  'DOJ.gov': 'text-primary-500 bg-primary-500/10 border-primary-500/20',
+  CourtListener: 'text-text-muted bg-surface border-border',
+  'RSS Feeds': 'text-text-muted bg-surface border-border',
 };
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: typeof Check }> = {
-  healthy: { label: 'Healthy', color: 'text-green-400', icon: Check },
+  healthy: { label: 'Healthy', color: 'text-primary-500', icon: Check },
   degraded: { label: 'Degraded', color: 'text-yellow-400', icon: AlertTriangle },
   unhealthy: { label: 'Down', color: 'text-red-400', icon: AlertCircle },
 };
@@ -99,7 +99,7 @@ export function IntegrationsTab() {
     switch (status) {
       case 'active':
         return (
-          <span className="flex items-center gap-1 text-xs text-green-400">
+          <span className="flex items-center gap-1 text-xs text-primary-500">
             <Check className="h-3 w-3" />
             Active
           </span>
@@ -206,10 +206,10 @@ export function IntegrationsTab() {
         )}
 
         {pacerCredential?.isExpiringSoon && (
-          <div className="mt-4 flex items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/5 p-4">
-            <AlertTriangle className="h-5 w-5 shrink-0 text-amber-400" />
+          <div className="mt-4 flex items-start gap-3 rounded-lg border border-primary-500/20 bg-primary-500/5 p-4">
+            <AlertTriangle className="h-5 w-5 shrink-0 text-primary-500" />
             <div>
-              <p className="text-sm font-medium text-amber-300">PACER Credentials Expiring Soon</p>
+              <p className="text-sm font-medium text-primary-500">PACER Credentials Expiring Soon</p>
               <p className="text-xs text-text-muted mt-1">
                 Your PACER password expires in {pacerCredential.daysUntilExpiry} days
                 {pacerCredential.expiryDate ? ` (${new Date(pacerCredential.expiryDate).toLocaleDateString()})` : ''}.
@@ -218,7 +218,7 @@ export function IntegrationsTab() {
                   href="https://pacer.uscourts.gov"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-amber-400 underline hover:text-amber-300"
+                  className="text-primary-500 underline hover:text-primary-600"
                 >
                   pacer.uscourts.gov
                 </a>
@@ -238,7 +238,7 @@ export function IntegrationsTab() {
           <button
             type="button"
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
+            className="flex items-center gap-2 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary-600"
           >
             <Plus className="h-4 w-4" />
             Add Channel
@@ -301,9 +301,9 @@ export function IntegrationsTab() {
                   <button
                     type="button"
                     onClick={() => setSelectedType('slack')}
-                    className="group flex items-start gap-4 rounded-lg border-2 border-border bg-background p-4 text-left transition-all hover:border-purple-500/50 hover:bg-purple-500/5"
+                    className="group flex items-start gap-4 rounded-lg border-2 border-border bg-background p-4 text-left transition-all hover:border-primary-500/50 hover:bg-primary-500/5"
                   >
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-2xl transition-colors group-hover:bg-purple-500/20">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-500/10 text-2xl transition-colors group-hover:bg-primary-500/20">
                       💬
                     </div>
                     <div className="flex-1">
@@ -315,9 +315,9 @@ export function IntegrationsTab() {
                   <button
                     type="button"
                     onClick={() => setSelectedType('email')}
-                    className="group flex items-start gap-4 rounded-lg border-2 border-border bg-background p-4 text-left transition-all hover:border-blue-500/50 hover:bg-blue-500/5"
+                    className="group flex items-start gap-4 rounded-lg border-2 border-border bg-background p-4 text-left transition-all hover:border-primary-500/50 hover:bg-primary-500/5"
                   >
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-2xl transition-colors group-hover:bg-blue-500/20">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-500/10 text-2xl transition-colors group-hover:bg-primary-500/20">
                       📧
                     </div>
                     <div className="flex-1">
@@ -329,9 +329,9 @@ export function IntegrationsTab() {
                   <button
                     type="button"
                     onClick={() => setSelectedType('webhook')}
-                    className="group flex items-start gap-4 rounded-lg border-2 border-border bg-background p-4 text-left transition-all hover:border-green-500/50 hover:bg-green-500/5"
+                    className="group flex items-start gap-4 rounded-lg border-2 border-border bg-background p-4 text-left transition-all hover:border-primary-500/50 hover:bg-primary-500/5"
                   >
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-500/10 text-2xl transition-colors group-hover:bg-green-500/20">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-500/10 text-2xl transition-colors group-hover:bg-primary-500/20">
                       🔗
                     </div>
                     <div className="flex-1">
@@ -380,7 +380,7 @@ export function IntegrationsTab() {
 
                 <button
                   type="button"
-                  className="w-full rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
+                  className="w-full rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary-600"
                 >
                   {selectedType === 'slack' ? 'Connect to Slack' : 'Save'}
                 </button>

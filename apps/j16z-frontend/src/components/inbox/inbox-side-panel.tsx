@@ -15,11 +15,11 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 
 const EVENT_TYPE_META: Record<string, { icon: typeof FileText; color: string; sourceLabel: string }> = {
-  FILING: { icon: FileText, color: 'text-emerald-400', sourceLabel: 'View on SEC EDGAR' },
-  COURT: { icon: Scale, color: 'text-violet-400', sourceLabel: 'View on CourtListener' },
-  AGENCY: { icon: Shield, color: 'text-amber-400', sourceLabel: 'View Agency Release' },
-  SPREAD_MOVE: { icon: TrendingUp, color: 'text-cyan-400', sourceLabel: 'View Market Data' },
-  NEWS: { icon: Newspaper, color: 'text-sky-400', sourceLabel: 'View Article' },
+  FILING: { icon: FileText, color: 'text-primary-500', sourceLabel: 'View on SEC EDGAR' },
+  COURT: { icon: Scale, color: 'text-text-muted', sourceLabel: 'View on CourtListener' },
+  AGENCY: { icon: Shield, color: 'text-primary-400', sourceLabel: 'View Agency Release' },
+  SPREAD_MOVE: { icon: TrendingUp, color: 'text-primary-300', sourceLabel: 'View Market Data' },
+  NEWS: { icon: Newspaper, color: 'text-primary-400', sourceLabel: 'View Article' },
 };
 
 const SUBTYPE_LABELS: Record<string, string> = {
@@ -149,7 +149,7 @@ export function InboxSidePanel({ eventId, onClose }: InboxSidePanelProps) {
           {event.subtype && (
             <div className="flex items-center gap-2 text-xs text-text-muted">
               <span>Subtype:</span>
-              <span className="inline-flex items-center rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-400 border border-amber-500/20">
+              <span className="inline-flex items-center rounded-full bg-primary-500/10 px-2 py-0.5 text-xs font-medium text-primary-400 border border-primary-500/20">
                 {SUBTYPE_LABELS[event.subtype] ?? event.subtype}
               </span>
             </div>

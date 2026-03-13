@@ -92,7 +92,7 @@ export const OnboardingForm: React.FC = () => {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
       {/* Ambient glow */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute left-1/2 top-1/3 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/5 blur-[100px]" />
+        <div className="absolute left-1/2 top-1/3 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-500/5 blur-[100px]" />
       </div>
 
       <div className="relative w-full max-w-sm">
@@ -123,7 +123,7 @@ export const OnboardingForm: React.FC = () => {
                 value={firmName}
                 onChange={(e) => setFirmName(e.target.value)}
                 placeholder="e.g. Apex Capital Management"
-                className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-text-main placeholder-text-dim outline-none transition-colors focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/20"
+                className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-text-main placeholder-text-dim outline-none transition-colors focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/20"
               />
             </div>
 
@@ -136,7 +136,7 @@ export const OnboardingForm: React.FC = () => {
             <button
               type="submit"
               disabled={firmName.trim().length < 2}
-              className="w-full rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-black shadow-sm transition-all hover:bg-amber-400 disabled:opacity-50"
+              className="w-full rounded-lg bg-primary-500 px-4 py-2.5 text-sm font-semibold text-background shadow-sm transition-all hover:bg-primary-400 disabled:opacity-50"
             >
               Get Started
             </button>

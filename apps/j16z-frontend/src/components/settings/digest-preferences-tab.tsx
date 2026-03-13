@@ -122,7 +122,7 @@ export function DigestPreferencesTab() {
               <span className="text-[var(--text-muted)]">Saving...</span>
             </>
           )}
-          {saveStatus === 'saved' && <span className="text-green-400">Saved</span>}
+          {saveStatus === 'saved' && <span className="text-primary-500">Saved</span>}
         </div>
       </div>
 

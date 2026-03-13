@@ -94,11 +94,11 @@ function computeDiff(leftText: string, rightText: string): { left: DiffLine[]; r
 function diffLineClass(status: DiffLine['status']): string {
   switch (status) {
     case 'added':
-      return 'border-l-2 border-green-500 bg-green-500/10 text-green-400';
+      return 'border-l-2 border-primary-500 bg-primary-500/10 text-primary-400';
     case 'removed':
       return 'border-l-2 border-red-500 bg-red-500/10 text-red-400 line-through opacity-60';
     case 'modified':
-      return 'border-l-2 border-amber-400 bg-amber-500/10 text-amber-300';
+      return 'border-l-2 border-primary-400 bg-primary-500/10 text-primary-300';
     default:
       return 'text-text-muted';
   }
@@ -283,7 +283,7 @@ export function MemoSnapshotPanel({ memoId, currentContent, onRestore, onClose }
         {/* Legend */}
         <div className="flex items-center gap-3 text-xs font-mono text-text-dim">
           <span className="flex items-center gap-1">
-            <span className="inline-block w-2 h-2 rounded-sm bg-green-500" />
+            <span className="inline-block w-2 h-2 rounded-sm bg-primary-500" />
             Added
           </span>
           <span className="flex items-center gap-1">
@@ -291,7 +291,7 @@ export function MemoSnapshotPanel({ memoId, currentContent, onRestore, onClose }
             Removed
           </span>
           <span className="flex items-center gap-1">
-            <span className="inline-block w-2 h-2 rounded-sm bg-amber-400" />
+            <span className="inline-block w-2 h-2 rounded-sm bg-primary-400" />
             Modified
           </span>
         </div>
@@ -300,7 +300,7 @@ export function MemoSnapshotPanel({ memoId, currentContent, onRestore, onClose }
         <button
           type="button"
           onClick={() => setConfirmRestore(selectedSnapshot)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-md font-mono text-xs transition-colors border border-amber-500/20 self-start"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-500/10 hover:bg-primary-500/20 text-primary-400 rounded-md font-mono text-xs transition-colors border border-primary-500/20 self-start"
         >
           <RotateCcw className="h-3 w-3" />
           Restore this snapshot
@@ -340,7 +340,7 @@ export function MemoSnapshotPanel({ memoId, currentContent, onRestore, onClose }
           <button
             type="button"
             onClick={() => setConfirmRestore(selectedSnapshot)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-md font-mono text-xs transition-colors border border-amber-500/20"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-500/10 hover:bg-primary-500/20 text-primary-400 rounded-md font-mono text-xs transition-colors border border-primary-500/20"
           >
             <RotateCcw className="h-3 w-3" />
             Restore
@@ -383,7 +383,7 @@ export function MemoSnapshotPanel({ memoId, currentContent, onRestore, onClose }
             value={saveName}
             onChange={(e) => setSaveName(e.target.value)}
             placeholder="Snapshot name (e.g., Pre-review draft)"
-            className="flex-1 bg-transparent text-xs font-mono text-text-main placeholder:text-text-dim outline-none border-b border-border focus:border-amber-500/50 pb-0.5 transition-colors"
+            className="flex-1 bg-transparent text-xs font-mono text-text-main placeholder:text-text-dim outline-none border-b border-border focus:border-primary-500/50 pb-0.5 transition-colors"
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleSave();
             }}
@@ -392,7 +392,7 @@ export function MemoSnapshotPanel({ memoId, currentContent, onRestore, onClose }
             type="button"
             onClick={handleSave}
             disabled={saving || !saveName.trim()}
-            className="flex items-center gap-1 px-2 py-1 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-black rounded font-mono text-xs font-medium transition-colors"
+            className="flex items-center gap-1 px-2 py-1 bg-primary-500 hover:bg-primary-400 disabled:opacity-50 disabled:cursor-not-allowed text-background rounded font-mono text-xs font-medium transition-colors"
           >
             <Plus className="h-3 w-3" />
             {saving ? 'Saving…' : 'Save'}
@@ -405,7 +405,7 @@ export function MemoSnapshotPanel({ memoId, currentContent, onRestore, onClose }
           </div>
         )}
         {saveSuccess && (
-          <div className="flex items-center gap-1 text-xs font-mono text-green-400">
+          <div className="flex items-center gap-1 text-xs font-mono text-primary-400">
             <CheckCircle className="h-3 w-3" />
             Snapshot saved
           </div>
@@ -425,7 +425,7 @@ export function MemoSnapshotPanel({ memoId, currentContent, onRestore, onClose }
           {snapshots.map((snapshot) => (
             <div
               key={snapshot.id}
-              className="p-2.5 bg-surface rounded-md border border-border group hover:border-amber-500/30 transition-colors"
+              className="p-2.5 bg-surface rounded-md border border-border group hover:border-primary-500/30 transition-colors"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
@@ -449,7 +449,7 @@ export function MemoSnapshotPanel({ memoId, currentContent, onRestore, onClose }
                     onClick={() => handleCompareSnapshot(snapshot)}
                     disabled={loadingSnapshot}
                     title="Compare with current"
-                    className="p-1 text-text-dim hover:text-amber-400 rounded transition-colors"
+                    className="p-1 text-text-dim hover:text-primary-400 rounded transition-colors"
                   >
                     <GitCompare className="h-3 w-3" />
                   </button>
@@ -457,7 +457,7 @@ export function MemoSnapshotPanel({ memoId, currentContent, onRestore, onClose }
                     type="button"
                     onClick={() => setConfirmRestore(snapshot)}
                     title="Restore this snapshot"
-                    className="p-1 text-text-dim hover:text-amber-400 rounded transition-colors"
+                    className="p-1 text-text-dim hover:text-primary-400 rounded transition-colors"
                   >
                     <RotateCcw className="h-3 w-3" />
                   </button>
@@ -470,10 +470,10 @@ export function MemoSnapshotPanel({ memoId, currentContent, onRestore, onClose }
 
       {/* Restore confirm dialog */}
       {confirmRestore && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm">
           <div className="bg-surface border border-border rounded-lg p-5 max-w-sm w-full mx-4 shadow-xl">
             <div className="flex items-center gap-2 mb-3">
-              <AlertTriangle className="h-4 w-4 text-amber-400" />
+              <AlertTriangle className="h-4 w-4 text-primary-400" />
               <span className="text-sm font-mono font-semibold text-text-main">Restore snapshot?</span>
             </div>
             <p className="text-xs font-mono text-text-muted mb-4 leading-relaxed">
@@ -492,7 +492,7 @@ export function MemoSnapshotPanel({ memoId, currentContent, onRestore, onClose }
                 type="button"
                 onClick={handleConfirmRestore}
                 disabled={restoring}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-black rounded-md font-mono text-xs font-medium transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-500 hover:bg-primary-400 disabled:opacity-50 text-background rounded-md font-mono text-xs font-medium transition-colors"
               >
                 <RotateCcw className="h-3 w-3" />
                 {restoring ? 'Restoring…' : 'Restore'}
