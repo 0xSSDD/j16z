@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-03-13T21:12:00Z"
+last_updated: "2026-03-13T21:54:00Z"
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 5
-  total_plans: 15
-  completed_plans: 15
+  total_plans: 16
+  completed_plans: 16
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Analysts spend 3-5 hours/day trolling fragmented sources. j16z turns that into a push-button workflow — live data in, analyst-ready intelligence out.
-**Current focus:** Phase 5 — Alert Delivery + Market Data
+**Current focus:** Phase 6 — Digests + Deal Memo Editor
 
 ## Current Position
 
-Phase: 5 of 7 (Alert Delivery + Market Data) — COMPLETE
-Plan: 3 of 3 (05-03 complete — alert rule CRUD API, alert_evaluate wiring, frontend AlertRulesTab, DataAgeBadge)
-Status: Phase 5 COMPLETE — all 3 plans done; alert worker, market data, and frontend wiring all operational; ready for Phase 6 (Digests + Deal Memo Editor)
-Last activity: 2026-03-13 — Plan 05-03 complete (alert rules CRUD, event-factory wiring, AlertRulesTab, DataAgeBadge)
+Phase: 6 of 7 (Digests + Deal Memo Editor) — IN PROGRESS
+Plan: 1 of 3 (06-01 complete — email digest cron system, react-email templates, Settings > Digests tab)
+Status: Phase 6 Plan 1 COMPLETE — daily/weekly digest system live; ready for Plan 2 (Deal Memo Editor)
+Last activity: 2026-03-13 — Plan 06-01 complete (digest backend, react-email templates, DigestPreferencesTab)
 
-Progress: [████████████████████] 100%
+Progress: [████████████████████] 100% (16/16 plans complete across 5 complete phases + phase 6 started)
 
 ## Performance Metrics
 
@@ -45,10 +45,11 @@ Progress: [████████████████████] 100%
 | 03-llm-extraction-pipeline | 3 | 21 min | 7 min | COMPLETE |
 | 04-courtlistener-ftcdoj-rss | 3 | 14 min | 5 min | COMPLETE |
 | 05-alert-delivery-market-data | 3/3 | 17 min | 6 min | COMPLETE |
+| 06-digests-deal-memo-editor | 1/3 | 8 min | 8 min | IN PROGRESS |
 
 **Recent Trend:**
-- Last 5 plans: 04-01 (4 min), 04-03 (5 min), 05-01 (5 min), 05-02 (4 min), 05-03 (8 min)
-- Trend: consistent ~4-8 min/plan; 05-03 slightly longer due to full-stack scope (API + frontend)
+- Last 5 plans: 04-03 (5 min), 05-01 (5 min), 05-02 (4 min), 05-03 (8 min), 06-01 (8 min)
+- Trend: consistent ~4-8 min/plan; full-stack plans trending 8 min
 
 *Updated after each plan completion*
 
@@ -117,6 +118,10 @@ Recent decisions affecting current work:
 - [05-03]: All event factories use .returning({ id }) to get event ID for alert_evaluate enqueue
 - [05-03]: DataAgeBadge uses Intl.DateTimeFormat for timezone-safe ET market hours (same pattern as backend)
 - [05-03]: getLatestMarketSnapshot maps backend grossSpread to frontend spread field name
+- [06-01]: react-email installed in apps/api (not frontend) — server-side render() for email HTML, not browser rendering
+- [06-01]: Digest cron schedules use tz: 'America/New_York' in BullMQ upsertJobScheduler — explicit timezone, not UTC arithmetic
+- [06-01]: Digest preferences GET returns defaults (all enabled) if no row exists — avoids ghost row creation on first load
+- [06-01]: Weekend suppression uses Intl.DateTimeFormat weekday check in ET — consistent with market-poller.ts timezone pattern
 
 ### Pending Todos
 
@@ -133,5 +138,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-13
-Stopped at: Completed 05-03-PLAN.md — alert rules CRUD, event-factory wiring, AlertRulesTab, DataAgeBadge (Phase 5 COMPLETE)
-Resume file: .planning/phases/06-digests-deal-memo-editor/ (Phase 6: Digests + Deal Memo Editor)
+Stopped at: Completed 06-01-PLAN.md — email digest cron system, react-email templates, digest-preferences API + Settings tab
+Resume file: .planning/phases/06-digests-deal-memo-editor/06-02-PLAN.md (Phase 6 Plan 2: Deal Memo Editor)
