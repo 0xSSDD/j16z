@@ -422,6 +422,25 @@ export const auditLog = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// digest_preferences — per-user email digest schedule preferences
+// ---------------------------------------------------------------------------
+export const digestPreferences = pgTable(
+  'digest_preferences',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    firmId: uuid('firm_id')
+      .references(() => firms.id)
+      .notNull(),
+    userId: uuid('user_id').notNull(), // references auth.users
+    dailyEnabled: boolean('daily_enabled').notNull().default(true),
+    weeklyEnabled: boolean('weekly_enabled').notNull().default(true),
+    suppressWeekend: boolean('suppress_weekend').notNull().default(false),
+    ...timestamps,
+  },
+  () => firmIsolationPolicies(),
+);
+
+// ---------------------------------------------------------------------------
 // notification_log — tracks alert deliveries for dedup and audit
 // ---------------------------------------------------------------------------
 export const notificationLog = pgTable(

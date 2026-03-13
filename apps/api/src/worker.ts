@@ -13,14 +13,15 @@
  */
 import 'dotenv/config';
 import { type Job, Worker } from 'bullmq';
-import { handleAlertEvaluate } from './alerts/alert-worker.js';
 import { handleFtcPoll } from './agency/ftc-poller.js';
-import { handleMarketDataPoll } from './market/market-poller.js';
 import { handleDojAntitrustRss, handleDojCivilRss, handleFtcCompetitionRss } from './agency/rss-pollers.js';
+import { handleAlertEvaluate } from './alerts/alert-worker.js';
 import { handleCourtListenerPoll } from './courtlistener/poller.js';
 import { handleCourtListenerWebhook } from './courtlistener/webhook.js';
+import { handleDigestDaily, handleDigestWeekly } from './digests/digest-handler.js';
 import { handleEdgarDownload } from './edgar/download.js';
 import { handleEdgarPoll } from './edgar/poll.js';
+import { handleMarketDataPoll } from './market/market-poller.js';
 import { redisConnection } from './queues/connection.js';
 import { handleRssPoll } from './rss/poller.js';
 
@@ -47,6 +48,8 @@ const handlers: Record<string, (job: Job) => Promise<void>> = {
   courtlistener_webhook: handleCourtListenerWebhook,
   alert_evaluate: handleAlertEvaluate,
   market_data_poll: handleMarketDataPoll,
+  digest_daily: handleDigestDaily,
+  digest_weekly: handleDigestWeekly,
   // llm_extract: Processed by Python worker (apps/langextract/worker.py) — NOT handled here
 };
 

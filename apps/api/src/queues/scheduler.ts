@@ -14,6 +14,8 @@ export const SCHEDULE_CONFIG = {
   rss_poll: process.env.CRON_RSS_POLL ?? '*/30 * * * *',
   courtlistener_poll: process.env.CRON_COURTLISTENER_POLL ?? '*/30 * * * *',
   market_data_poll: process.env.CRON_MARKET_DATA_POLL ?? '*/5 * * * *',
+  digest_daily: '0 8 * * *', // 8:00 AM ET (tz specified in scheduler config)
+  digest_weekly: '0 17 * * 5', // 5:00 PM ET Friday (tz specified in scheduler config)
 } satisfies Record<string, string>;
 
 /**
@@ -151,6 +153,38 @@ export async function registerSchedules(): Promise<void> {
     );
 
     console.log(`[j16z-api] Registered market_data_poll schedule (${SCHEDULE_CONFIG.market_data_poll})`);
+
+    // Daily digest — 8:00 AM ET
+    await queue.upsertJobScheduler(
+      'digest-daily-schedule',
+      { pattern: SCHEDULE_CONFIG.digest_daily, tz: 'America/New_York' },
+      {
+        name: 'digest_daily',
+        data: { triggeredBy: 'cron' },
+        opts: {
+          attempts: 2,
+          backoff: { type: 'exponential', delay: 60000 },
+        },
+      },
+    );
+
+    console.log(`[j16z-api] Registered digest_daily schedule (${SCHEDULE_CONFIG.digest_daily} ET)`);
+
+    // Weekly digest — 5:00 PM ET Friday
+    await queue.upsertJobScheduler(
+      'digest-weekly-schedule',
+      { pattern: SCHEDULE_CONFIG.digest_weekly, tz: 'America/New_York' },
+      {
+        name: 'digest_weekly',
+        data: { triggeredBy: 'cron' },
+        opts: {
+          attempts: 2,
+          backoff: { type: 'exponential', delay: 60000 },
+        },
+      },
+    );
+
+    console.log(`[j16z-api] Registered digest_weekly schedule (${SCHEDULE_CONFIG.digest_weekly} ET)`);
   } finally {
     await queue.close();
   }
