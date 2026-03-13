@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 
 ## Current Position
 
-Phase: 3 of 7 (LLM Extraction Pipeline)
-Plan: 3 of 3 (03-03 complete — Phase 3 DONE)
-Status: Phase 3 complete — ready for Phase 4 (CourtListener Integration)
-Last activity: 2026-03-01 — Plan 03-03 complete (Python materiality scoring, frontend clause display, regression harness)
+Phase: 4 of 7 (CourtListener, FTC/DOJ, RSS Ingestion)
+Plan: 1 of 3 (04-01 complete — CourtListener integration)
+Status: Phase 4 in progress — 04-01 done, 04-02 (FTC/DOJ canary) next
+Last activity: 2026-03-13 — Plan 04-01 complete (CourtListener v4 webhook + polling integration)
 
-Progress: [████████░░] 53%
+Progress: [█████████░] 57%
 
 ## Performance Metrics
 
@@ -43,10 +43,11 @@ Progress: [████████░░] 53%
 | 01-backend-foundation-auth | 3 | 24 min | 8 min | COMPLETE |
 | 02-sec-edgar-ingestion | 3 | 52 min | 17 min | COMPLETE |
 | 03-llm-extraction-pipeline | 3 | 21 min | 7 min | COMPLETE |
+| 04-courtlistener-ftcdoj-rss | 1+ | 4 min | 4 min | IN PROGRESS |
 
 **Recent Trend:**
-- Last 5 plans: 02-02 (18 min), 02-03 (30 min), 03-01 (7 min), 03-02 (8 min), 03-03 (6 min)
-- Trend: consistent ~7 min/plan for Phase 3
+- Last 5 plans: 03-01 (7 min), 03-02 (8 min), 03-03 (6 min), 04-01 (4 min)
+- Trend: consistent ~5-7 min/plan for complex backend integrations
 
 *Updated after each plan completion*
 
@@ -92,6 +93,10 @@ Recent decisions affecting current work:
 - [03-02]: google.generativeai package is deprecated (FutureWarning); google.genai is the replacement — flagged for future migration, not blocking since pyproject.toml pins google-generativeai>=0.8.0
 - [Phase 03-03]: Severity threshold for CRITICAL is >= 70 (not strictly > 70) — matches CLAUDE.md materiality scoring spec and TypeScript severity-scoring.ts behavior
 - [Phase 03-03]: ClauseCard falls back to legacy value field for mock data compatibility; verbatim quote collapsed by default per locked decision
+- [04-01]: Webhook route registered on root Hono app before api.basePath('/api') — CourtListener auto-disables webhooks that return 401 after 7 retries
+- [04-01]: v4 endpoints exclusively: /api/rest/v4/search/, /api/rest/v4/docket-alerts/, /api/rest/v4/docket-entries/ — v3 deprecated
+- [04-01]: CASE_DISCOVERED events store courtlistenerDocketId in metadata for webhook→deal lookup (no separate subscription table)
+- [04-01]: updateIngestionStatus reused from agency/event-factory.ts — not duplicated in courtlistener/
 
 ### Pending Todos
 
@@ -107,6 +112,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-01
-Stopped at: Completed 03-03-PLAN.md — Phase 3 complete (Python materiality scoring, frontend clause display, regression harness)
-Resume file: .planning/phases/04-court-listener-integration/ (Phase 4 next)
+Last session: 2026-03-13
+Stopped at: Completed 04-01-PLAN.md — CourtListener v4 webhook push + polling integration
+Resume file: .planning/phases/04-courtlistener-ftcdoj-rss-ingestion/04-02-PLAN.md (FTC/DOJ canary + integrations health)

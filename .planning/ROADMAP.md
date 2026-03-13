@@ -86,7 +86,7 @@ Plans:
 **Plans**: 3 plans in 2 waves
 
 Plans:
-- [ ] 04-01-PLAN.md — CourtListener types, poller, webhook handler, event factory; webhook Hono endpoint (pre-auth); scheduler + worker wiring (Wave 1)
+- [x] 04-01-PLAN.md — CourtListener types, poller, webhook handler, event factory; webhook Hono endpoint (pre-auth); scheduler + worker wiring (Wave 1) — COMPLETE 2026-03-13
 - [ ] 04-02-PLAN.md — Canary monitor for FTC/DOJ RSS feeds; PACER credential health check; integrations health endpoint source display name mapping (Wave 1)
 - [ ] 04-03-PLAN.md — Frontend IntegrationsTab wiring with displayName + PACER warning; RSS keyword-based materiality scoring; CourtListener unit tests (Wave 2)
 
@@ -149,7 +149,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 1. Backend Foundation + Auth | 3/3 | Complete   | 2026-02-25 |
 | 2. SEC EDGAR Ingestion | 3/3 | Complete   | 2026-03-01 |
 | 3. LLM Extraction Pipeline | 3/3 | Complete   | 2026-03-01 |
-| 4. CourtListener, FTC/DOJ, RSS | 0/3 | Not started | - |
+| 4. CourtListener, FTC/DOJ, RSS | 1/3 | In progress | - |
 | 5. Alert Delivery + Market Data | 0/3 | Not started | - |
 | 6. Digests + Deal Memo Editor | 0/2 | Not started | - |
 | 7. Frontend Refinement + Exports | 0/3 | Not started | - |
