@@ -90,16 +90,16 @@ Each layer builds on the one below. Layer 2 cannot work without Layer 1's data. 
 
 ### The gap
 
-| Capability | Available today? | Best current option |
-|---|---|---|
-| Real-time spread tracking | Yes | Bloomberg MARB, InsideArbitrage |
-| M&A document intelligence | Yes | Hebbia, AlphaSense |
-| Regulatory journalism/intel | Yes | CTFN/Capitol Forum, Dealreporter |
-| Litigation docket monitoring | Yes | Docket Alarm, CourtListener |
-| **Algorithmic regulatory outcome prediction** | **No** | Does not exist |
-| **Integrated merger-arb platform (spread + regulatory + litigation + prediction)** | **No** | Does not exist |
-| **Cross-stream intelligence correlation for deals** | **No** | World Monitor does this for geopolitics, not M&A |
-| **Multi-agent simulation for deal outcomes** | **No (experimental)** | MiroFish is research-grade only |
+| Capability                                                                         | Available today?      | Best current option                              |
+| ------------------------------------------------------------------------------------| -----------------------| --------------------------------------------------|
+| Real-time spread tracking                                                          | Yes                   | Bloomberg MARB, InsideArbitrage                  |
+| M&A document intelligence                                                          | Yes                   | Hebbia, AlphaSense                               |
+| Regulatory journalism/intel                                                        | Yes                   | CTFN/Capitol Forum, Dealreporter                 |
+| Litigation docket monitoring                                                       | Yes                   | Docket Alarm, CourtListener                      |
+| **Algorithmic regulatory outcome prediction**                                      | **No**                | Does not exist                                   |
+| **Integrated merger-arb platform (spread + regulatory + litigation + prediction)** | **No**                | Does not exist                                   |
+| **Cross-stream intelligence correlation for deals**                                | **No**                | World Monitor does this for geopolitics, not M&A |
+| **Multi-agent simulation for deal outcomes**                                       | **No (experimental)** | MiroFish is research-grade only                  |
 
 **The market gap is clear: every tool covers one slice. No one has built the unified, predictive system.** This is what j16z becomes with Layers 2 and 3.
 

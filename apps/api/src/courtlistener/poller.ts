@@ -3,8 +3,13 @@ import { and, eq, isNotNull, isNull, sql } from 'drizzle-orm';
 import { updateIngestionStatus } from '../agency/event-factory.js';
 import { adminDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
-import { COURTLISTENER_API_BASE, type DocketSearchResult, docketEntrySchema, docketSearchResponseSchema } from './types.js';
 import { createCourtEvent, getCourtMaterialityScore, getCourtSeverity } from './event-factory.js';
+import {
+  COURTLISTENER_API_BASE,
+  type DocketSearchResult,
+  docketEntrySchema,
+  docketSearchResponseSchema,
+} from './types.js';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -27,7 +32,7 @@ function courtListenerHeaders(): Record<string, string> {
     Accept: 'application/json',
   };
   if (token) {
-    headers['Authorization'] = `Token ${token}`;
+    headers.Authorization = `Token ${token}`;
   }
   return headers;
 }
@@ -53,12 +58,7 @@ async function hasDocketEntryEvent(sourceGuid: string): Promise<boolean> {
   const existing = await adminDb
     .select({ id: schema.events.id })
     .from(schema.events)
-    .where(
-      and(
-        eq(schema.events.type, 'COURT'),
-        sql`${schema.events.metadata} ->> 'sourceGuid' = ${sourceGuid}`,
-      ),
-    )
+    .where(and(eq(schema.events.type, 'COURT'), sql`${schema.events.metadata} ->> 'sourceGuid' = ${sourceGuid}`))
     .limit(1);
   return existing.length > 0;
 }
@@ -139,7 +139,10 @@ export async function handleCourtListenerPoll(job: Job): Promise<void> {
         }
         searchData = parsed.data;
       } catch (fetchErr) {
-        console.warn(`[courtlistener_poll] Fetch error for deal ${deal.id}:`, fetchErr instanceof Error ? fetchErr.message : String(fetchErr));
+        console.warn(
+          `[courtlistener_poll] Fetch error for deal ${deal.id}:`,
+          fetchErr instanceof Error ? fetchErr.message : String(fetchErr),
+        );
         continue;
       }
 
@@ -160,13 +163,18 @@ export async function handleCourtListenerPoll(job: Job): Promise<void> {
             });
 
             if (subRes.ok) {
-              const subBody = await subRes.json() as { id?: number };
+              const subBody = (await subRes.json()) as { id?: number };
               alertId = typeof subBody.id === 'number' ? subBody.id : undefined;
             } else {
-              console.warn(`[courtlistener_poll] Docket-alert subscription failed for docket ${docket.docket_id}: HTTP ${subRes.status}`);
+              console.warn(
+                `[courtlistener_poll] Docket-alert subscription failed for docket ${docket.docket_id}: HTTP ${subRes.status}`,
+              );
             }
           } catch (subErr) {
-            console.warn(`[courtlistener_poll] Subscription error for docket ${docket.docket_id}:`, subErr instanceof Error ? subErr.message : String(subErr));
+            console.warn(
+              `[courtlistener_poll] Subscription error for docket ${docket.docket_id}:`,
+              subErr instanceof Error ? subErr.message : String(subErr),
+            );
           }
 
           // Create CASE_DISCOVERED event regardless of whether subscription succeeded
@@ -192,7 +200,12 @@ export async function handleCourtListenerPoll(job: Job): Promise<void> {
           createdCount++;
         } else {
           // Already subscribed — fetch recent docket entries and create events for new ones
-          let entriesData: Array<{ id: number; description: string | null; entry_number: number | null; date_filed: string | null }>;
+          let entriesData: Array<{
+            id: number;
+            description: string | null;
+            entry_number: number | null;
+            date_filed: string | null;
+          }>;
 
           try {
             const entriesRes = await fetch(
@@ -201,7 +214,9 @@ export async function handleCourtListenerPoll(job: Job): Promise<void> {
             );
 
             if (!entriesRes.ok) {
-              console.warn(`[courtlistener_poll] Entries fetch failed for docket ${docket.docket_id}: HTTP ${entriesRes.status}`);
+              console.warn(
+                `[courtlistener_poll] Entries fetch failed for docket ${docket.docket_id}: HTTP ${entriesRes.status}`,
+              );
               continue;
             }
 
@@ -214,7 +229,10 @@ export async function handleCourtListenerPoll(job: Job): Promise<void> {
               })
               .filter((e): e is NonNullable<typeof e> => e !== null);
           } catch (fetchErr) {
-            console.warn(`[courtlistener_poll] Entries fetch error for docket ${docket.docket_id}:`, fetchErr instanceof Error ? fetchErr.message : String(fetchErr));
+            console.warn(
+              `[courtlistener_poll] Entries fetch error for docket ${docket.docket_id}:`,
+              fetchErr instanceof Error ? fetchErr.message : String(fetchErr),
+            );
             continue;
           }
 

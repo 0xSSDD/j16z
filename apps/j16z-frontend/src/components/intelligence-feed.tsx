@@ -1,63 +1,51 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { MOCK_ITEMS } from "@/lib/constants";
-import { IntelligenceItem, ItemType, Priority } from "@/lib/types";
-import { DetailView } from "@/components/intelligence-item-detail";
+import type React from 'react';
+import { useState } from 'react';
+import { DetailView } from '@/components/intelligence-item-detail';
+import { MOCK_ITEMS } from '@/lib/constants';
+import { type IntelligenceItem, ItemType, Priority } from '@/lib/types';
 
 const PriorityBadge = ({ priority }: { priority: Priority }) => {
   const styles: Record<Priority, string> = {
-    [Priority.CRITICAL]: "text-rose-500 bg-rose-950/30 border-rose-900",
-    [Priority.HIGH]: "text-primary-500 bg-primary-950/30 border-primary-900",
-    [Priority.MEDIUM]: "text-text-muted bg-surface border-border",
-    [Priority.LOW]: "text-text-dim bg-background border-border",
+    [Priority.CRITICAL]: 'text-rose-500 bg-rose-950/30 border-rose-900',
+    [Priority.HIGH]: 'text-primary-500 bg-primary-950/30 border-primary-900',
+    [Priority.MEDIUM]: 'text-text-muted bg-surface border-border',
+    [Priority.LOW]: 'text-text-dim bg-background border-border',
   };
 
   return (
-    <span
-      className={`border px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${styles[priority]}`}
-    >
+    <span className={`border px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${styles[priority]}`}>
       {priority}
     </span>
   );
 };
 
 export const IntelligenceFeed: React.FC = () => {
-  const [selectedItem, setSelectedItem] = useState<IntelligenceItem | null>(
-    null,
-  );
-  const [filter, setFilter] = useState<string>("ALL");
+  const [selectedItem, setSelectedItem] = useState<IntelligenceItem | null>(null);
+  const [filter, setFilter] = useState<string>('ALL');
 
-  const filteredItems =
-    filter === "ALL"
-      ? MOCK_ITEMS
-      : MOCK_ITEMS.filter((item) => item.type === filter);
+  const filteredItems = filter === 'ALL' ? MOCK_ITEMS : MOCK_ITEMS.filter((item) => item.type === filter);
 
   return (
     <div className="flex h-full flex-col font-mono">
       <div className="mb-6 flex items-center justify-between border-b border-border pb-4">
         <div>
-          <h1 className="font-narrative text-xl font-bold uppercase text-text-main">
-            Raw Intelligence Feed
-          </h1>
-          <p className="mt-1 text-xs uppercase tracking-widest text-text-dim">
-            Unfiltered Signal Stream
-          </p>
+          <h1 className="font-narrative text-xl font-bold uppercase text-text-main">Raw Intelligence Feed</h1>
+          <p className="mt-1 text-xs uppercase tracking-widest text-text-dim">Unfiltered Signal Stream</p>
         </div>
 
         <div className="flex gap-2">
           <div className="flex border border-border bg-background">
-            {["ALL", ItemType.LITIGATION, ItemType.SEC_FILING, ItemType.NEWS].map(
-              (f) => (
-                <button
-                  key={f}
-                  onClick={() => setFilter(String(f))}
-                  className={`border-r border-border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider last:border-r-0 transition-colors ${filter === f ? "bg-surfaceHighlight text-text-main" : "text-text-muted hover:bg-surface hover:text-text-main"}`}
-                >
-                  {f === "ALL" ? "ALL" : String(f).replace(/_/g, " ")}
-                </button>
-              ),
-            )}
+            {['ALL', ItemType.LITIGATION, ItemType.SEC_FILING, ItemType.NEWS].map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(String(f))}
+                className={`border-r border-border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider last:border-r-0 transition-colors ${filter === f ? 'bg-surfaceHighlight text-text-main' : 'text-text-muted hover:bg-surface hover:text-text-main'}`}
+              >
+                {f === 'ALL' ? 'ALL' : String(f).replace(/_/g, ' ')}
+              </button>
+            ))}
           </div>
           <button className="border border-border bg-background px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-text-muted transition-colors hover:border-primary-500/50 hover:text-text-main">
             Filter Params
@@ -86,7 +74,7 @@ export const IntelligenceFeed: React.FC = () => {
                 <PriorityBadge priority={item.priority} />
               </div>
               <div className="col-span-1 text-text-muted group-hover:text-text-main">
-                {item.type.replace(/_/g, " ")}
+                {item.type.replace(/_/g, ' ')}
               </div>
               <div className="col-span-5">
                 <div className="flex flex-col">
@@ -105,15 +93,11 @@ export const IntelligenceFeed: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="col-span-2 text-[10px] font-mono uppercase text-text-muted">
-                {item.source}
-              </div>
+              <div className="col-span-2 text-[10px] font-mono uppercase text-text-muted">{item.source}</div>
               <div className="col-span-2">
                 <div className="flex flex-wrap gap-1">
                   {item.tags.slice(0, 2).map((tag) => (
-                    <span
-                      key={tag}
-                      className="border border-border px-1 py-0.5 text-[9px] uppercase text-text-dim">
+                    <span key={tag} className="border border-border px-1 py-0.5 text-[9px] uppercase text-text-dim">
                       {tag}
                     </span>
                   ))}
@@ -121,8 +105,8 @@ export const IntelligenceFeed: React.FC = () => {
               </div>
               <div className="col-span-1 text-right text-[10px] font-mono text-text-dim">
                 {new Date(item.timestamp).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
+                  hour: '2-digit',
+                  minute: '2-digit',
                   hour12: false,
                 })}
               </div>
@@ -139,9 +123,7 @@ export const IntelligenceFeed: React.FC = () => {
         </div>
       </div>
 
-      {selectedItem && (
-        <DetailView item={selectedItem} onClose={() => setSelectedItem(null)} />
-      )}
+      {selectedItem && <DetailView item={selectedItem} onClose={() => setSelectedItem(null)} />}
     </div>
   );
 };

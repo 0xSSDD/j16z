@@ -1,5 +1,5 @@
-import { zValidator } from '@hono/zod-validator';
 import crypto from 'node:crypto';
+import { zValidator } from '@hono/zod-validator';
 import { and, eq, isNull } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
@@ -22,7 +22,10 @@ const createAlertRuleSchema = z.object({
 const patchAlertRuleSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   threshold: z.number().int().min(0).max(100).optional(),
-  channels: z.array(z.enum(['email', 'slack', 'webhook'])).min(1).optional(),
+  channels: z
+    .array(z.enum(['email', 'slack', 'webhook']))
+    .min(1)
+    .optional(),
   dealId: z.string().uuid().nullable().optional(),
   webhookUrl: z.string().url().nullable().optional(),
   isActive: z.boolean().optional(),
@@ -83,7 +86,9 @@ export const alertRulesRoutes = new Hono<AuthEnv>()
         updatedAt: schema.alertRules.updatedAt,
       })
       .from(schema.alertRules)
-      .where(and(eq(schema.alertRules.id, id), eq(schema.alertRules.firmId, firmId), isNull(schema.alertRules.deletedAt)));
+      .where(
+        and(eq(schema.alertRules.id, id), eq(schema.alertRules.firmId, firmId), isNull(schema.alertRules.deletedAt)),
+      );
 
     if (!row) {
       return c.json({ error: 'Alert rule not found' }, 404);
@@ -148,7 +153,9 @@ export const alertRulesRoutes = new Hono<AuthEnv>()
     const [existing] = await adminDb
       .select({ id: schema.alertRules.id })
       .from(schema.alertRules)
-      .where(and(eq(schema.alertRules.id, id), eq(schema.alertRules.firmId, firmId), isNull(schema.alertRules.deletedAt)));
+      .where(
+        and(eq(schema.alertRules.id, id), eq(schema.alertRules.firmId, firmId), isNull(schema.alertRules.deletedAt)),
+      );
 
     if (!existing) {
       return c.json({ error: 'Alert rule not found' }, 404);
@@ -191,7 +198,9 @@ export const alertRulesRoutes = new Hono<AuthEnv>()
     const [existing] = await adminDb
       .select({ id: schema.alertRules.id })
       .from(schema.alertRules)
-      .where(and(eq(schema.alertRules.id, id), eq(schema.alertRules.firmId, firmId), isNull(schema.alertRules.deletedAt)));
+      .where(
+        and(eq(schema.alertRules.id, id), eq(schema.alertRules.firmId, firmId), isNull(schema.alertRules.deletedAt)),
+      );
 
     if (!existing) {
       return c.json({ error: 'Alert rule not found' }, 404);
@@ -213,7 +222,9 @@ export const alertRulesRoutes = new Hono<AuthEnv>()
     const [rule] = await adminDb
       .select()
       .from(schema.alertRules)
-      .where(and(eq(schema.alertRules.id, id), eq(schema.alertRules.firmId, firmId), isNull(schema.alertRules.deletedAt)));
+      .where(
+        and(eq(schema.alertRules.id, id), eq(schema.alertRules.firmId, firmId), isNull(schema.alertRules.deletedAt)),
+      );
 
     if (!rule) {
       return c.json({ error: 'Alert rule not found' }, 404);

@@ -21,10 +21,7 @@ export const firmContextMiddleware = createMiddleware<AuthEnv>(async (c, next) =
   const userId = payload.sub;
 
   if (!firmId) {
-    return c.json(
-      { error: 'No firm associated with this account. Complete onboarding first.' },
-      403,
-    );
+    return c.json({ error: 'No firm associated with this account. Complete onboarding first.' }, 403);
   }
 
   c.set('firmId', firmId);

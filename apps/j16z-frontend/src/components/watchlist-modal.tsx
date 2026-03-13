@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useRouter } from "next/navigation";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 
 interface Watchlist {
   id: string;
@@ -22,12 +22,12 @@ interface WatchlistModalProps {
 export function WatchlistModal({ isOpen, onClose, onSave }: WatchlistModalProps) {
   const router = useRouter();
   const [watchlists, setWatchlists] = React.useState<Watchlist[]>(() => {
-    if (typeof window === "undefined") return [];
-    const stored = localStorage.getItem("watchlists");
+    if (typeof window === 'undefined') return [];
+    const stored = localStorage.getItem('watchlists');
     return stored ? JSON.parse(stored) : [];
   });
-  const [newName, setNewName] = React.useState("");
-  const [newDescription, setNewDescription] = React.useState("");
+  const [newName, setNewName] = React.useState('');
+  const [newDescription, setNewDescription] = React.useState('');
 
   const handleAddWatchlist = () => {
     if (!newName.trim()) return;
@@ -42,16 +42,16 @@ export function WatchlistModal({ isOpen, onClose, onSave }: WatchlistModalProps)
 
     const updated = [...watchlists, newWatchlist];
     setWatchlists(updated);
-    localStorage.setItem("watchlists", JSON.stringify(updated));
+    localStorage.setItem('watchlists', JSON.stringify(updated));
     onSave(updated);
-    setNewName("");
-    setNewDescription("");
+    setNewName('');
+    setNewDescription('');
   };
 
   const handleDeleteWatchlist = (id: string) => {
     const updated = watchlists.filter((w) => w.id !== id);
     setWatchlists(updated);
-    localStorage.setItem("watchlists", JSON.stringify(updated));
+    localStorage.setItem('watchlists', JSON.stringify(updated));
     onSave(updated);
   };
 
@@ -100,13 +100,9 @@ export function WatchlistModal({ isOpen, onClose, onSave }: WatchlistModalProps)
                     className="flex items-start justify-between p-3 bg-secondary border border-border rounded-md"
                   >
                     <div className="flex-1">
-                      <div className="font-mono text-sm font-medium text-foreground">
-                        {watchlist.name}
-                      </div>
+                      <div className="font-mono text-sm font-medium text-foreground">{watchlist.name}</div>
                       {watchlist.description && (
-                        <div className="text-xs text-muted-foreground font-mono mt-1">
-                          {watchlist.description}
-                        </div>
+                        <div className="text-xs text-muted-foreground font-mono mt-1">{watchlist.description}</div>
                       )}
                       <div className="text-xs text-muted-foreground font-mono mt-1">
                         {watchlist.dealIds?.length || 0} deals

@@ -3,8 +3,8 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { adminDb } from '../db/index.js';
-import type { AuthEnv } from '../middleware/auth.js';
 import * as schema from '../db/schema.js';
+import type { AuthEnv } from '../middleware/auth.js';
 
 const createWatchlistSchema = z.object({
   name: z.string().min(1),
@@ -31,7 +31,9 @@ export const watchlistsRoutes = new Hono<AuthEnv>()
     const [watchlist] = await adminDb
       .select()
       .from(schema.watchlists)
-      .where(and(eq(schema.watchlists.id, id), eq(schema.watchlists.firmId, firmId), isNull(schema.watchlists.deletedAt)))
+      .where(
+        and(eq(schema.watchlists.id, id), eq(schema.watchlists.firmId, firmId), isNull(schema.watchlists.deletedAt)),
+      )
       .limit(1);
 
     if (!watchlist) {

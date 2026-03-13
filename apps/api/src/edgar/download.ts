@@ -1,9 +1,9 @@
-import { eq, and, isNull } from 'drizzle-orm';
 import type { Job } from 'bullmq';
+import { and, eq, isNull } from 'drizzle-orm';
 import { adminDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
-import { edgarFetch, buildFilingUrl, buildIndexUrl } from './client.js';
 import { ingestionQueue } from '../queues/ingestion.js';
+import { buildFilingUrl, buildIndexUrl, edgarFetch } from './client.js';
 
 // ---------------------------------------------------------------------------
 // Stage 2 download handler — fetches filing HTML and converts to plain text.
@@ -100,7 +100,9 @@ export async function handleEdgarDownload(job: Job): Promise<void> {
     firmIds,
   });
 
-  console.log(`[edgar_download] Enqueued llm_extract for filing ${accessionNumber} (${filingRow?.filingType ?? 'unknown type'})`);
+  console.log(
+    `[edgar_download] Enqueued llm_extract for filing ${accessionNumber} (${filingRow?.filingType ?? 'unknown type'})`,
+  );
 }
 
 /**

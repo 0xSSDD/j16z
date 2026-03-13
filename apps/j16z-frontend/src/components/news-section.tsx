@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { MOCK_NEWS } from "@/lib/constants";
+import * as React from 'react';
+import { MOCK_NEWS } from '@/lib/constants';
 
 interface NewsSectionProps {
   dealId: string;
@@ -10,7 +10,7 @@ interface NewsSectionProps {
 export function NewsSection({ dealId }: NewsSectionProps) {
   const news = MOCK_NEWS.filter((n) => n.dealId === dealId);
   const [notes, setNotes] = React.useState<{ [key: string]: string }>(() => {
-    if (typeof window === "undefined") return {};
+    if (typeof window === 'undefined') return {};
     const stored = localStorage.getItem(`news-notes-${dealId}`);
     return stored ? JSON.parse(stored) : {};
   });
@@ -35,8 +35,8 @@ export function NewsSection({ dealId }: NewsSectionProps) {
     }, 2000);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>, newsId: string) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>, _newsId: string) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
 
       // Clear any pending auto-save
@@ -62,18 +62,12 @@ export function NewsSection({ dealId }: NewsSectionProps) {
             <div className="flex items-start justify-between gap-4 mb-2">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs text-text-muted font-mono">
-                    {new Date(item.timestamp).toLocaleString()}
-                  </span>
+                  <span className="text-xs text-text-muted font-mono">{new Date(item.timestamp).toLocaleString()}</span>
                   <span className="text-xs text-text-dim font-mono">•</span>
                   <span className="text-xs text-text-muted font-mono">{item.source}</span>
                 </div>
-                <h4 className="text-sm font-mono font-medium text-text-main mb-2">
-                  {item.title}
-                </h4>
-                <p className="text-sm text-text-muted font-mono leading-relaxed mb-3">
-                  {item.summary}
-                </p>
+                <h4 className="text-sm font-mono font-medium text-text-main mb-2">{item.title}</h4>
+                <p className="text-sm text-text-muted font-mono leading-relaxed mb-3">{item.summary}</p>
               </div>
               {item.url && (
                 <a
@@ -91,7 +85,7 @@ export function NewsSection({ dealId }: NewsSectionProps) {
                 Your Notes <span className="text-text-dim">(Enter to save, Shift+Enter for new line)</span>
               </label>
               <textarea
-                value={notes[item.id] || ""}
+                value={notes[item.id] || ''}
                 onChange={(e) => handleNoteChange(item.id, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(e, item.id)}
                 placeholder="Add your analysis notes..."

@@ -1,13 +1,13 @@
-import { eq, isNull, isNotNull, or, and } from 'drizzle-orm';
 import type { Job } from 'bullmq';
+import { and, eq, isNotNull, isNull, or } from 'drizzle-orm';
 import { adminDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
-import { edgarFetch, buildFilingUrl, buildIndexUrl } from './client.js';
-import { TRACKED_FORM_TYPES, HIGH_SIGNAL_TYPES, submissionsResponseSchema, eftsResponseSchema } from './types.js';
-import type { FilingMetadata } from './types.js';
+import { ingestionQueue } from '../queues/ingestion.js';
+import { buildFilingUrl, buildIndexUrl, edgarFetch } from './client.js';
 import { matchFilingToDeal } from './deal-matcher.js';
 import { createFilingEvents } from './event-factory.js';
-import { ingestionQueue } from '../queues/ingestion.js';
+import type { FilingMetadata } from './types.js';
+import { eftsResponseSchema, HIGH_SIGNAL_TYPES, submissionsResponseSchema, TRACKED_FORM_TYPES } from './types.js';
 
 // ---------------------------------------------------------------------------
 // Stage 1 poll handler — runs every 15 minutes via BullMQ cron.
@@ -87,10 +87,7 @@ async function pollTrackedCiks(since: Date): Promise<FilingMetadata[]> {
     })
     .from(schema.deals)
     .where(
-      and(
-        isNull(schema.deals.deletedAt),
-        or(isNotNull(schema.deals.acquirerCik), isNotNull(schema.deals.targetCik)),
-      ),
+      and(isNull(schema.deals.deletedAt), or(isNotNull(schema.deals.acquirerCik), isNotNull(schema.deals.targetCik))),
     );
 
   // Collect unique CIKs (filter out nulls)
@@ -165,10 +162,10 @@ async function broadScanForNewDeals(since: Date): Promise<FilingMetadata[]> {
 
   // Search for high-signal M&A filing types — EFTS requires both startdt and enddt (Pitfall 6)
   const url =
-    `https://efts.sec.gov/LATEST/search-index?` +
-    `q=%22merger+agreement%22&forms=S-4,S-4%2FA,DEFM14A,PREM14A` +
+    'https://efts.sec.gov/LATEST/search-index?' +
+    'q=%22merger+agreement%22&forms=S-4,S-4%2FA,DEFM14A,PREM14A' +
     `&dateRange=custom&startdt=${startdt}&enddt=${enddt}` +
-    `&hits.hits._source=period_of_report,entity_name,file_num,form_type,file_date,accession_no`;
+    '&hits.hits._source=period_of_report,entity_name,file_num,form_type,file_date,accession_no';
 
   console.log(`[edgar_poll] EFTS broad scan URL: ${url}`);
 

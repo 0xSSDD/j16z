@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
-import { MarketSnapshot } from "@/lib/types";
-import { FileText, Scale, Building2 } from "lucide-react";
+import { Building2, FileText, Scale } from 'lucide-react';
+import * as React from 'react';
+import { Area, AreaChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import type { MarketSnapshot } from '@/lib/types';
 
 interface SpreadChartProps {
   data: MarketSnapshot[];
@@ -11,16 +11,16 @@ interface SpreadChartProps {
 }
 
 export function SpreadChart({ data, events = [] }: SpreadChartProps) {
-  const [timeRange, setTimeRange] = React.useState<string>("3M");
+  const [timeRange, setTimeRange] = React.useState<string>('3M');
 
   const filteredData = React.useMemo(() => {
     const now = new Date();
     const ranges: { [key: string]: number } = {
-      "1M": 30,
-      "3M": 90,
-      "6M": 180,
-      "1Y": 365,
-      "ALL": 999999,
+      '1M': 30,
+      '3M': 90,
+      '6M': 180,
+      '1Y': 365,
+      ALL: 999999,
     };
     const daysToShow = ranges[timeRange] || 90;
     const cutoffDate = new Date(now.getTime() - daysToShow * 24 * 60 * 60 * 1000);
@@ -31,9 +31,9 @@ export function SpreadChart({ data, events = [] }: SpreadChartProps) {
   }, [data, timeRange]);
 
   const chartData = filteredData.map((snapshot) => ({
-    date: new Date(snapshot.timestamp).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
+    date: new Date(snapshot.timestamp).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
     }),
     spread: snapshot.spread,
     timestamp: snapshot.timestamp,
@@ -58,7 +58,9 @@ export function SpreadChart({ data, events = [] }: SpreadChartProps) {
       .filter((e) => {
         const eventDate = new Date(e.timestamp);
         const firstDate = filteredData[0] ? new Date(filteredData[0].timestamp) : new Date();
-        const lastDate = filteredData[filteredData.length - 1] ? new Date(filteredData[filteredData.length - 1].timestamp) : new Date();
+        const lastDate = filteredData[filteredData.length - 1]
+          ? new Date(filteredData[filteredData.length - 1].timestamp)
+          : new Date();
         return eventDate >= firstDate && eventDate <= lastDate;
       })
       .slice(0, 5);
@@ -68,14 +70,14 @@ export function SpreadChart({ data, events = [] }: SpreadChartProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex gap-2">
-          {["1M", "3M", "6M", "1Y", "ALL"].map((range) => (
+          {['1M', '3M', '6M', '1Y', 'ALL'].map((range) => (
             <button
               key={range}
               onClick={() => setTimeRange(range)}
               className={`px-3 py-1 rounded-md font-mono text-xs transition-colors ${
                 timeRange === range
-                  ? "bg-amber-500 text-zinc-950 dark:text-zinc-950"
-                  : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+                  ? 'bg-amber-500 text-zinc-950 dark:text-zinc-950'
+                  : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
               }`}
             >
               {range}
@@ -91,8 +93,9 @@ export function SpreadChart({ data, events = [] }: SpreadChartProps) {
         </div>
         <div>
           <div className="text-xs text-muted-foreground font-mono">24h Change</div>
-          <div className={`text-lg font-mono font-bold ${stats.change24h >= 0 ? "text-green-500" : "text-red-500"}`}>
-            {stats.change24h >= 0 ? "+" : ""}{stats.change24h.toFixed(1)}%
+          <div className={`text-lg font-mono font-bold ${stats.change24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+            {stats.change24h >= 0 ? '+' : ''}
+            {stats.change24h.toFixed(1)}%
           </div>
         </div>
         <div>
@@ -113,11 +116,11 @@ export function SpreadChart({ data, events = [] }: SpreadChartProps) {
         <div className="flex gap-2 flex-wrap">
           <span className="text-xs text-muted-foreground font-mono">Event Markers:</span>
           {eventMarkers.map((event, idx) => {
-            const Icon = event.type === "COURT" ? Scale : event.type === "AGENCY" ? Building2 : FileText;
+            const Icon = event.type === 'COURT' ? Scale : event.type === 'AGENCY' ? Building2 : FileText;
             return (
               <span key={idx} className="text-xs font-mono text-amber-500 flex items-center gap-1">
                 <Icon className="h-3 w-3" />
-                {new Date(event.timestamp).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                {new Date(event.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
               </span>
             );
           })}
@@ -135,50 +138,45 @@ export function SpreadChart({ data, events = [] }: SpreadChartProps) {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-              <XAxis
-                dataKey="date"
-                stroke="#71717a"
-                style={{ fontSize: "11px", fontFamily: "monospace" }}
-              />
+              <XAxis dataKey="date" stroke="#71717a" style={{ fontSize: '11px', fontFamily: 'monospace' }} />
               <YAxis
                 stroke="#71717a"
-                style={{ fontSize: "11px", fontFamily: "monospace" }}
+                style={{ fontSize: '11px', fontFamily: 'monospace' }}
                 tickFormatter={(value) => `${value}%`}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#18181b",
-                  border: "1px solid #3f3f46",
-                  borderRadius: "6px",
-                  fontFamily: "monospace",
-                  fontSize: "12px",
+                  backgroundColor: '#18181b',
+                  border: '1px solid #3f3f46',
+                  borderRadius: '6px',
+                  fontFamily: 'monospace',
+                  fontSize: '12px',
                 }}
-                labelStyle={{ color: "#f59e0b" }}
-                itemStyle={{ color: "#fafafa" }}
-                formatter={(value: number) => [`${value.toFixed(2)}%`, "Spread"]}
+                labelStyle={{ color: '#f59e0b' }}
+                itemStyle={{ color: '#fafafa' }}
+                formatter={(value: number) => [`${value.toFixed(2)}%`, 'Spread']}
               />
               {eventMarkers.map((event, idx) => {
-                const eventDate = new Date(event.timestamp).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
+                const eventDate = new Date(event.timestamp).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
                 });
                 return (
                   <ReferenceLine
                     key={idx}
                     x={eventDate}
-                    stroke={event.type === "COURT" ? "#ef4444" : event.type === "AGENCY" ? "#f59e0b" : "#3b82f6"}
+                    stroke={event.type === 'COURT' ? '#ef4444' : event.type === 'AGENCY' ? '#f59e0b' : '#3b82f6'}
                     strokeDasharray="3 3"
-                    label={{ value: event.type === "COURT" ? "⚖️" : event.type === "AGENCY" ? "🏛️" : "📄", position: "top", fill: "#f59e0b", fontSize: 12 }}
+                    label={{
+                      value: event.type === 'COURT' ? '⚖️' : event.type === 'AGENCY' ? '🏛️' : '📄',
+                      position: 'top',
+                      fill: '#f59e0b',
+                      fontSize: 12,
+                    }}
                   />
                 );
               })}
-              <Area
-                type="monotone"
-                dataKey="spread"
-                stroke="#f59e0b"
-                strokeWidth={2}
-                fill="url(#spreadGradient)"
-              />
+              <Area type="monotone" dataKey="spread" stroke="#f59e0b" strokeWidth={2} fill="url(#spreadGradient)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>

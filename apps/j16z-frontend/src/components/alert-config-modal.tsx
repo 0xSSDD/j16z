@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import * as React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface AlertConfig {
   eventTypes: string[];
@@ -19,21 +19,24 @@ interface AlertConfigModalProps {
 
 export function AlertConfigModal({ isOpen, onClose, dealId }: AlertConfigModalProps) {
   const [config, setConfig] = React.useState<AlertConfig>(() => {
-    if (typeof window === "undefined") return {
-      eventTypes: [],
-      materiality: "all",
-      email: false,
-      slack: false,
-      webhookUrl: "",
-    };
+    if (typeof window === 'undefined')
+      return {
+        eventTypes: [],
+        materiality: 'all',
+        email: false,
+        slack: false,
+        webhookUrl: '',
+      };
     const stored = localStorage.getItem(`alert-config-${dealId}`);
-    return stored ? JSON.parse(stored) : {
-      eventTypes: [],
-      materiality: "all",
-      email: false,
-      slack: false,
-      webhookUrl: "",
-    };
+    return stored
+      ? JSON.parse(stored)
+      : {
+          eventTypes: [],
+          materiality: 'all',
+          email: false,
+          slack: false,
+          webhookUrl: '',
+        };
   });
 
   const handleSave = () => {
@@ -61,7 +64,7 @@ export function AlertConfigModal({ isOpen, onClose, dealId }: AlertConfigModalPr
           <div>
             <h3 className="text-sm font-mono font-medium text-muted-foreground mb-3">Event Types</h3>
             <div className="space-y-2">
-              {["FILING", "COURT", "AGENCY", "SPREAD_MOVE", "NEWS"].map((type) => (
+              {['FILING', 'COURT', 'AGENCY', 'SPREAD_MOVE', 'NEWS'].map((type) => (
                 <label key={type} className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"

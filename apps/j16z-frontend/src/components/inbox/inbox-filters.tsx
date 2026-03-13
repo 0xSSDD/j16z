@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { Filter, X, Search } from "lucide-react";
-import { VirtualizedDropdown } from "@/components/ui/virtualized-dropdown";
+import { Filter, Search, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { VirtualizedDropdown } from '@/components/ui/virtualized-dropdown';
 
 interface InboxFiltersProps {
   filters: {
@@ -12,7 +12,7 @@ interface InboxFiltersProps {
     watchlist: string[];
     unreadOnly: boolean;
   };
-  onFiltersChange: (filters: InboxFiltersProps["filters"]) => void;
+  onFiltersChange: (filters: InboxFiltersProps['filters']) => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
 }
@@ -34,32 +34,31 @@ export function InboxFilters({ filters, onFiltersChange, searchQuery, onSearchCh
     // Load deals from API/mock data
     async function loadDeals() {
       try {
-        const { getDeals } = await import("@/lib/api");
+        const { getDeals } = await import('@/lib/api');
         const dealsData = await getDeals();
-        setDeals(dealsData.map(d => ({ id: d.id, name: d.companyName })));
+        setDeals(dealsData.map((d) => ({ id: d.id, name: d.companyName })));
       } catch (error) {
-        console.error("Failed to load deals:", error);
+        console.error('Failed to load deals:', error);
       }
     }
 
     // Load watchlists from localStorage
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("watchlists");
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('watchlists');
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
           setWatchlists(parsed.map((w: any) => ({ id: w.id, name: w.name })));
         } catch (error) {
-          console.error("Failed to load watchlists:", error);
+          console.error('Failed to load watchlists:', error);
         }
       }
     }
 
-    loadDeals().catch(err => {
-      console.error("Failed to initialize deals:", err);
+    loadDeals().catch((err) => {
+      console.error('Failed to initialize deals:', err);
     });
   }, []);
-
 
   const toggleSeverity = (level: string) => {
     const newSeverity = safeFilters.severity.includes(level)
@@ -101,21 +100,21 @@ export function InboxFilters({ filters, onFiltersChange, searchQuery, onSearchCh
       watchlist: [],
       unreadOnly: false,
     });
-    onSearchChange("");
+    onSearchChange('');
   };
 
   const eventTypes = [
-    { id: "AGENCY", name: "Agency" },
-    { id: "COURT", name: "Court" },
-    { id: "FILING", name: "Filing" },
-    { id: "SPREAD_MOVE", name: "Spread Move" },
-    { id: "NEWS", name: "News" },
+    { id: 'AGENCY', name: 'Agency' },
+    { id: 'COURT', name: 'Court' },
+    { id: 'FILING', name: 'Filing' },
+    { id: 'SPREAD_MOVE', name: 'Spread Move' },
+    { id: 'NEWS', name: 'News' },
   ];
 
   const severityOptions = [
-    { id: "CRITICAL", name: "🔴 Critical" },
-    { id: "WARNING", name: "🟡 Warning" },
-    { id: "INFO", name: "🟢 Info" },
+    { id: 'CRITICAL', name: '🔴 Critical' },
+    { id: 'WARNING', name: '🟡 Warning' },
+    { id: 'INFO', name: '🟢 Info' },
   ];
 
   const hasActiveFilters =
@@ -160,12 +159,7 @@ export function InboxFilters({ filters, onFiltersChange, searchQuery, onSearchCh
             onToggle={toggleEventType}
           />
 
-          <VirtualizedDropdown
-            label="Deal"
-            items={deals}
-            selectedIds={safeFilters.deal}
-            onToggle={toggleDeal}
-          />
+          <VirtualizedDropdown label="Deal" items={deals} selectedIds={safeFilters.deal} onToggle={toggleDeal} />
 
           <VirtualizedDropdown
             label="Watchlist"

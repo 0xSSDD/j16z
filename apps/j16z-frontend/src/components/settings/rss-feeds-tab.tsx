@@ -1,7 +1,7 @@
 'use client';
 
 import { formatDistanceToNow } from 'date-fns';
-import { AlertCircle, ExternalLink, Pause, Play, Plus, RefreshCw, Rss, X } from 'lucide-react';
+import { AlertCircle, ExternalLink, Pause, Play, Plus, Rss, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createRSSFeed, deleteRSSFeed, getRSSFeeds, type RSSFeedRecord, updateRSSFeed } from '@/lib/api';
 
@@ -60,7 +60,7 @@ export function RSSFeedsTab() {
       const created = await createRSSFeed({ name: newFeedName.trim(), url: newFeedUrl.trim() });
       setFeeds((prev) => [...prev, created]);
       handleCloseModal();
-    } catch (error) {
+    } catch (_error) {
       setValidationError('Failed to add feed');
     } finally {
       setSubmitting(false);

@@ -44,7 +44,8 @@ describe('ingestionQueue default job options (structural)', () => {
   });
 
   it('uses exponential backoff', async () => {
-    const opts = (ingestionQueue as unknown as { opts: { defaultJobOptions: { backoff: Record<string, unknown> } } }).opts;
+    const opts = (ingestionQueue as unknown as { opts: { defaultJobOptions: { backoff: Record<string, unknown> } } })
+      .opts;
     expect(opts.defaultJobOptions?.backoff?.type).toBe('exponential');
   });
 });

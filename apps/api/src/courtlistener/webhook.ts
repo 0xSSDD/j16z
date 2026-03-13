@@ -54,12 +54,7 @@ async function hasDocketEntryEvent(sourceGuid: string): Promise<boolean> {
   const existing = await adminDb
     .select({ id: schema.events.id })
     .from(schema.events)
-    .where(
-      and(
-        eq(schema.events.type, 'COURT'),
-        sql`${schema.events.metadata} ->> 'sourceGuid' = ${sourceGuid}`,
-      ),
-    )
+    .where(and(eq(schema.events.type, 'COURT'), sql`${schema.events.metadata} ->> 'sourceGuid' = ${sourceGuid}`))
     .limit(1);
   return existing.length > 0;
 }
@@ -100,7 +95,9 @@ export async function handleCourtListenerWebhook(job: Job): Promise<void> {
       // Find the tracked deal for this docket
       const dealContext = await findDealForDocket(docketId);
       if (!dealContext) {
-        console.warn(`[courtlistener_webhook] No tracked deal found for docket ${docketId} — skipping (orphaned webhook)`);
+        console.warn(
+          `[courtlistener_webhook] No tracked deal found for docket ${docketId} — skipping (orphaned webhook)`,
+        );
         continue;
       }
 

@@ -1,8 +1,8 @@
-import { eq, or, and, isNull } from 'drizzle-orm';
+import { and, eq, isNull, or } from 'drizzle-orm';
 import { adminDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
-import { HIGH_SIGNAL_TYPES } from './types.js';
 import type { FilingMetadata } from './types.js';
+import { HIGH_SIGNAL_TYPES } from './types.js';
 
 // ---------------------------------------------------------------------------
 // Deal matcher — links EDGAR filings to existing deals or auto-creates new deals.

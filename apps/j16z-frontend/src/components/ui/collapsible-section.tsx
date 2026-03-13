@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 
 interface CollapsibleSectionProps {
   title: string;
@@ -9,17 +9,12 @@ interface CollapsibleSectionProps {
   storageKey?: string;
 }
 
-export function CollapsibleSection({
-  title,
-  defaultOpen = true,
-  children,
-  storageKey,
-}: CollapsibleSectionProps) {
+export function CollapsibleSection({ title, defaultOpen = true, children, storageKey }: CollapsibleSectionProps) {
   const [isOpen, setIsOpen] = React.useState(() => {
-    if (storageKey && typeof window !== "undefined") {
+    if (storageKey && typeof window !== 'undefined') {
       const stored = localStorage.getItem(`collapsible-${storageKey}`);
       if (stored !== null) {
-        return stored === "true";
+        return stored === 'true';
       }
     }
     return defaultOpen;
@@ -28,7 +23,7 @@ export function CollapsibleSection({
   const handleToggle = () => {
     const newState = !isOpen;
     setIsOpen(newState);
-    if (storageKey && typeof window !== "undefined") {
+    if (storageKey && typeof window !== 'undefined') {
       localStorage.setItem(`collapsible-${storageKey}`, String(newState));
     }
   };
@@ -39,18 +34,10 @@ export function CollapsibleSection({
         onClick={handleToggle}
         className="w-full flex items-center justify-between p-4 hover:bg-surfaceHighlight transition-colors"
       >
-        <h3 className="font-mono text-sm font-medium text-text-main uppercase tracking-wider">
-          {title}
-        </h3>
-        <span className="text-primary-500 font-mono text-lg">
-          {isOpen ? "▼" : "▶"}
-        </span>
+        <h3 className="font-mono text-sm font-medium text-text-main uppercase tracking-wider">{title}</h3>
+        <span className="text-primary-500 font-mono text-lg">{isOpen ? '▼' : '▶'}</span>
       </button>
-      {isOpen && (
-        <div className="p-4 border-t border-border">
-          {children}
-        </div>
-      )}
+      {isOpen && <div className="p-4 border-t border-border">{children}</div>}
     </div>
   );
 }

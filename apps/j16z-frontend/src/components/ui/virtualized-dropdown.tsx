@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown } from 'lucide-react';
+import * as React from 'react';
 
 interface VirtualizedDropdownProps {
   label: string;
@@ -17,11 +17,11 @@ export function VirtualizedDropdown({
   items,
   selectedIds,
   onToggle,
-  placeholder = "Select items",
+  placeholder = 'Select items',
   maxHeight = 300,
 }: VirtualizedDropdownProps) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [searchQuery, setSearchQuery] = React.useState('');
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -33,8 +33,8 @@ export function VirtualizedDropdown({
     };
 
     if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [isOpen]);
 
@@ -42,17 +42,14 @@ export function VirtualizedDropdown({
   const filteredItems = React.useMemo(() => {
     if (!searchQuery) return items;
     const query = searchQuery.toLowerCase();
-    return items.filter(item => item.name.toLowerCase().includes(query));
+    return items.filter((item) => item.name.toLowerCase().includes(query));
   }, [items, searchQuery]);
 
   // Virtual scrolling - only render visible items
   const ITEM_HEIGHT = 36;
   const [scrollTop, setScrollTop] = React.useState(0);
   const visibleStart = Math.floor(scrollTop / ITEM_HEIGHT);
-  const visibleEnd = Math.min(
-    visibleStart + Math.ceil(maxHeight / ITEM_HEIGHT) + 1,
-    filteredItems.length
-  );
+  const visibleEnd = Math.min(visibleStart + Math.ceil(maxHeight / ITEM_HEIGHT) + 1, filteredItems.length);
   const visibleItems = filteredItems.slice(visibleStart, visibleEnd);
   const totalHeight = filteredItems.length * ITEM_HEIGHT;
   const offsetY = visibleStart * ITEM_HEIGHT;
@@ -67,8 +64,8 @@ export function VirtualizedDropdown({
         onClick={() => setIsOpen(!isOpen)}
         className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
           selectedIds.length > 0
-            ? "border-primary-500/30 bg-primary-500/10 text-primary-400"
-            : "border-border bg-surface text-text-muted hover:bg-surfaceHighlight"
+            ? 'border-primary-500/30 bg-primary-500/10 text-primary-400'
+            : 'border-border bg-surface text-text-muted hover:bg-surfaceHighlight'
         }`}
       >
         {label} {selectedIds.length > 0 && `(${selectedIds.length})`}
@@ -88,14 +85,10 @@ export function VirtualizedDropdown({
             />
           </div>
 
-          <div
-            className="relative overflow-y-auto"
-            style={{ maxHeight }}
-            onScroll={handleScroll}
-          >
+          <div className="relative overflow-y-auto" style={{ maxHeight }} onScroll={handleScroll}>
             <div style={{ height: totalHeight }}>
               <div style={{ transform: `translateY(${offsetY}px)` }}>
-                {visibleItems.map((item, idx) => {
+                {visibleItems.map((_item, idx) => {
                   const actualIndex = visibleStart + idx;
                   const actualItem = filteredItems[actualIndex];
                   const isSelected = selectedIds.includes(actualItem.id);
@@ -107,9 +100,7 @@ export function VirtualizedDropdown({
                       style={{ height: ITEM_HEIGHT }}
                     >
                       <div className="relative flex h-4 w-4 shrink-0 items-center justify-center rounded border border-border bg-background">
-                        {isSelected && (
-                          <Check className="h-3 w-3 text-primary-500" />
-                        )}
+                        {isSelected && <Check className="h-3 w-3 text-primary-500" />}
                       </div>
                       <input
                         type="checkbox"
@@ -125,11 +116,7 @@ export function VirtualizedDropdown({
             </div>
           </div>
 
-          {filteredItems.length === 0 && (
-            <div className="p-4 text-center text-xs text-text-muted">
-              No items found
-            </div>
-          )}
+          {filteredItems.length === 0 && <div className="p-4 text-center text-xs text-text-muted">No items found</div>}
 
           {filteredItems.length > 10 && (
             <div className="border-t border-border p-2 text-center text-xs text-text-dim">

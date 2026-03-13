@@ -3,7 +3,7 @@
  * Determines when to send external alerts (Email, Slack) based on materiality scores
  */
 
-import { MaterialityTier } from "./materiality-scoring";
+import { MaterialityTier } from './materiality-scoring';
 
 export interface AlertConfig {
   highThreshold: number; // Default: 70
@@ -52,13 +52,13 @@ export function getDefaultAlertConfig(): AlertConfig {
  * Load alert configuration from localStorage
  */
 export function loadAlertConfig(): AlertConfig {
-  if (typeof window === "undefined") return getDefaultAlertConfig();
+  if (typeof window === 'undefined') return getDefaultAlertConfig();
 
   try {
-    const stored = localStorage.getItem("alert_config");
+    const stored = localStorage.getItem('alert_config');
     return stored ? { ...getDefaultAlertConfig(), ...JSON.parse(stored) } : getDefaultAlertConfig();
   } catch (error) {
-    console.error("Failed to load alert config:", error);
+    console.error('Failed to load alert config:', error);
     return getDefaultAlertConfig();
   }
 }
@@ -67,12 +67,12 @@ export function loadAlertConfig(): AlertConfig {
  * Save alert configuration to localStorage
  */
 export function saveAlertConfig(config: AlertConfig): void {
-  if (typeof window === "undefined") return;
+  if (typeof window === 'undefined') return;
 
   try {
-    localStorage.setItem("alert_config", JSON.stringify(config));
+    localStorage.setItem('alert_config', JSON.stringify(config));
   } catch (error) {
-    console.error("Failed to save alert config:", error);
+    console.error('Failed to save alert config:', error);
   }
 }
 
@@ -81,7 +81,7 @@ export function saveAlertConfig(config: AlertConfig): void {
  */
 export function determineAlertChannels(
   materialityScore: number,
-  config: AlertConfig = loadAlertConfig()
+  config: AlertConfig = loadAlertConfig(),
 ): AlertChannels {
   // HIGH tier (score > 70): Email + Slack
   if (materialityScore > config.highThreshold) {
@@ -119,7 +119,8 @@ export function formatAlertPayload(payload: AlertPayload): {
 } {
   const { eventTitle, materialityTier, materialityScore, dealName, currentSpread, timestamp } = payload;
 
-  const badge = materialityTier === MaterialityTier.HIGH ? "🔴" : materialityTier === MaterialityTier.MEDIUM ? "🟠" : "🟡";
+  const badge =
+    materialityTier === MaterialityTier.HIGH ? '🔴' : materialityTier === MaterialityTier.MEDIUM ? '🟠' : '🟡';
 
   const subject = `${badge} ${materialityTier} Alert: ${eventTitle}`;
 
@@ -129,7 +130,7 @@ New ${materialityTier} materiality event detected:
 Event: ${eventTitle}
 Score: ${materialityScore}/100
 Deal: ${dealName || payload.dealId}
-${currentSpread ? `Current Spread: ${currentSpread}%` : ""}
+${currentSpread ? `Current Spread: ${currentSpread}%` : ''}
 Time: ${new Date(timestamp).toLocaleString()}
 
 View in Inbox: ${payload.inboxLink}
@@ -140,7 +141,7 @@ ${badge} *${materialityTier} Alert*
 
 *${eventTitle}*
 Score: ${materialityScore}/100 | Deal: ${dealName || payload.dealId}
-${currentSpread ? `Spread: ${currentSpread}%` : ""}
+${currentSpread ? `Spread: ${currentSpread}%` : ''}
 
 <${payload.inboxLink}|View in Inbox>
   `.trim();
@@ -158,18 +159,18 @@ export async function triggerAlerts(payload: AlertPayload): Promise<void> {
 
   // Log alerts (in production, replace with actual API calls)
   if (channels.email) {
-    console.log("[EMAIL ALERT]", formatted.subject);
+    console.log('[EMAIL ALERT]', formatted.subject);
     console.log(formatted.body);
     // TODO: Call email API
   }
 
   if (channels.slack) {
-    console.log("[SLACK ALERT]", formatted.slackMessage);
+    console.log('[SLACK ALERT]', formatted.slackMessage);
     // TODO: Call Slack webhook
   }
 
   if (channels.webhook) {
-    console.log("[WEBHOOK ALERT]", payload);
+    console.log('[WEBHOOK ALERT]', payload);
     // TODO: Call custom webhook
   }
 }

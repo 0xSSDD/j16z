@@ -1,11 +1,11 @@
-import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
+import { and, eq, isNull } from 'drizzle-orm';
+import { Hono } from 'hono';
+import { z } from 'zod';
 import { adminDb } from '../db/index.js';
-import { firms, firmMembers, invites, auditLog } from '../db/schema.js';
+import { auditLog, firmMembers, firms, invites } from '../db/schema.js';
 import { seedFirm } from '../db/seed.js';
-import { eq, and, isNull } from 'drizzle-orm';
 import type { AuthEnv } from '../middleware/auth.js';
 
 // ---------------------------------------------------------------------------
@@ -43,7 +43,11 @@ authRoutes.get('/me', async (c) => {
   }
 
   // Fetch firm details
-  const [firm] = await adminDb.select({ id: firms.id, name: firms.name }).from(firms).where(eq(firms.id, membership.firmId)).limit(1);
+  const [firm] = await adminDb
+    .select({ id: firms.id, name: firms.name })
+    .from(firms)
+    .where(eq(firms.id, membership.firmId))
+    .limit(1);
 
   return c.json({
     user: { id: userId, email: userEmail },
@@ -63,7 +67,11 @@ authRoutes.get('/me', async (c) => {
 // Called once per user on first login.
 // ---------------------------------------------------------------------------
 const onboardSchema = z.object({
-  firmName: z.string().min(2, 'Firm name must be at least 2 characters').max(100, 'Firm name must be at most 100 characters').trim(),
+  firmName: z
+    .string()
+    .min(2, 'Firm name must be at least 2 characters')
+    .max(100, 'Firm name must be at most 100 characters')
+    .trim(),
 });
 
 authRoutes.post('/onboard', zValidator('json', onboardSchema), async (c) => {
@@ -150,11 +158,9 @@ authRoutes.post('/invite', zValidator('json', inviteSchema), async (c) => {
   const firmId = membership.firmId;
 
   // Use Supabase admin client to send invitation email
-  const supabaseAdmin = createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } },
-  );
+  const supabaseAdmin = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
 
   const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
     data: { firmId, role },

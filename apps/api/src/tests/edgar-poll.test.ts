@@ -53,9 +53,15 @@ const mockUpdate = vi.fn();
 
 vi.mock('../db/index.js', () => ({
   adminDb: {
-    get select() { return mockSelect; },
-    get insert() { return mockInsert; },
-    get update() { return mockUpdate; },
+    get select() {
+      return mockSelect;
+    },
+    get insert() {
+      return mockInsert;
+    },
+    get update() {
+      return mockUpdate;
+    },
   },
 }));
 
@@ -399,7 +405,7 @@ describe('edgar poll handler — filing insert behavior', () => {
     // Extract startdt from URL
     const startdtMatch = eftsUrl.match(/startdt=(\d{4}-\d{2}-\d{2})/);
     expect(startdtMatch).not.toBeNull();
-    const startdt = new Date(startdtMatch![1]);
+    const startdt = new Date(startdtMatch?.[1]);
     // Should be within 1 day of 30 days ago
     const diffDays = Math.abs((thirtyDaysAgo.getTime() - startdt.getTime()) / (24 * 60 * 60 * 1000));
     expect(diffDays).toBeLessThan(2);

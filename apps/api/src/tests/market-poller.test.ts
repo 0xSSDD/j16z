@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock modules before imports
 vi.mock('../market/spread-calculator.js', () => ({
@@ -27,11 +27,11 @@ vi.mock('limiter', () => {
   };
 });
 
-import { handleMarketDataPoll } from '../market/market-poller.js';
-import { isMarketOpen, computeSpread } from '../market/spread-calculator.js';
-import { createQuoteAdapter } from '../market/quote-adapter.js';
-import { adminDb } from '../db/index.js';
 import type { Job } from 'bullmq';
+import { adminDb } from '../db/index.js';
+import { handleMarketDataPoll } from '../market/market-poller.js';
+import { createQuoteAdapter } from '../market/quote-adapter.js';
+import { computeSpread, isMarketOpen } from '../market/spread-calculator.js';
 
 function mockJob(): Job {
   return { id: 'test-1', name: 'market_data_poll', data: {} } as unknown as Job;
@@ -212,8 +212,24 @@ describe('handleMarketDataPoll', () => {
     vi.mocked(createQuoteAdapter).mockReturnValue({ getQuote: mockGetQuote });
 
     const mockDeals = [
-      { id: 'deal-1', firmId: 'firm-1', symbol: 'A', pricePerShare: '50', exchangeRatio: null, expectedCloseDate: null, deletedAt: null },
-      { id: 'deal-2', firmId: 'firm-1', symbol: 'B', pricePerShare: '60', exchangeRatio: null, expectedCloseDate: null, deletedAt: null },
+      {
+        id: 'deal-1',
+        firmId: 'firm-1',
+        symbol: 'A',
+        pricePerShare: '50',
+        exchangeRatio: null,
+        expectedCloseDate: null,
+        deletedAt: null,
+      },
+      {
+        id: 'deal-2',
+        firmId: 'firm-1',
+        symbol: 'B',
+        pricePerShare: '60',
+        exchangeRatio: null,
+        expectedCloseDate: null,
+        deletedAt: null,
+      },
     ];
 
     const mockFrom = vi.fn().mockReturnValue({

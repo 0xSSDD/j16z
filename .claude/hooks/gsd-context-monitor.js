@@ -17,18 +17,18 @@
 // Debounce: 5 tool uses between warnings to avoid spam
 // Severity escalation bypasses debounce (WARNING -> CRITICAL fires immediately)
 
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 
-const WARNING_THRESHOLD = 35;  // remaining_percentage <= 35%
+const WARNING_THRESHOLD = 35; // remaining_percentage <= 35%
 const CRITICAL_THRESHOLD = 25; // remaining_percentage <= 25%
-const STALE_SECONDS = 60;      // ignore metrics older than 60s
-const DEBOUNCE_CALLS = 5;      // min tool uses between warnings
+const STALE_SECONDS = 60; // ignore metrics older than 60s
+const DEBOUNCE_CALLS = 5; // min tool uses between warnings
 
 let input = '';
 process.stdin.setEncoding('utf8');
-process.stdin.on('data', chunk => input += chunk);
+process.stdin.on('data', (chunk) => (input += chunk));
 process.stdin.on('end', () => {
   try {
     const data = JSON.parse(input);
@@ -50,7 +50,7 @@ process.stdin.on('end', () => {
     const now = Math.floor(Date.now() / 1000);
 
     // Ignore stale metrics
-    if (metrics.timestamp && (now - metrics.timestamp) > STALE_SECONDS) {
+    if (metrics.timestamp && now - metrics.timestamp > STALE_SECONDS) {
       process.exit(0);
     }
 
@@ -71,7 +71,7 @@ process.stdin.on('end', () => {
       try {
         warnData = JSON.parse(fs.readFileSync(warnPath, 'utf8'));
         firstWarn = false;
-      } catch (e) {
+      } catch (_e) {
         // Corrupted file, reset
       }
     }
@@ -98,24 +98,26 @@ process.stdin.on('end', () => {
     // Build warning message
     let message;
     if (isCritical) {
-      message = `CONTEXT MONITOR CRITICAL: Usage at ${usedPct}%. Remaining: ${remaining}%. ` +
+      message =
+        `CONTEXT MONITOR CRITICAL: Usage at ${usedPct}%. Remaining: ${remaining}%. ` +
         'STOP new work immediately. Save state NOW and inform the user that context is nearly exhausted. ' +
         'If using GSD, run /gsd:pause-work to save execution state.';
     } else {
-      message = `CONTEXT MONITOR WARNING: Usage at ${usedPct}%. Remaining: ${remaining}%. ` +
+      message =
+        `CONTEXT MONITOR WARNING: Usage at ${usedPct}%. Remaining: ${remaining}%. ` +
         'Begin wrapping up current task. Do not start new complex work. ' +
         'If using GSD, consider /gsd:pause-work to save state.';
     }
 
     const output = {
       hookSpecificOutput: {
-        hookEventName: "PostToolUse",
-        additionalContext: message
-      }
+        hookEventName: 'PostToolUse',
+        additionalContext: message,
+      },
     };
 
     process.stdout.write(JSON.stringify(output));
-  } catch (e) {
+  } catch (_e) {
     // Silent fail -- never block tool execution
     process.exit(0);
   }

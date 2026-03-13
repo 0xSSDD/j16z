@@ -2,8 +2,8 @@
  * Config — Planning config CRUD operations
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const { output, error } = require('./core.cjs');
 
 function cmdConfigEnsureSection(cwd, raw) {
@@ -16,7 +16,7 @@ function cmdConfigEnsureSection(cwd, raw) {
       fs.mkdirSync(planningDir, { recursive: true });
     }
   } catch (err) {
-    error('Failed to create .planning directory: ' + err.message);
+    error(`Failed to create .planning directory: ${err.message}`);
   }
 
   // Check if config already exists
@@ -27,7 +27,7 @@ function cmdConfigEnsureSection(cwd, raw) {
   }
 
   // Detect Brave Search API key availability
-  const homedir = require('os').homedir();
+  const homedir = require('node:os').homedir();
   const braveKeyFile = path.join(homedir, '.gsd', 'brave_api_key');
   const hasBraveSearch = !!(process.env.BRAVE_API_KEY || fs.existsSync(braveKeyFile));
 
@@ -38,7 +38,7 @@ function cmdConfigEnsureSection(cwd, raw) {
     if (fs.existsSync(globalDefaultsPath)) {
       userDefaults = JSON.parse(fs.readFileSync(globalDefaultsPath, 'utf-8'));
     }
-  } catch (err) {
+  } catch (_err) {
     // Ignore malformed global defaults, fall back to hardcoded
   }
 
@@ -70,7 +70,7 @@ function cmdConfigEnsureSection(cwd, raw) {
     const result = { created: true, path: '.planning/config.json' };
     output(result, raw, 'created');
   } catch (err) {
-    error('Failed to create config.json: ' + err.message);
+    error(`Failed to create config.json: ${err.message}`);
   }
 }
 
@@ -85,7 +85,7 @@ function cmdConfigSet(cwd, keyPath, value, raw) {
   let parsedValue = value;
   if (value === 'true') parsedValue = true;
   else if (value === 'false') parsedValue = false;
-  else if (!isNaN(value) && value !== '') parsedValue = Number(value);
+  else if (!Number.isNaN(value) && value !== '') parsedValue = Number(value);
 
   // Load existing config or start with empty object
   let config = {};
@@ -94,7 +94,7 @@ function cmdConfigSet(cwd, keyPath, value, raw) {
       config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
     }
   } catch (err) {
-    error('Failed to read config.json: ' + err.message);
+    error(`Failed to read config.json: ${err.message}`);
   }
 
   // Set nested value using dot notation (e.g., "workflow.research")
@@ -115,7 +115,7 @@ function cmdConfigSet(cwd, keyPath, value, raw) {
     const result = { updated: true, key: keyPath, value: parsedValue };
     output(result, raw, `${keyPath}=${parsedValue}`);
   } catch (err) {
-    error('Failed to write config.json: ' + err.message);
+    error(`Failed to write config.json: ${err.message}`);
   }
 }
 
@@ -131,11 +131,11 @@ function cmdConfigGet(cwd, keyPath, raw) {
     if (fs.existsSync(configPath)) {
       config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
     } else {
-      error('No config.json found at ' + configPath);
+      error(`No config.json found at ${configPath}`);
     }
   } catch (err) {
     if (err.message.startsWith('No config.json')) throw err;
-    error('Failed to read config.json: ' + err.message);
+    error(`Failed to read config.json: ${err.message}`);
   }
 
   // Traverse dot-notation path (e.g., "workflow.auto_advance")

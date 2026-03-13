@@ -5,7 +5,7 @@
  * Mocks global fetch — no real HTTP calls to SEC EDGAR.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { EDGAR_USER_AGENT, buildFilingUrl, buildIndexUrl, edgarFetch } from '../edgar/client.js';
+import { buildFilingUrl, buildIndexUrl, EDGAR_USER_AGENT, edgarFetch } from '../edgar/client.js';
 
 describe('edgarFetch — User-Agent header', () => {
   beforeEach(() => {

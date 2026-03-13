@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import type React from 'react';
+import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 type LoginMode = 'magic-link' | 'password-login' | 'password-signup';
@@ -220,7 +221,10 @@ export const LoginForm: React.FC = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => { clearFeedback(); setMode('password-login'); }}
+                  onClick={() => {
+                    clearFeedback();
+                    setMode('password-login');
+                  }}
                   className="w-full rounded-lg border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-text-muted transition-colors hover:border-border/80 hover:text-text-main"
                 >
                   Sign in with password
@@ -231,7 +235,10 @@ export const LoginForm: React.FC = () => {
             {mode !== 'magic-link' && (
               <button
                 type="button"
-                onClick={() => { clearFeedback(); setMode('magic-link'); }}
+                onClick={() => {
+                  clearFeedback();
+                  setMode('magic-link');
+                }}
                 className="w-full text-center text-sm text-text-muted transition-colors hover:text-text-main"
               >
                 Use magic link instead
@@ -244,7 +251,10 @@ export const LoginForm: React.FC = () => {
                   Already have an account?{' '}
                   <button
                     type="button"
-                    onClick={() => { clearFeedback(); setMode('password-login'); }}
+                    onClick={() => {
+                      clearFeedback();
+                      setMode('password-login');
+                    }}
                     className="font-medium text-amber-500 hover:text-amber-400"
                   >
                     Sign in
@@ -255,7 +265,10 @@ export const LoginForm: React.FC = () => {
                   Don&apos;t have an account?{' '}
                   <button
                     type="button"
-                    onClick={() => { clearFeedback(); setMode('password-signup'); }}
+                    onClick={() => {
+                      clearFeedback();
+                      setMode('password-signup');
+                    }}
                     className="font-medium text-amber-500 hover:text-amber-400"
                   >
                     Sign up

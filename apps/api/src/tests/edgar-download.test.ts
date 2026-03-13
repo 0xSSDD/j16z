@@ -159,9 +159,7 @@ describe('edgar download handler — HTML to plain text conversion', () => {
     await handleEdgarDownload({ data: jobData } as never);
 
     // Verify edgarFetch was called (not bare fetch)
-    expect(mockEdgarFetch).toHaveBeenCalledWith(
-      expect.stringContaining('sec.gov/Archives/edgar/data/320193'),
-    );
+    expect(mockEdgarFetch).toHaveBeenCalledWith(expect.stringContaining('sec.gov/Archives/edgar/data/320193'));
   });
 
   it('resolves primaryDocument via index endpoint when not provided', async () => {

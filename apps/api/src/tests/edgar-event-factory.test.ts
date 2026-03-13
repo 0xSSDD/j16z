@@ -102,12 +102,7 @@ describe('event factory — event creation per firm', () => {
 
   it('sourceUrl falls back to browse-edgar when no primaryDocument', async () => {
     const { createFilingEvents } = await import('../edgar/event-factory.js');
-    await createFilingEvents(
-      'filing-id-1',
-      'deal-id-1',
-      makeFilingMetadata({ primaryDocument: '' }),
-      ['firm-1'],
-    );
+    await createFilingEvents('filing-id-1', 'deal-id-1', makeFilingMetadata({ primaryDocument: '' }), ['firm-1']);
 
     const eventArray = mockValues.mock.calls[0][0];
     const event = eventArray[0];
@@ -167,7 +162,9 @@ describe('event factory — materiality scores by filing type', () => {
 
   it('unknown filing type defaults to materialityScore=40 and severity=INFO', async () => {
     const { createFilingEvents } = await import('../edgar/event-factory.js');
-    await createFilingEvents('filing-id-1', 'deal-id-1', makeFilingMetadata({ filingType: 'UNKNOWN_TYPE' }), ['firm-1']);
+    await createFilingEvents('filing-id-1', 'deal-id-1', makeFilingMetadata({ filingType: 'UNKNOWN_TYPE' }), [
+      'firm-1',
+    ]);
 
     const event = mockValues.mock.calls[0][0][0];
     expect(event.materialityScore).toBe(40);

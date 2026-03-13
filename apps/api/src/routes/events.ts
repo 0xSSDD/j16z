@@ -1,8 +1,8 @@
 import { and, eq, isNull } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { adminDb } from '../db/index.js';
-import type { AuthEnv } from '../middleware/auth.js';
 import * as schema from '../db/schema.js';
+import type { AuthEnv } from '../middleware/auth.js';
 
 export const eventsRoutes = new Hono<AuthEnv>()
   .get('/', async (c) => {

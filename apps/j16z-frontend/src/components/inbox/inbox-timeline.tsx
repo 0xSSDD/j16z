@@ -2,7 +2,7 @@
 
 import { formatDistanceToNow } from 'date-fns';
 import { FileText, Newspaper, Scale, Shield, TrendingUp } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getAllEvents } from '@/lib/api';
 import { calculateSeverityWithLevel, type EventType } from '@/lib/severity-scoring';
 import type { Event } from '@/lib/types';
@@ -148,7 +148,7 @@ export function InboxTimeline({
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters, searchQuery]);
+  }, []);
 
   // Apply filters and search
   const filteredEvents = events.filter((event) => {

@@ -1,6 +1,6 @@
 import { createMiddleware } from 'hono/factory';
-import { createRemoteJWKSet, jwtVerify } from 'jose';
 import type { JWTPayload } from 'jose';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 // ---------------------------------------------------------------------------
 // JWKS — created once at module level to enable key caching across requests.

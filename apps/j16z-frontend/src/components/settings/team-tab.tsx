@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Plus, Mail, Shield, Trash2, Edit2, Clock } from "lucide-react";
+import { Clock, Edit2, Mail, Plus, Shield, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
-type UserRole = "admin" | "analyst" | "pm";
+type UserRole = 'admin' | 'analyst' | 'pm';
 
 interface TeamMember {
   id: string;
@@ -12,7 +12,7 @@ interface TeamMember {
   role: UserRole;
   joinedDate: string;
   lastActive: string;
-  status: "active" | "pending";
+  status: 'active' | 'pending';
 }
 
 interface InviteModalProps {
@@ -22,8 +22,8 @@ interface InviteModalProps {
 }
 
 function InviteModal({ isOpen, onClose, onInvite }: InviteModalProps) {
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState<UserRole>("analyst");
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState<UserRole>('analyst');
 
   if (!isOpen) return null;
 
@@ -31,8 +31,8 @@ function InviteModal({ isOpen, onClose, onInvite }: InviteModalProps) {
     e.preventDefault();
     if (email) {
       onInvite(email, role);
-      setEmail("");
-      setRole("analyst");
+      setEmail('');
+      setRole('analyst');
       onClose();
     }
   };
@@ -44,9 +44,7 @@ function InviteModal({ isOpen, onClose, onInvite }: InviteModalProps) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-2 block text-sm font-medium text-text-main">
-              Email Address
-            </label>
+            <label className="mb-2 block text-sm font-medium text-text-main">Email Address</label>
             <input
               type="email"
               value={email}
@@ -58,9 +56,7 @@ function InviteModal({ isOpen, onClose, onInvite }: InviteModalProps) {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-text-main">
-              Role
-            </label>
+            <label className="mb-2 block text-sm font-medium text-text-main">Role</label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as UserRole)}
@@ -101,7 +97,7 @@ interface EditMemberModalProps {
 }
 
 function EditMemberModal({ isOpen, member, onClose, onUpdate }: EditMemberModalProps) {
-  const [role, setRole] = useState<UserRole>(member?.role || "analyst");
+  const [role, setRole] = useState<UserRole>(member?.role || 'analyst');
 
   if (!isOpen || !member) return null;
 
@@ -118,9 +114,7 @@ function EditMemberModal({ isOpen, member, onClose, onUpdate }: EditMemberModalP
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-2 block text-sm font-medium text-text-main">
-              Member
-            </label>
+            <label className="mb-2 block text-sm font-medium text-text-main">Member</label>
             <div className="rounded-md border border-border bg-background px-3 py-2">
               <p className="text-sm font-medium text-text-main">{member.name}</p>
               <p className="text-xs text-text-muted">{member.email}</p>
@@ -128,9 +122,7 @@ function EditMemberModal({ isOpen, member, onClose, onUpdate }: EditMemberModalP
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-text-main">
-              Role
-            </label>
+            <label className="mb-2 block text-sm font-medium text-text-main">Role</label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as UserRole)}
@@ -168,8 +160,8 @@ export function TeamTab() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [members, setMembers] = useState<TeamMember[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("team_members");
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('team_members');
       if (stored) {
         try {
           return JSON.parse(stored);
@@ -180,40 +172,40 @@ export function TeamTab() {
     }
     return [
       {
-        id: "1",
+        id: '1',
         name: "David's Analyst",
-        email: "analyst@j16z.com",
-        role: "admin",
-        joinedDate: "2023-01-15",
-        lastActive: "2 minutes ago",
-        status: "active",
+        email: 'analyst@j16z.com',
+        role: 'admin',
+        joinedDate: '2023-01-15',
+        lastActive: '2 minutes ago',
+        status: 'active',
       },
       {
-        id: "2",
-        name: "Sarah Chen",
-        email: "sarah.chen@company.com",
-        role: "analyst",
-        joinedDate: "2023-06-20",
-        lastActive: "1 hour ago",
-        status: "active",
+        id: '2',
+        name: 'Sarah Chen',
+        email: 'sarah.chen@company.com',
+        role: 'analyst',
+        joinedDate: '2023-06-20',
+        lastActive: '1 hour ago',
+        status: 'active',
       },
       {
-        id: "3",
-        name: "Michael Torres",
-        email: "m.torres@company.com",
-        role: "pm",
-        joinedDate: "2023-08-10",
-        lastActive: "3 hours ago",
-        status: "active",
+        id: '3',
+        name: 'Michael Torres',
+        email: 'm.torres@company.com',
+        role: 'pm',
+        joinedDate: '2023-08-10',
+        lastActive: '3 hours ago',
+        status: 'active',
       },
       {
-        id: "4",
-        name: "jessica.wong@company.com",
-        email: "jessica.wong@company.com",
-        role: "analyst",
-        joinedDate: "2023-12-18",
-        lastActive: "Pending",
-        status: "pending",
+        id: '4',
+        name: 'jessica.wong@company.com',
+        email: 'jessica.wong@company.com',
+        role: 'analyst',
+        joinedDate: '2023-12-18',
+        lastActive: 'Pending',
+        status: 'pending',
       },
     ];
   });
@@ -224,59 +216,51 @@ export function TeamTab() {
       name: email,
       email,
       role,
-      joinedDate: new Date().toISOString().split("T")[0],
-      lastActive: "Pending",
-      status: "pending",
+      joinedDate: new Date().toISOString().split('T')[0],
+      lastActive: 'Pending',
+      status: 'pending',
     };
     const updated = [...members, newMember];
     setMembers(updated);
-    localStorage.setItem("team_members", JSON.stringify(updated));
+    localStorage.setItem('team_members', JSON.stringify(updated));
   };
 
   const handleUpdateRole = (memberId: string, role: UserRole) => {
-    const updated = members.map(m =>
-      m.id === memberId ? { ...m, role } : m
-    );
+    const updated = members.map((m) => (m.id === memberId ? { ...m, role } : m));
     setMembers(updated);
-    localStorage.setItem("team_members", JSON.stringify(updated));
+    localStorage.setItem('team_members', JSON.stringify(updated));
   };
 
   const handleRemoveMember = (memberId: string) => {
-    if (confirm("Are you sure you want to remove this team member? This action cannot be undone.")) {
-      const updated = members.filter(m => m.id !== memberId);
+    if (confirm('Are you sure you want to remove this team member? This action cannot be undone.')) {
+      const updated = members.filter((m) => m.id !== memberId);
       setMembers(updated);
-      localStorage.setItem("team_members", JSON.stringify(updated));
+      localStorage.setItem('team_members', JSON.stringify(updated));
     }
   };
 
   const getRoleBadge = (role: UserRole) => {
     const styles = {
-      admin: "bg-red-500/10 text-red-500 border-red-500/30",
-      pm: "bg-blue-500/10 text-blue-500 border-blue-500/30",
-      analyst: "bg-green-500/10 text-green-500 border-green-500/30",
+      admin: 'bg-red-500/10 text-red-500 border-red-500/30',
+      pm: 'bg-blue-500/10 text-blue-500 border-blue-500/30',
+      analyst: 'bg-green-500/10 text-green-500 border-green-500/30',
     };
     const labels = {
-      admin: "Admin",
-      pm: "Portfolio Manager",
-      analyst: "Analyst",
+      admin: 'Admin',
+      pm: 'Portfolio Manager',
+      analyst: 'Analyst',
     };
     return (
-      <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${styles[role]}`}>
-        {labels[role]}
-      </span>
+      <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${styles[role]}`}>{labels[role]}</span>
     );
   };
 
-  const activeMembers = members.filter(m => m.status === "active");
-  const pendingInvitations = members.filter(m => m.status === "pending");
+  const activeMembers = members.filter((m) => m.status === 'active');
+  const pendingInvitations = members.filter((m) => m.status === 'pending');
 
   return (
     <div className="space-y-6">
-      <InviteModal
-        isOpen={showInviteModal}
-        onClose={() => setShowInviteModal(false)}
-        onInvite={handleInvite}
-      />
+      <InviteModal isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} onInvite={handleInvite} />
 
       <EditMemberModal
         isOpen={showEditModal}
@@ -292,9 +276,7 @@ export function TeamTab() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold text-text-main">Team Members</h2>
-          <p className="text-sm text-text-muted">
-            Manage team access and permissions
-          </p>
+          <p className="text-sm text-text-muted">Manage team access and permissions</p>
         </div>
         <button
           onClick={() => setShowInviteModal(true)}
@@ -307,9 +289,7 @@ export function TeamTab() {
 
       {/* Active Members */}
       <section>
-        <h3 className="mb-3 text-sm font-semibold text-text-main">
-          Active Members ({activeMembers.length})
-        </h3>
+        <h3 className="mb-3 text-sm font-semibold text-text-main">Active Members ({activeMembers.length})</h3>
         <div className="space-y-2">
           {activeMembers.map((member) => (
             <div
@@ -318,7 +298,12 @@ export function TeamTab() {
             >
               <div className="flex items-center gap-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-primary-500 to-amber-600 text-sm font-bold text-white">
-                  {member.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
+                  {member.name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .toUpperCase()
+                    .slice(0, 2)}
                 </div>
                 <div>
                   <p className="font-medium text-text-main">{member.name}</p>

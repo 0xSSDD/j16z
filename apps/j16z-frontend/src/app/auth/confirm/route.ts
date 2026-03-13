@@ -51,7 +51,9 @@ export async function GET(request: NextRequest) {
   }
 
   // Session is now established — check firm membership
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const firmId = user?.app_metadata?.firm_id as string | undefined;
 
   if (!firmId) {

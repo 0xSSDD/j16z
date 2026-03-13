@@ -2,10 +2,10 @@
 // Check for GSD updates in background, write result to cache
 // Called by SessionStart hook - runs once per session
 
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-const { spawn } = require('child_process');
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+const { spawn } = require('node:child_process');
 
 const homeDir = os.homedir();
 const cwd = process.cwd();
@@ -22,7 +22,11 @@ if (!fs.existsSync(cacheDir)) {
 }
 
 // Run check in background (spawn background process, windowsHide prevents console flash)
-const child = spawn(process.execPath, ['-e', `
+const child = spawn(
+  process.execPath,
+  [
+    '-e',
+    `
   const fs = require('fs');
   const { execSync } = require('child_process');
 
@@ -53,10 +57,13 @@ const child = spawn(process.execPath, ['-e', `
   };
 
   fs.writeFileSync(cacheFile, JSON.stringify(result));
-`], {
-  stdio: 'ignore',
-  windowsHide: true,
-  detached: true  // Required on Windows for proper process detachment
-});
+`,
+  ],
+  {
+    stdio: 'ignore',
+    windowsHide: true,
+    detached: true, // Required on Windows for proper process detachment
+  },
+);
 
 child.unref();

@@ -26,7 +26,7 @@ export function computeSpread(
   // Annualize: (1 + grossSpread/100)^(365/days) - 1, as percentage
   // Use Math.max(daysToClose, 1) to avoid division by zero
   const safeDays = Math.max(daysToClose, 1);
-  const annualizedReturn = (Math.pow(1 + grossSpread / 100, 365 / safeDays) - 1) * 100;
+  const annualizedReturn = ((1 + grossSpread / 100) ** (365 / safeDays) - 1) * 100;
 
   return { grossSpread, annualizedReturn, impliedConsideration };
 }

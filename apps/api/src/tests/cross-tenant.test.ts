@@ -93,7 +93,7 @@ describe('Cross-tenant isolation (AUTH-06 CI gate)', () => {
       password: TEST_PASSWORD,
     });
     if (signInAError) throw new Error(`Failed to sign in User A: ${signInAError.message}`);
-    userAJwt = signInA.session!.access_token;
+    userAJwt = signInA.session?.access_token;
 
     // Onboard User A (creates Firm A)
     const onboardARes = await fetch(`${API_URL}/api/auth/onboard`, {
@@ -120,7 +120,7 @@ describe('Cross-tenant isolation (AUTH-06 CI gate)', () => {
       password: TEST_PASSWORD,
     });
     if (signInBError) throw new Error(`Failed to sign in User B: ${signInBError.message}`);
-    userBJwt = signInB.session!.access_token;
+    userBJwt = signInB.session?.access_token;
 
     // Onboard User B (creates Firm B)
     const onboardBRes = await fetch(`${API_URL}/api/auth/onboard`, {

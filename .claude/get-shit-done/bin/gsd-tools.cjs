@@ -126,8 +126,8 @@
  *   init progress                      All context for progress workflow
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const { error } = require('./lib/core.cjs');
 const state = require('./lib/state.cjs');
 const phase = require('./lib/phase.cjs');
@@ -147,7 +147,7 @@ async function main() {
 
   // Optional cwd override for sandboxed subagents running outside project root.
   let cwd = process.cwd();
-  const cwdEqArg = args.find(arg => arg.startsWith('--cwd='));
+  const cwdEqArg = args.find((arg) => arg.startsWith('--cwd='));
   const cwdIdx = args.indexOf('--cwd');
   if (cwdEqArg) {
     const value = cwdEqArg.slice('--cwd='.length).trim();
@@ -172,7 +172,9 @@ async function main() {
   const command = args[0];
 
   if (!command) {
-    error('Usage: gsd-tools <command> [args] [--raw] [--cwd <path>]\nCommands: state, resolve-model, find-phase, commit, verify-summary, verify, frontmatter, template, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section, init');
+    error(
+      'Usage: gsd-tools <command> [args] [--raw] [--cwd <path>]\nCommands: state, resolve-model, find-phase, commit, verify-summary, verify, frontmatter, template, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section, init',
+    );
   }
 
   switch (command) {
@@ -202,13 +204,17 @@ async function main() {
         const durationIdx = args.indexOf('--duration');
         const tasksIdx = args.indexOf('--tasks');
         const filesIdx = args.indexOf('--files');
-        state.cmdStateRecordMetric(cwd, {
-          phase: phaseIdx !== -1 ? args[phaseIdx + 1] : null,
-          plan: planIdx !== -1 ? args[planIdx + 1] : null,
-          duration: durationIdx !== -1 ? args[durationIdx + 1] : null,
-          tasks: tasksIdx !== -1 ? args[tasksIdx + 1] : null,
-          files: filesIdx !== -1 ? args[filesIdx + 1] : null,
-        }, raw);
+        state.cmdStateRecordMetric(
+          cwd,
+          {
+            phase: phaseIdx !== -1 ? args[phaseIdx + 1] : null,
+            plan: planIdx !== -1 ? args[planIdx + 1] : null,
+            duration: durationIdx !== -1 ? args[durationIdx + 1] : null,
+            tasks: tasksIdx !== -1 ? args[tasksIdx + 1] : null,
+            files: filesIdx !== -1 ? args[filesIdx + 1] : null,
+          },
+          raw,
+        );
       } else if (subcommand === 'update-progress') {
         state.cmdStateUpdateProgress(cwd, raw);
       } else if (subcommand === 'add-decision') {
@@ -217,30 +223,42 @@ async function main() {
         const summaryFileIdx = args.indexOf('--summary-file');
         const rationaleIdx = args.indexOf('--rationale');
         const rationaleFileIdx = args.indexOf('--rationale-file');
-        state.cmdStateAddDecision(cwd, {
-          phase: phaseIdx !== -1 ? args[phaseIdx + 1] : null,
-          summary: summaryIdx !== -1 ? args[summaryIdx + 1] : null,
-          summary_file: summaryFileIdx !== -1 ? args[summaryFileIdx + 1] : null,
-          rationale: rationaleIdx !== -1 ? args[rationaleIdx + 1] : '',
-          rationale_file: rationaleFileIdx !== -1 ? args[rationaleFileIdx + 1] : null,
-        }, raw);
+        state.cmdStateAddDecision(
+          cwd,
+          {
+            phase: phaseIdx !== -1 ? args[phaseIdx + 1] : null,
+            summary: summaryIdx !== -1 ? args[summaryIdx + 1] : null,
+            summary_file: summaryFileIdx !== -1 ? args[summaryFileIdx + 1] : null,
+            rationale: rationaleIdx !== -1 ? args[rationaleIdx + 1] : '',
+            rationale_file: rationaleFileIdx !== -1 ? args[rationaleFileIdx + 1] : null,
+          },
+          raw,
+        );
       } else if (subcommand === 'add-blocker') {
         const textIdx = args.indexOf('--text');
         const textFileIdx = args.indexOf('--text-file');
-        state.cmdStateAddBlocker(cwd, {
-          text: textIdx !== -1 ? args[textIdx + 1] : null,
-          text_file: textFileIdx !== -1 ? args[textFileIdx + 1] : null,
-        }, raw);
+        state.cmdStateAddBlocker(
+          cwd,
+          {
+            text: textIdx !== -1 ? args[textIdx + 1] : null,
+            text_file: textFileIdx !== -1 ? args[textFileIdx + 1] : null,
+          },
+          raw,
+        );
       } else if (subcommand === 'resolve-blocker') {
         const textIdx = args.indexOf('--text');
         state.cmdStateResolveBlocker(cwd, textIdx !== -1 ? args[textIdx + 1] : null, raw);
       } else if (subcommand === 'record-session') {
         const stoppedIdx = args.indexOf('--stopped-at');
         const resumeIdx = args.indexOf('--resume-file');
-        state.cmdStateRecordSession(cwd, {
-          stopped_at: stoppedIdx !== -1 ? args[stoppedIdx + 1] : null,
-          resume_file: resumeIdx !== -1 ? args[resumeIdx + 1] : 'None',
-        }, raw);
+        state.cmdStateRecordSession(
+          cwd,
+          {
+            stopped_at: stoppedIdx !== -1 ? args[stoppedIdx + 1] : null,
+            resume_file: resumeIdx !== -1 ? args[resumeIdx + 1] : 'None',
+          },
+          raw,
+        );
       } else {
         state.cmdStateLoad(cwd, raw);
       }
@@ -262,7 +280,7 @@ async function main() {
       const message = args[1];
       // Parse --files flag (collect args after --files, stopping at other flags)
       const filesIndex = args.indexOf('--files');
-      const files = filesIndex !== -1 ? args.slice(filesIndex + 1).filter(a => !a.startsWith('--')) : [];
+      const files = filesIndex !== -1 ? args.slice(filesIndex + 1).filter((a) => !a.startsWith('--')) : [];
       commands.cmdCommit(cwd, message, files, raw, amend);
       break;
     }
@@ -270,7 +288,7 @@ async function main() {
     case 'verify-summary': {
       const summaryPath = args[1];
       const countIndex = args.indexOf('--check-count');
-      const checkCount = countIndex !== -1 ? parseInt(args[countIndex + 1], 10) : 2;
+      const checkCount = countIndex !== -1 ? Number.parseInt(args[countIndex + 1], 10) : 2;
       verify.cmdVerifySummary(cwd, summaryPath, checkCount, raw);
       break;
     }
@@ -287,14 +305,19 @@ async function main() {
         const typeIdx = args.indexOf('--type');
         const waveIdx = args.indexOf('--wave');
         const fieldsIdx = args.indexOf('--fields');
-        template.cmdTemplateFill(cwd, templateType, {
-          phase: phaseIdx !== -1 ? args[phaseIdx + 1] : null,
-          plan: planIdx !== -1 ? args[planIdx + 1] : null,
-          name: nameIdx !== -1 ? args[nameIdx + 1] : null,
-          type: typeIdx !== -1 ? args[typeIdx + 1] : 'execute',
-          wave: waveIdx !== -1 ? args[waveIdx + 1] : '1',
-          fields: fieldsIdx !== -1 ? JSON.parse(args[fieldsIdx + 1]) : {},
-        }, raw);
+        template.cmdTemplateFill(
+          cwd,
+          templateType,
+          {
+            phase: phaseIdx !== -1 ? args[phaseIdx + 1] : null,
+            plan: planIdx !== -1 ? args[planIdx + 1] : null,
+            name: nameIdx !== -1 ? args[nameIdx + 1] : null,
+            type: typeIdx !== -1 ? args[typeIdx + 1] : 'execute',
+            wave: waveIdx !== -1 ? args[waveIdx + 1] : '1',
+            fields: fieldsIdx !== -1 ? JSON.parse(args[fieldsIdx + 1]) : {},
+          },
+          raw,
+        );
       } else {
         error('Unknown template subcommand. Available: select, fill');
       }
@@ -310,7 +333,13 @@ async function main() {
       } else if (subcommand === 'set') {
         const fieldIdx = args.indexOf('--field');
         const valueIdx = args.indexOf('--value');
-        frontmatter.cmdFrontmatterSet(cwd, file, fieldIdx !== -1 ? args[fieldIdx + 1] : null, valueIdx !== -1 ? args[valueIdx + 1] : undefined, raw);
+        frontmatter.cmdFrontmatterSet(
+          cwd,
+          file,
+          fieldIdx !== -1 ? args[fieldIdx + 1] : null,
+          valueIdx !== -1 ? args[valueIdx + 1] : undefined,
+          raw,
+        );
       } else if (subcommand === 'merge') {
         const dataIdx = args.indexOf('--data');
         frontmatter.cmdFrontmatterMerge(cwd, file, dataIdx !== -1 ? args[dataIdx + 1] : null, raw);
@@ -338,7 +367,9 @@ async function main() {
       } else if (subcommand === 'key-links') {
         verify.cmdVerifyKeyLinks(cwd, args[2], raw);
       } else {
-        error('Unknown verify subcommand. Available: plan-structure, phase-completeness, references, commits, artifacts, key-links');
+        error(
+          'Unknown verify subcommand. Available: plan-structure, phase-completeness, references, commits, artifacts, key-links',
+        );
       }
       break;
     }
@@ -546,7 +577,9 @@ async function main() {
           init.cmdInitProgress(cwd, raw);
           break;
         default:
-          error(`Unknown init workflow: ${workflow}\nAvailable: execute-phase, plan-phase, new-project, new-milestone, quick, resume, verify-work, phase-op, todos, milestone-op, map-codebase, progress`);
+          error(
+            `Unknown init workflow: ${workflow}\nAvailable: execute-phase, plan-phase, new-project, new-milestone, quick, resume, verify-work, phase-op, todos, milestone-op, map-codebase, progress`,
+          );
       }
       break;
     }
@@ -573,10 +606,14 @@ async function main() {
       const query = args[1];
       const limitIdx = args.indexOf('--limit');
       const freshnessIdx = args.indexOf('--freshness');
-      await commands.cmdWebsearch(query, {
-        limit: limitIdx !== -1 ? parseInt(args[limitIdx + 1], 10) : 10,
-        freshness: freshnessIdx !== -1 ? args[freshnessIdx + 1] : null,
-      }, raw);
+      await commands.cmdWebsearch(
+        query,
+        {
+          limit: limitIdx !== -1 ? Number.parseInt(args[limitIdx + 1], 10) : 10,
+          freshness: freshnessIdx !== -1 ? args[freshnessIdx + 1] : null,
+        },
+        raw,
+      );
       break;
     }
 

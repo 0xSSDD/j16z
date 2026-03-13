@@ -23,7 +23,7 @@ import type { FilingMetadata } from '../edgar/types.js';
 // ---------------------------------------------------------------------------
 
 // Track calls so tests can control sequential return values
-const mockCikWhereResult = vi.fn();     // result of .where() in CIK match query (awaited directly)
+const mockCikWhereResult = vi.fn(); // result of .where() in CIK match query (awaited directly)
 const mockAutoWhereLimitResult = vi.fn(); // result of .limit() in auto-deal check query
 const mockReturningDeal = vi.fn();
 const mockValuesInsert = vi.fn(() => ({ returning: mockReturningDeal }));
@@ -59,8 +59,12 @@ let mockSelect = makeSelectMock();
 
 vi.mock('../db/index.js', () => ({
   adminDb: {
-    get select() { return mockSelect; },
-    get insert() { return mockInsert; },
+    get select() {
+      return mockSelect;
+    },
+    get insert() {
+      return mockInsert;
+    },
   },
 }));
 

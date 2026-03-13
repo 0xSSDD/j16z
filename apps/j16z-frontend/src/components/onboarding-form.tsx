@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import type React from 'react';
+import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 /**
@@ -122,7 +123,6 @@ export const OnboardingForm: React.FC = () => {
                 value={firmName}
                 onChange={(e) => setFirmName(e.target.value)}
                 placeholder="e.g. Apex Capital Management"
-                autoFocus
                 className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-text-main placeholder-text-dim outline-none transition-colors focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/20"
               />
             </div>

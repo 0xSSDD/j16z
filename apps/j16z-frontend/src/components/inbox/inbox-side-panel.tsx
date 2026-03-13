@@ -2,7 +2,7 @@
 
 import { format } from 'date-fns';
 import { ExternalLink, Eye, FileText, Newspaper, Scale, Shield, TrendingUp, X } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getAllEvents } from '@/lib/api';
 import type { Event } from '@/lib/types';
 

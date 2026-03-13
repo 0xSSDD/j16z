@@ -1,10 +1,10 @@
 import { Queue } from 'bullmq';
 import { and, eq, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
+import { COURTLISTENER_IPS, courtListenerWebhookSchema } from '../courtlistener/types.js';
 import { adminDb } from '../db/index.js';
 import * as schema from '../db/schema.js';
 import { redisConnection } from '../queues/connection.js';
-import { COURTLISTENER_IPS, courtListenerWebhookSchema } from '../courtlistener/types.js';
 
 // ---------------------------------------------------------------------------
 // Webhook routes — NO auth middleware
@@ -33,10 +33,7 @@ export const webhooksRoutes = new Hono();
  */
 webhooksRoutes.post('/courtlistener', async (c) => {
   // Log incoming IP for debugging and audit
-  const clientIp =
-    c.req.header('cf-connecting-ip') ??
-    c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ??
-    '';
+  const clientIp = c.req.header('cf-connecting-ip') ?? c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? '';
   console.log('[courtlistener webhook] incoming IP:', clientIp);
 
   // IP allowlist check
@@ -52,10 +49,7 @@ webhooksRoutes.post('/courtlistener', async (c) => {
       .select({ id: schema.events.id })
       .from(schema.events)
       .where(
-        and(
-          eq(schema.events.type, 'COURT'),
-          sql`${schema.events.metadata} ->> 'idempotencyKey' = ${idempotencyKey}`,
-        ),
+        and(eq(schema.events.type, 'COURT'), sql`${schema.events.metadata} ->> 'idempotencyKey' = ${idempotencyKey}`),
       )
       .limit(1);
 

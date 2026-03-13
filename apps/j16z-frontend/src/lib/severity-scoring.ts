@@ -10,17 +10,17 @@
  */
 
 export enum EventType {
-  AGENCY = "AGENCY",
-  COURT = "COURT",
-  FILING = "FILING",
-  SPREAD_MOVE = "SPREAD_MOVE",
-  NEWS = "NEWS",
+  AGENCY = 'AGENCY',
+  COURT = 'COURT',
+  FILING = 'FILING',
+  SPREAD_MOVE = 'SPREAD_MOVE',
+  NEWS = 'NEWS',
 }
 
 export enum SeverityLevel {
-  CRITICAL = "CRITICAL",
-  WARNING = "WARNING",
-  INFO = "INFO",
+  CRITICAL = 'CRITICAL',
+  WARNING = 'WARNING',
+  INFO = 'INFO',
 }
 
 interface EventContext {
@@ -30,43 +30,43 @@ interface EventContext {
   pClose?: number;
   litigationCount?: number;
   spreadMoveBps?: number; // basis points
-  analystFeedback?: "critical" | "not_critical";
+  analystFeedback?: 'critical' | 'not_critical';
 }
 
 // Base scores by event type and subtype
 const BASE_SCORES: Record<string, number> = {
   // AGENCY events
-  "AGENCY:FTC_COMPLAINT": 95,
-  "AGENCY:FTC_SECOND_REQUEST": 85,
-  "AGENCY:DOJ_PRESS_RELEASE": 80,
-  "AGENCY:REGULATORY_APPROVAL": 60,
-  "AGENCY:POLICY_STATEMENT": 40,
-  "AGENCY:DEFAULT": 70,
+  'AGENCY:FTC_COMPLAINT': 95,
+  'AGENCY:FTC_SECOND_REQUEST': 85,
+  'AGENCY:DOJ_PRESS_RELEASE': 80,
+  'AGENCY:REGULATORY_APPROVAL': 60,
+  'AGENCY:POLICY_STATEMENT': 40,
+  'AGENCY:DEFAULT': 70,
 
   // COURT events
-  "COURT:INJUNCTION_GRANTED": 90,
-  "COURT:MOTION_DENIED_TRO": 75,
-  "COURT:MOTION_GRANTED": 70,
-  "COURT:DOCKET_ENTRY": 50,
-  "COURT:DEFAULT": 60,
+  'COURT:INJUNCTION_GRANTED': 90,
+  'COURT:MOTION_DENIED_TRO': 75,
+  'COURT:MOTION_GRANTED': 70,
+  'COURT:DOCKET_ENTRY': 50,
+  'COURT:DEFAULT': 60,
 
   // FILING events
-  "FILING:S4_DEFM14A": 80,
-  "FILING:8K_AMENDMENT": 60,
-  "FILING:10K_10Q": 50,
-  "FILING:ROUTINE_UPDATE": 40,
-  "FILING:DEFAULT": 50,
+  'FILING:S4_DEFM14A': 80,
+  'FILING:8K_AMENDMENT': 60,
+  'FILING:10K_10Q': 50,
+  'FILING:ROUTINE_UPDATE': 40,
+  'FILING:DEFAULT': 50,
 
   // SPREAD_MOVE events (based on basis points movement)
-  "SPREAD_MOVE:>500": 70,
-  "SPREAD_MOVE:>200": 40,
-  "SPREAD_MOVE:>50": 20,
-  "SPREAD_MOVE:DEFAULT": 10,
+  'SPREAD_MOVE:>500': 70,
+  'SPREAD_MOVE:>200': 40,
+  'SPREAD_MOVE:>50': 20,
+  'SPREAD_MOVE:DEFAULT': 10,
 
   // NEWS events
-  "NEWS:LAW_FIRM_ALERT": 40,
-  "NEWS:GENERIC": 10,
-  "NEWS:DEFAULT": 20,
+  'NEWS:LAW_FIRM_ALERT': 40,
+  'NEWS:GENERIC': 10,
+  'NEWS:DEFAULT': 20,
 };
 
 /**
@@ -78,10 +78,10 @@ function getBaseScore(context: EventContext): number {
   // Handle spread movement special case
   if (type === EventType.SPREAD_MOVE && spreadMoveBps !== undefined) {
     const absMovement = Math.abs(spreadMoveBps);
-    if (absMovement > 500) return BASE_SCORES["SPREAD_MOVE:>500"];
-    if (absMovement > 200) return BASE_SCORES["SPREAD_MOVE:>200"];
-    if (absMovement > 50) return BASE_SCORES["SPREAD_MOVE:>50"];
-    return BASE_SCORES["SPREAD_MOVE:DEFAULT"];
+    if (absMovement > 500) return BASE_SCORES['SPREAD_MOVE:>500'];
+    if (absMovement > 200) return BASE_SCORES['SPREAD_MOVE:>200'];
+    if (absMovement > 50) return BASE_SCORES['SPREAD_MOVE:>50'];
+    return BASE_SCORES['SPREAD_MOVE:DEFAULT'];
   }
 
   // Try specific subtype first
@@ -127,8 +127,8 @@ function getLitigationAdjustment(litigationCount?: number): number {
  * Calculate analyst feedback adjustment
  * -25 points if analyst marked as "not critical"
  */
-function getAnalystFeedbackAdjustment(feedback?: "critical" | "not_critical"): number {
-  if (feedback === "not_critical") return -25;
+function getAnalystFeedbackAdjustment(feedback?: 'critical' | 'not_critical'): number {
+  if (feedback === 'not_critical') return -25;
   return 0;
 }
 
@@ -163,11 +163,11 @@ export function getSeverityLevel(score: number): SeverityLevel {
 export function getSeverityBadgeColor(level: SeverityLevel): string {
   switch (level) {
     case SeverityLevel.CRITICAL:
-      return "🔴";
+      return '🔴';
     case SeverityLevel.WARNING:
-      return "🟡";
+      return '🟡';
     case SeverityLevel.INFO:
-      return "🟢";
+      return '🟢';
   }
 }
 

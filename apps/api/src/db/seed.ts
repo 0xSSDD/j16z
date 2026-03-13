@@ -13,8 +13,8 @@ interface StarterDeal {
   symbol: string;
   acquirer: string;
   target: string;
-  status: typeof schema.deals.$inferInsert['status'];
-  considerationType: typeof schema.deals.$inferInsert['considerationType'];
+  status: (typeof schema.deals.$inferInsert)['status'];
+  considerationType: (typeof schema.deals.$inferInsert)['considerationType'];
   dealValue: string;
   sizeBucket: string;
   announcedDate: string;
@@ -151,7 +151,7 @@ const STARTER_DEALS: StarterDeal[] = [
 // ---------------------------------------------------------------------------
 interface StarterEvent {
   dealSymbol: string;
-  type: typeof schema.events.$inferInsert['type'];
+  type: (typeof schema.events.$inferInsert)['type'];
   subType: string;
   title: string;
   description: string;
@@ -159,7 +159,7 @@ interface StarterEvent {
   sourceUrl: string;
   offsetDays: number; // days before now
   materialityScore: number;
-  severity: typeof schema.events.$inferInsert['severity'];
+  severity: (typeof schema.events.$inferInsert)['severity'];
 }
 
 const STARTER_EVENTS: StarterEvent[] = [
@@ -171,7 +171,8 @@ const STARTER_EVENTS: StarterEvent[] = [
     description:
       'The Committee on Foreign Investment in the United States (CFIUS) has formally initiated a national security review of the proposed acquisition. The review focuses on the strategic importance of US domestic steel production capacity.',
     source: 'FTC',
-    sourceUrl: 'https://home.treasury.gov/policy-issues/international/the-committee-on-foreign-investment-in-the-united-states-cfius',
+    sourceUrl:
+      'https://home.treasury.gov/policy-issues/international/the-committee-on-foreign-investment-in-the-united-states-cfius',
     offsetDays: 30,
     materialityScore: 85,
     severity: 'CRITICAL',
@@ -182,7 +183,7 @@ const STARTER_EVENTS: StarterEvent[] = [
     subType: 'injunction_filed',
     title: 'Steel Workers Union Files Lawsuit to Block Nippon Steel Acquisition',
     description:
-      "The United Steelworkers union has filed suit in the DC Circuit Court seeking to block the acquisition on national security and labor grounds. The filing argues the deal would undermine domestic steel production critical to US defense supply chains.",
+      'The United Steelworkers union has filed suit in the DC Circuit Court seeking to block the acquisition on national security and labor grounds. The filing argues the deal would undermine domestic steel production critical to US defense supply chains.',
     source: 'COURT_LISTENER',
     sourceUrl: 'https://www.courtlistener.com/',
     offsetDays: 20,
@@ -208,7 +209,7 @@ const STARTER_EVENTS: StarterEvent[] = [
     subType: 'arbitration',
     title: 'ExxonMobil Pursues Arbitration Over Hess Guyana Assets in Chevron Deal',
     description:
-      'ExxonMobil Corp. has initiated arbitration proceedings over a right of first refusal claim on Hess Corporation\'s stake in the Guyana oil field. The outcome could materially affect deal terms or closing timeline for the Chevron acquisition.',
+      "ExxonMobil Corp. has initiated arbitration proceedings over a right of first refusal claim on Hess Corporation's stake in the Guyana oil field. The outcome could materially affect deal terms or closing timeline for the Chevron acquisition.",
     source: 'COURT_LISTENER',
     sourceUrl: 'https://www.courtlistener.com/',
     offsetDays: 15,

@@ -1,15 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
 import { Bell, Copy, Loader2, Plus, Send, Trash2, X } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { SimpleDropdown } from '@/components/ui/simple-dropdown';
-import {
-  createAlertRule,
-  deleteAlertRule,
-  getAlertRules,
-  testAlertRule,
-  updateAlertRule,
-} from '@/lib/api';
+import { createAlertRule, deleteAlertRule, getAlertRules, testAlertRule, updateAlertRule } from '@/lib/api';
 import type { AlertChannel, AlertRule, CreateAlertRuleInput } from '@/lib/types';
 
 export function AlertRulesTab() {
@@ -104,10 +98,7 @@ export function AlertRulesTab() {
       {error && (
         <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4">
           <p className="text-sm text-red-400">{error}</p>
-          <button
-            onClick={() => setError(null)}
-            className="mt-1 text-xs text-red-400/70 underline hover:text-red-400"
-          >
+          <button onClick={() => setError(null)} className="mt-1 text-xs text-red-400/70 underline hover:text-red-400">
             Dismiss
           </button>
         </div>
@@ -145,9 +136,7 @@ export function AlertRulesTab() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold text-[var(--text-main)]">Alert Rules</h2>
-          <p className="text-sm text-[var(--text-muted)]">
-            Configure when and how you receive notifications
-          </p>
+          <p className="text-sm text-[var(--text-muted)]">Configure when and how you receive notifications</p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
@@ -163,9 +152,7 @@ export function AlertRulesTab() {
         <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-surface)] p-8 text-center">
           <Bell className="mx-auto mb-3 h-8 w-8 text-[var(--text-muted)]" />
           <p className="text-sm text-[var(--text-muted)]">No alert rules configured yet</p>
-          <p className="mt-1 text-xs text-[var(--text-muted)]">
-            Create a rule to start receiving notifications
-          </p>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">Create a rule to start receiving notifications</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -263,12 +250,7 @@ export function AlertRulesTab() {
       )}
 
       {/* Create Modal */}
-      {showCreateModal && (
-        <CreateRuleModal
-          onClose={() => setShowCreateModal(false)}
-          onCreate={handleCreate}
-        />
-      )}
+      {showCreateModal && <CreateRuleModal onClose={() => setShowCreateModal(false)} onCreate={handleCreate} />}
     </div>
   );
 }
@@ -298,9 +280,7 @@ function CreateRuleModal({
 
   const toggleChannel = (id: string) => {
     setChannels((prev) =>
-      prev.includes(id as AlertChannel)
-        ? prev.filter((c) => c !== id)
-        : [...prev, id as AlertChannel],
+      prev.includes(id as AlertChannel) ? prev.filter((c) => c !== id) : [...prev, id as AlertChannel],
     );
   };
 
@@ -368,23 +348,14 @@ function CreateRuleModal({
 
           {/* Channels */}
           <div>
-            <label className="mb-1 block text-sm font-medium text-[var(--text-main)]">
-              Channels
-            </label>
-            <SimpleDropdown
-              label="Channels"
-              items={channelOptions}
-              selectedIds={channels}
-              onToggle={toggleChannel}
-            />
+            <label className="mb-1 block text-sm font-medium text-[var(--text-main)]">Channels</label>
+            <SimpleDropdown label="Channels" items={channelOptions} selectedIds={channels} onToggle={toggleChannel} />
           </div>
 
           {/* Webhook URL (conditional) */}
           {channels.includes('webhook') && (
             <div>
-              <label className="mb-1 block text-sm font-medium text-[var(--text-main)]">
-                Webhook URL
-              </label>
+              <label className="mb-1 block text-sm font-medium text-[var(--text-main)]">Webhook URL</label>
               <input
                 type="url"
                 value={webhookUrl}

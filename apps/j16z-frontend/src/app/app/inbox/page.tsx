@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { InboxTimeline } from "@/components/inbox/inbox-timeline";
-import { InboxSidePanel } from "@/components/inbox/inbox-side-panel";
-import { InboxFilters } from "@/components/inbox/inbox-filters";
-import { InboxHeader } from "@/components/inbox/inbox-header";
-import { KeyboardHelpModal } from "@/components/keyboard-help-modal";
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { InboxFilters } from '@/components/inbox/inbox-filters';
+import { InboxHeader } from '@/components/inbox/inbox-header';
+import { InboxSidePanel } from '@/components/inbox/inbox-side-panel';
+import { InboxTimeline } from '@/components/inbox/inbox-timeline';
+import { KeyboardHelpModal } from '@/components/keyboard-help-modal';
 
 export default function InboxPage() {
   const router = useRouter();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [filters, setFilters] = useState(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("inbox_filters");
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('inbox_filters');
       if (stored) {
         try {
           return JSON.parse(stored);
@@ -35,7 +35,7 @@ export default function InboxPage() {
   });
 
   useEffect(() => {
-    localStorage.setItem("inbox_filters", JSON.stringify(filters));
+    localStorage.setItem('inbox_filters', JSON.stringify(filters));
   }, [filters]);
 
   useEffect(() => {
@@ -50,14 +50,14 @@ export default function InboxPage() {
       }
 
       // Help modal (Shift + ?)
-      if (e.key === "?" && e.shiftKey) {
+      if (e.key === '?' && e.shiftKey) {
         e.preventDefault();
         setShowHelpModal(true);
         return;
       }
 
       // Close side panel with Esc
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         e.preventDefault();
         setSelectedEventId(null);
         setShowHelpModal(false);
@@ -65,7 +65,7 @@ export default function InboxPage() {
       }
 
       // g+x navigation shortcuts
-      if (e.key === "g" && !e.metaKey && !e.ctrlKey) {
+      if (e.key === 'g' && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
         gPressed = true;
         clearTimeout(gTimeout);
@@ -78,20 +78,20 @@ export default function InboxPage() {
       if (gPressed) {
         e.preventDefault();
         switch (e.key) {
-          case "i":
-            router.push("/app/inbox");
+          case 'i':
+            router.push('/app/inbox');
             gPressed = false;
             break;
-          case "d":
-            router.push("/app/deals");
+          case 'd':
+            router.push('/app/deals');
             gPressed = false;
             break;
-          case "w":
-            router.push("/app/watchlists");
+          case 'w':
+            router.push('/app/watchlists');
             gPressed = false;
             break;
-          case "s":
-            router.push("/app/settings");
+          case 's':
+            router.push('/app/settings');
             gPressed = false;
             break;
         }
@@ -99,46 +99,46 @@ export default function InboxPage() {
       }
 
       // Toggle severity filters (1-3 for CRITICAL/WARNING/INFO)
-      if (e.key === "1" && !e.metaKey && !e.ctrlKey) {
+      if (e.key === '1' && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        const newSeverity = filters.severity.includes("CRITICAL")
-          ? filters.severity.filter((l: string) => l !== "CRITICAL")
-          : [...filters.severity, "CRITICAL"];
+        const newSeverity = filters.severity.includes('CRITICAL')
+          ? filters.severity.filter((l: string) => l !== 'CRITICAL')
+          : [...filters.severity, 'CRITICAL'];
         setFilters({ ...filters, severity: newSeverity });
         return;
       }
 
-      if (e.key === "2" && !e.metaKey && !e.ctrlKey) {
+      if (e.key === '2' && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        const newSeverity = filters.severity.includes("WARNING")
-          ? filters.severity.filter((l: string) => l !== "WARNING")
-          : [...filters.severity, "WARNING"];
+        const newSeverity = filters.severity.includes('WARNING')
+          ? filters.severity.filter((l: string) => l !== 'WARNING')
+          : [...filters.severity, 'WARNING'];
         setFilters({ ...filters, severity: newSeverity });
         return;
       }
 
-      if (e.key === "3" && !e.metaKey && !e.ctrlKey) {
+      if (e.key === '3' && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        const newSeverity = filters.severity.includes("INFO")
-          ? filters.severity.filter((l: string) => l !== "INFO")
-          : [...filters.severity, "INFO"];
+        const newSeverity = filters.severity.includes('INFO')
+          ? filters.severity.filter((l: string) => l !== 'INFO')
+          : [...filters.severity, 'INFO'];
         setFilters({ ...filters, severity: newSeverity });
         return;
       }
 
       // Mark as read (e key)
-      if (e.key === "e" && selectedEventId && !e.metaKey && !e.ctrlKey) {
+      if (e.key === 'e' && selectedEventId && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        const { markEventAsRead } = require("@/lib/read-status");
+        const { markEventAsRead } = require('@/lib/read-status');
         markEventAsRead(selectedEventId);
-        window.dispatchEvent(new CustomEvent("inbox:unread-updated"));
+        window.dispatchEvent(new CustomEvent('inbox:unread-updated'));
         return;
       }
 
       // View deal card (v key)
-      if (e.key === "v" && selectedEventId && !e.metaKey && !e.ctrlKey) {
+      if (e.key === 'v' && selectedEventId && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        const { getAllEvents } = require("@/lib/api");
+        const { getAllEvents } = require('@/lib/api');
         getAllEvents().then((events: any[]) => {
           const event = events.find((e) => e.id === selectedEventId);
           if (event?.dealId) {
@@ -149,12 +149,12 @@ export default function InboxPage() {
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener('keydown', handleKeyDown);
       clearTimeout(gTimeout);
     };
-  }, [filters, selectedEventId, router, showHelpModal]);
+  }, [filters, selectedEventId, router]);
 
   return (
     <div className="flex h-full flex-col">
@@ -177,18 +177,10 @@ export default function InboxPage() {
           onIndexChange={setSelectedIndex}
         />
 
-        {selectedEventId && (
-          <InboxSidePanel
-            eventId={selectedEventId}
-            onClose={() => setSelectedEventId(null)}
-          />
-        )}
+        {selectedEventId && <InboxSidePanel eventId={selectedEventId} onClose={() => setSelectedEventId(null)} />}
       </div>
 
-      <KeyboardHelpModal
-        isOpen={showHelpModal}
-        onClose={() => setShowHelpModal(false)}
-      />
+      <KeyboardHelpModal isOpen={showHelpModal} onClose={() => setShowHelpModal(false)} />
     </div>
   );
 }

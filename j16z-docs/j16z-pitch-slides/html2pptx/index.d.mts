@@ -1,4 +1,4 @@
-import PptxGenJSType from "pptxgenjs";
+import PptxGenJSType from 'pptxgenjs';
 
 //#region src/types.d.ts
 
@@ -45,4 +45,15 @@ interface Html2PptxResult {
 
 declare function html2pptx(htmlFile: string, pres: PptxGenJS, options?: Html2PptxOptions): Promise<Html2PptxResult>;
 //#endregion
-export { type Html2PptxOptions, type Html2PptxResult, type ImageOptions, type Placeholder, type PptxGenJS, type Shadow, type Slide, type TextOptions, type TextRun, html2pptx };
+export {
+  type Html2PptxOptions,
+  type Html2PptxResult,
+  type ImageOptions,
+  type Placeholder,
+  type PptxGenJS,
+  type Shadow,
+  type Slide,
+  type TextOptions,
+  type TextRun,
+  html2pptx,
+};

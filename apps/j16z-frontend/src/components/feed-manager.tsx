@@ -1,16 +1,8 @@
-"use client";
+'use client';
 
-import React from "react";
-import {
-  CheckCircle2,
-  Pause,
-  Play,
-  Radio,
-  RefreshCw,
-  Settings2,
-  XCircle,
-} from "lucide-react";
-import { DATA_SOURCES } from "@/lib/constants";
+import { CheckCircle2, Pause, Play, Radio, RefreshCw, Settings2, XCircle } from 'lucide-react';
+import type React from 'react';
+import { DATA_SOURCES } from '@/lib/constants';
 
 export const FeedManager: React.FC = () => {
   return (
@@ -21,9 +13,7 @@ export const FeedManager: React.FC = () => {
             <Radio className="h-5 w-5 text-primary-500" />
             Live Monitor
           </h1>
-          <p className="mt-1 text-xs font-bold uppercase tracking-widest text-text-muted">
-            Data Feed Management
-          </p>
+          <p className="mt-1 text-xs font-bold uppercase tracking-widest text-text-muted">Data Feed Management</p>
         </div>
         <button className="flex items-center gap-2 border border-border bg-surface px-4 py-2 text-xs font-bold uppercase tracking-wider text-text-muted transition-all hover:border-primary-500/50 hover:text-primary-500">
           <RefreshCw className="h-3.5 w-3.5" />
@@ -64,10 +54,7 @@ export const FeedManager: React.FC = () => {
           </thead>
           <tbody className="divide-y divide-border">
             {DATA_SOURCES.map((source) => (
-              <tr
-                key={source.id}
-                className="group transition-colors hover:bg-surfaceHighlight"
-              >
+              <tr key={source.id} className="group transition-colors hover:bg-surfaceHighlight">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     <div className="border border-border bg-background p-1.5 text-text-muted">
@@ -75,9 +62,7 @@ export const FeedManager: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-xs font-bold text-text-main">{source.name}</div>
-                      <div className="text-[10px] text-text-dim">
-                        {source.id}-XF
-                      </div>
+                      <div className="text-[10px] text-text-dim">{source.id}-XF</div>
                     </div>
                   </div>
                 </td>
@@ -87,12 +72,12 @@ export const FeedManager: React.FC = () => {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  {source.status === "active" ? (
+                  {source.status === 'active' ? (
                     <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-emerald-500">
                       <CheckCircle2 className="h-3.5 w-3.5" />
                       <span>Active</span>
                     </div>
-                  ) : source.status === "pending" ? (
+                  ) : source.status === 'pending' ? (
                     <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-primary-500">
                       <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                       <span>Sync</span>
@@ -104,15 +89,13 @@ export const FeedManager: React.FC = () => {
                     </div>
                   )}
                 </td>
-                <td className="px-4 py-3 font-mono text-[10px] text-text-dim">
-                  {source.lastUpdate}
-                </td>
+                <td className="px-4 py-3 font-mono text-[10px] text-text-dim">{source.lastUpdate}</td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                     <button className="p-1.5 text-text-dim hover:bg-surfaceHighlight hover:text-text-main">
                       <Settings2 className="h-3.5 w-3.5" />
                     </button>
-                    {source.status === "active" ? (
+                    {source.status === 'active' ? (
                       <button className="p-1.5 text-text-dim hover:bg-rose-500/10 hover:text-rose-500">
                         <Pause className="h-3.5 w-3.5" />
                       </button>

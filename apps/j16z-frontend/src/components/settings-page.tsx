@@ -1,29 +1,27 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 
 export function SettingsPage() {
-  const [apiKey, setApiKey] = React.useState("");
+  const [apiKey, setApiKey] = React.useState('');
   const [showApiKey, setShowApiKey] = React.useState(false);
 
   React.useEffect(() => {
-    const stored = localStorage.getItem("j16z-api-key");
+    const stored = localStorage.getItem('j16z-api-key');
     if (stored) setApiKey(stored);
   }, []);
 
   const generateApiKey = () => {
     const key = `j16z_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
     setApiKey(key);
-    localStorage.setItem("j16z-api-key", key);
+    localStorage.setItem('j16z-api-key', key);
   };
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-4xl">
       <div>
         <h1 className="text-2xl font-mono font-bold text-zinc-100">Settings</h1>
-        <p className="text-sm text-zinc-500 font-mono mt-1">
-          Manage your account and preferences
-        </p>
+        <p className="text-sm text-zinc-500 font-mono mt-1">Manage your account and preferences</p>
       </div>
 
       <div className="space-y-6">
@@ -34,7 +32,7 @@ export function SettingsPage() {
               <label className="block text-sm font-mono text-zinc-400 mb-2">API Key</label>
               <div className="flex gap-2">
                 <input
-                  type={showApiKey ? "text" : "password"}
+                  type={showApiKey ? 'text' : 'password'}
                   value={apiKey}
                   readOnly
                   className="flex-1 bg-zinc-900 border border-zinc-800 text-zinc-100 font-mono text-sm p-2 rounded-md"
@@ -44,7 +42,7 @@ export function SettingsPage() {
                   onClick={() => setShowApiKey(!showApiKey)}
                   className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 rounded-md font-mono text-sm transition-colors"
                 >
-                  {showApiKey ? "Hide" : "Show"}
+                  {showApiKey ? 'Hide' : 'Show'}
                 </button>
                 <button
                   onClick={generateApiKey}

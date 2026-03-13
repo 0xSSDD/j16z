@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useRouter } from "next/navigation";
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
-import { Deal, Event, Clause } from "@/lib/types";
-import { MOCK_DEALS, MOCK_EVENTS, MOCK_CLAUSES } from "@/lib/constants";
-import { formatDate, formatTime, formatDateForFilename } from "@/lib/date-utils";
-import { exportTextFile } from "@/lib/file-utils";
+import { Document, HeadingLevel, Packer, Paragraph, TextRun } from 'docx';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
+import { MOCK_CLAUSES, MOCK_DEALS, MOCK_EVENTS } from '@/lib/constants';
+import { formatDate, formatDateForFilename, formatTime } from '@/lib/date-utils';
+import { exportTextFile } from '@/lib/file-utils';
+import type { Clause, Deal, Event } from '@/lib/types';
 
 interface ResearchDraftProps {
   dealId: string;
@@ -18,7 +18,7 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
   const events = MOCK_EVENTS.filter((e) => e.dealId === dealId);
   const clauses = MOCK_CLAUSES.filter((c) => c.dealId === dealId);
 
-  const [content, setContent] = React.useState("");
+  const [content, setContent] = React.useState('');
   const [lastSaved, setLastSaved] = React.useState<Date | null>(null);
 
   React.useEffect(() => {
@@ -33,7 +33,7 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
       setLastSaved(new Date());
     }, 5000);
     return () => clearTimeout(timer);
-  }, [content]);
+  }, []);
 
   if (!deal) {
     return (
@@ -41,7 +41,7 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
         <div className="text-center">
           <h1 className="text-2xl font-mono font-bold text-foreground mb-2">Deal Not Found</h1>
           <button
-            onClick={() => router.push("/app/deals")}
+            onClick={() => router.push('/app/deals')}
             className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 dark:text-zinc-950 rounded-md font-mono text-sm transition-colors"
           >
             Back to Deals
@@ -59,7 +59,7 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
     exportTextFile(
       content,
       `${deal.acquirerSymbol}-${deal.symbol}-memo-${formatDateForFilename()}.md`,
-      "text/markdown"
+      'text/markdown',
     );
   };
 
@@ -67,27 +67,28 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
     const doc = new Document({
       sections: [
         {
-          children: content.split("\n").map((line) => {
-            if (line.startsWith("# ")) {
+          children: content.split('\n').map((line) => {
+            if (line.startsWith('# ')) {
               return new Paragraph({
-                text: line.replace("# ", ""),
+                text: line.replace('# ', ''),
                 heading: HeadingLevel.HEADING_1,
               });
-            } else if (line.startsWith("## ")) {
+            }
+            if (line.startsWith('## ')) {
               return new Paragraph({
-                text: line.replace("## ", ""),
+                text: line.replace('## ', ''),
                 heading: HeadingLevel.HEADING_2,
               });
-            } else if (line.startsWith("### ")) {
+            }
+            if (line.startsWith('### ')) {
               return new Paragraph({
-                text: line.replace("### ", ""),
+                text: line.replace('### ', ''),
                 heading: HeadingLevel.HEADING_3,
               });
-            } else {
-              return new Paragraph({
-                children: [new TextRun(line)],
-              });
             }
+            return new Paragraph({
+              children: [new TextRun(line)],
+            });
           }),
         },
       ],
@@ -95,7 +96,7 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
 
     const blob = await Packer.toBlob(doc);
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
     a.download = `${deal.acquirerSymbol}-${deal.symbol}-memo-${formatDateForFilename()}.docx`;
     a.click();
@@ -117,11 +118,7 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          {lastSaved && (
-            <span className="text-xs text-muted-foreground font-mono">
-              Saved {formatTime(lastSaved)}
-            </span>
-          )}
+          {lastSaved && <span className="text-xs text-muted-foreground font-mono">Saved {formatTime(lastSaved)}</span>}
           <button
             onClick={copyToClipboard}
             className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-md font-mono text-sm transition-colors"
@@ -157,8 +154,8 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
 }
 
 function generateDraft(deal: Deal, events: Event[], clauses: Clause[]): string {
-  const regulatoryEvents = events.filter((e) => e.type === "AGENCY");
-  const litigationEvents = events.filter((e) => e.type === "COURT");
+  const regulatoryEvents = events.filter((e) => e.type === 'AGENCY');
+  const litigationEvents = events.filter((e) => e.type === 'COURT');
 
   return `# ${deal.acquirerName} / ${deal.companyName} - M&A Analysis
 
@@ -173,27 +170,35 @@ ${deal.acquirerName} announced its acquisition of ${deal.companyName} on ${forma
 
 ## Deal Terms
 
-${clauses.length > 0 ? clauses.map((c) => `**${c.type.replace(/_/g, " ")}:** ${c.value} (${c.sourceFilingType} ${c.sourceSection})`).join("\n\n") : "No deal terms available."}
+${clauses.length > 0 ? clauses.map((c) => `**${c.type.replace(/_/g, ' ')}:** ${c.value} (${c.sourceFilingType} ${c.sourceSection})`).join('\n\n') : 'No deal terms available.'}
 
 ## Regulatory Review
 
-${regulatoryEvents.length > 0 ? `The transaction is subject to regulatory review by multiple jurisdictions. Key developments include:
+${
+  regulatoryEvents.length > 0
+    ? `The transaction is subject to regulatory review by multiple jurisdictions. Key developments include:
 
-${regulatoryEvents.map((e) => `- **${formatDate(e.timestamp)}:** ${e.title} - ${e.summary}`).join("\n")}` : "No significant regulatory issues identified."}
+${regulatoryEvents.map((e) => `- **${formatDate(e.timestamp)}:** ${e.title} - ${e.summary}`).join('\n')}`
+    : 'No significant regulatory issues identified.'
+}
 
-${deal.regulatoryFlags.length > 0 ? `\n**Active Regulatory Concerns:** ${deal.regulatoryFlags.map((f) => f.replace(/_/g, " ")).join(", ")}` : ""}
+${deal.regulatoryFlags.length > 0 ? `\n**Active Regulatory Concerns:** ${deal.regulatoryFlags.map((f) => f.replace(/_/g, ' ')).join(', ')}` : ''}
 
 ## Litigation
 
-${litigationEvents.length > 0 ? `The transaction faces litigation challenges:
+${
+  litigationEvents.length > 0
+    ? `The transaction faces litigation challenges:
 
-${litigationEvents.map((e) => `- **${formatDate(e.timestamp)}:** ${e.title} - ${e.summary}`).join("\n")}` : "No active litigation."}
+${litigationEvents.map((e) => `- **${formatDate(e.timestamp)}:** ${e.title} - ${e.summary}`).join('\n')}`
+    : 'No active litigation.'
+}
 
 ## Risk Assessment
 
 **Key Risks:**
-${deal.regulatoryFlags.length > 0 ? `- Regulatory approval uncertainty (${deal.regulatoryFlags.length} active review${deal.regulatoryFlags.length > 1 ? "s" : ""})` : ""}
-${deal.litigationCount > 0 ? `- Litigation risk (${deal.litigationCount} active case${deal.litigationCount > 1 ? "s" : ""})` : ""}
+${deal.regulatoryFlags.length > 0 ? `- Regulatory approval uncertainty (${deal.regulatoryFlags.length} active review${deal.regulatoryFlags.length > 1 ? 's' : ''})` : ''}
+${deal.litigationCount > 0 ? `- Litigation risk (${deal.litigationCount} active case${deal.litigationCount > 1 ? 's' : ''})` : ''}
 - Market risk (current spread: ${deal.currentSpread.toFixed(1)}%)
 - Timing risk (outside date: ${formatDate(deal.outsideDate)})
 
@@ -211,7 +216,7 @@ ${deal.litigationCount > 0 ? `- Litigation risk (${deal.litigationCount} active 
 
 ## Recommendation
 
-${deal.ev > 2 ? "**BUY** - Attractive risk/reward profile with expected value above 2%." : deal.ev > 1 ? "**HOLD** - Moderate risk/reward profile." : "**PASS** - Insufficient expected value given risks."}
+${deal.ev > 2 ? '**BUY** - Attractive risk/reward profile with expected value above 2%.' : deal.ev > 1 ? '**HOLD** - Moderate risk/reward profile.' : '**PASS** - Insufficient expected value given risks.'}
 
 ---
 

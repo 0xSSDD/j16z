@@ -7,13 +7,11 @@ import {
   AlertTriangle,
   Check,
   FileText,
-  Newspaper,
   Plus,
   RefreshCw,
   Rss,
   Scale,
   Shield,
-  X,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { getIntegrationHealth, type IntegrationHealth, type PacerCredentialHealth } from '@/lib/api';
