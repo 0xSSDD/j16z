@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: LLM Extraction Pipeline** - Clause extraction with citation verification; real deal cards and scored Inbox (3 plans, 3 waves) (completed 2026-03-01)
 - [x] **Phase 4: CourtListener, FTC/DOJ, and RSS Ingestion** - All secondary data sources; complete event coverage (3 plans, 2 waves) (completed 2026-03-13)
 - [x] **Phase 5: Alert Delivery + Market Data** - Email and Slack alerts on scored events; spread display on deal board (3/3 plans complete) (completed 2026-03-13)
-- [ ] **Phase 6: Digests + Deal Memo Editor** - Daily/weekly digests; memo editor seeded with live deal terms (3 plans, 2 waves)
+- [x] **Phase 6: Digests + Deal Memo Editor** - Daily/weekly digests; memo editor seeded with live deal terms (3/3 plans complete) (completed 2026-03-14)
 - [ ] **Phase 7: Frontend Refinement + Exports** - v1 completeness: deal page tabs, landing page polish, CSV/API exports
 
 ## Phase Details
@@ -121,7 +121,7 @@ Plans:
 Plans:
 - [x] 06-01-PLAN.md — Digest schema + BullMQ cron (daily 8 AM ET, weekly Friday 5 PM ET); react-email templates (dark Aurora palette); digest preference CRUD API + Settings Digests tab (Wave 1) — COMPLETE 2026-03-13
 - [x] 06-02-PLAN.md — Memo schema (memos + snapshots) + CRUD API with optimistic concurrency; tiptap editor with deal-data scaffold; deal card Memo tab (Wave 1) — COMPLETE 2026-03-13
-- [ ] 06-03-PLAN.md — Per-section live data refresh; snapshot panel (create/browse/restore/compare); memo export (.docx + .pdf) (Wave 2)
+- [x] 06-03-PLAN.md — Per-section live data refresh; snapshot panel (create/browse/restore/compare); memo export (.docx + .pdf) (Wave 2) — COMPLETE 2026-03-14
 
 ### Phase 7: Frontend Refinement + Exports
 **Goal**: The product is pilot-ready with polished deal page navigation, a landing page that conveys craft, and structured data exports for firms that need to pipe data into internal models
@@ -152,5 +152,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 3. LLM Extraction Pipeline | 3/3 | Complete   | 2026-03-01 |
 | 4. CourtListener, FTC/DOJ, RSS | 3/3 | Complete    | 2026-03-13 |
 | 5. Alert Delivery + Market Data | 3/3 | Complete | 2026-03-13 |
-| 6. Digests + Deal Memo Editor | 0/3 | Not started | - |
+| 6. Digests + Deal Memo Editor | 3/3 | Complete | 2026-03-14 |
 | 7. Frontend Refinement + Exports | 0/3 | Not started | - |

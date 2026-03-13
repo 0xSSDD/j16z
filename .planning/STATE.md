@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-03-13T21:54:00Z"
+last_updated: "2026-03-14T07:03:00Z"
 progress:
   total_phases: 6
-  completed_phases: 5
-  total_plans: 16
-  completed_plans: 16
+  completed_phases: 6
+  total_plans: 19
+  completed_plans: 19
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 
 ## Current Position
 
-Phase: 6 of 7 (Digests + Deal Memo Editor) — IN PROGRESS
-Plan: 2 of 3 (06-02 complete — tiptap memo editor, CRUD API, deal card Memo tab)
-Status: Phase 6 Plan 2 COMPLETE — memo editor with scaffold generator live; ready for Plan 3 (snapshot panel + export)
-Last activity: 2026-03-13 — Plan 06-02 complete (memos schema, CRUD API, tiptap editor, MemoList, deal card tab)
+Phase: 6 of 6 (Digests + Deal Memo Editor) — COMPLETE
+Plan: 3 of 3 (06-03 complete — section refresh, snapshot panel, visibility toggle, .docx/.pdf export)
+Status: Phase 6 COMPLETE — all 3 plans done; ready for Phase 7 (Frontend Refinement + Exports)
+Last activity: 2026-03-14 — Plan 06-03 complete (section refresh, snapshot panel with diff compare, memo export)
 
-Progress: [████████████████████] 100% (16/16 plans complete across 5 complete phases + phase 6 started)
+Progress: [████████████████████] 100% (19/19 plans complete across 6 complete phases)
 
 ## Performance Metrics
 
@@ -45,7 +45,7 @@ Progress: [████████████████████] 100% (1
 | 03-llm-extraction-pipeline | 3 | 21 min | 7 min | COMPLETE |
 | 04-courtlistener-ftcdoj-rss | 3 | 14 min | 5 min | COMPLETE |
 | 05-alert-delivery-market-data | 3/3 | 17 min | 6 min | COMPLETE |
-| 06-digests-deal-memo-editor | 2/3 | 21 min | 10.5 min | IN PROGRESS |
+| 06-digests-deal-memo-editor | 3/3 | 27 min | 9 min | COMPLETE |
 
 **Recent Trend:**
 - Last 5 plans: 04-03 (5 min), 05-01 (5 min), 05-02 (4 min), 05-03 (8 min), 06-01 (8 min)
@@ -126,6 +126,10 @@ Recent decisions affecting current work:
 - [06-02]: Memo auto-save uses 3s debounce with monotonic version counter; PATCH returns 409 if incoming version <= stored version
 - [06-02]: immediatelyRender: false on useEditor for Next.js SSR hydration compatibility
 - [06-02]: Deal card tab navigation wraps existing sections in React fragment (Overview tab); Memo tab renders MemoList alongside
+- [06-03]: @react-pdf/renderer dynamically imported inside exportMemoPdf to prevent SSR bundling issues in Next.js
+- [06-03]: Section refresh uses TextSelection.near from @tiptap/pm/state (not editor.state.selection.constructor.near) to avoid TypeScript error on Function type
+- [06-03]: SectionRefreshBar groups all 4 refresh buttons in secondary toolbar row (simpler than floating per-heading buttons)
+- [06-03]: Snapshot panel opens as inline sidebar (w-72) rather than overlay drawer — keeps editor and history visible simultaneously
 
 ### Pending Todos
 
@@ -141,6 +145,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-13
-Stopped at: Completed 06-02-PLAN.md — tiptap memo editor, CRUD API with optimistic concurrency, deal card Memo tab
-Resume file: .planning/phases/06-digests-deal-memo-editor/06-03-PLAN.md (Phase 6 Plan 3: Snapshot Panel + Export)
+Last session: 2026-03-14
+Stopped at: Completed 06-03-PLAN.md — section refresh, snapshot panel, visibility toggle, memo export (.docx + .pdf)
+Resume file: Phase 6 complete. Next: Phase 7 (Frontend Refinement + Exports)
