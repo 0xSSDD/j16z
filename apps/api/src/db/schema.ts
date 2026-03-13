@@ -441,6 +441,51 @@ export const digestPreferences = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// memos — analyst-authored deal memos with tiptap JSON content
+// ---------------------------------------------------------------------------
+export const memos = pgTable(
+  'memos',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    firmId: uuid('firm_id')
+      .references(() => firms.id)
+      .notNull(),
+    dealId: uuid('deal_id')
+      .references(() => deals.id)
+      .notNull(),
+    title: text('title').notNull(),
+    content: jsonb('content').notNull(), // tiptap JSON
+    createdBy: uuid('created_by').notNull(), // references auth.users
+    visibility: text('visibility').notNull().default('private'), // 'private' | 'firm'
+    version: integer('version').notNull().default(1), // monotonic counter for optimistic concurrency
+    ...timestamps,
+  },
+  () => firmIsolationPolicies(),
+);
+
+// ---------------------------------------------------------------------------
+// memo_snapshots — named point-in-time snapshots of memo content
+// ---------------------------------------------------------------------------
+export const memoSnapshots = pgTable(
+  'memo_snapshots',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    memoId: uuid('memo_id')
+      .references(() => memos.id)
+      .notNull(),
+    firmId: uuid('firm_id')
+      .references(() => firms.id)
+      .notNull(),
+    name: text('name').notNull(),
+    content: jsonb('content').notNull(), // tiptap JSON at snapshot time
+    version: integer('version').notNull(),
+    createdBy: uuid('created_by').notNull(), // references auth.users
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  () => firmIsolationPolicies(),
+);
+
+// ---------------------------------------------------------------------------
 // notification_log — tracks alert deliveries for dedup and audit
 // ---------------------------------------------------------------------------
 export const notificationLog = pgTable(
