@@ -12,20 +12,8 @@
  *   - firm_members table has role column
  *   - watchlist_deals has no deleted_at (it is a junction table without soft-delete)
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import * as schema from '../db/schema.js';
-
-// Helper: extract column names from a Drizzle table
-function getColumnNames(table: Record<string, unknown>): string[] {
-  // Drizzle tables expose columns via the getSQL() shape — check for keys that are Column objects
-  // The internal structure for Drizzle ORM v4+ stores columns in table[Symbol] or as direct properties
-  // We check the table's enumerable string keys which are the Drizzle column names
-  return Object.keys(table).filter((key) => {
-    const val = table[key];
-    // A Drizzle column has a columnType or sql property
-    return val !== null && typeof val === 'object' && ('columnType' in val || 'dataType' in val);
-  });
-}
 
 describe('Schema exports (structural — offline)', () => {
   it('exports all required tables', () => {
@@ -72,19 +60,16 @@ describe('firm_id isolation (structural — offline)', () => {
 
   for (const tableName of tablesWithFirmId) {
     it(`${tableName} has firm_id column`, () => {
-      const table = schema[tableName] as Record<string, unknown>;
-      expect(table).toHaveProperty('firmId');
+      expect(schema[tableName]).toHaveProperty('firmId');
     });
   }
 
   it('firms table does NOT have firm_id (it is the root tenant)', () => {
-    const table = schema.firms as Record<string, unknown>;
-    expect(table).not.toHaveProperty('firmId');
+    expect(schema.firms).not.toHaveProperty('firmId');
   });
 
   it('filings table does NOT have firm_id (global ingestion stream — CONTEXT.md locked decision)', () => {
-    const table = schema.filings as Record<string, unknown>;
-    expect(table).not.toHaveProperty('firmId');
+    expect(schema.filings).not.toHaveProperty('firmId');
   });
 });
 
@@ -104,20 +89,17 @@ describe('soft-delete columns (structural — offline)', () => {
 
   for (const tableName of tablesWithDeletedAt) {
     it(`${tableName} has deleted_at column`, () => {
-      const table = schema[tableName] as Record<string, unknown>;
       // deletedAt is the camelCase Drizzle key for the deleted_at column
-      expect(table).toHaveProperty('deletedAt');
+      expect(schema[tableName]).toHaveProperty('deletedAt');
     });
   }
 
   it('audit_log does NOT have deleted_at (audit records are immutable)', () => {
-    const table = schema.auditLog as Record<string, unknown>;
-    expect(table).not.toHaveProperty('deletedAt');
+    expect(schema.auditLog).not.toHaveProperty('deletedAt');
   });
 
   it('watchlist_deals does NOT have deleted_at (junction table, entries are hard-deleted)', () => {
-    const table = schema.watchlistDeals as Record<string, unknown>;
-    expect(table).not.toHaveProperty('deletedAt');
+    expect(schema.watchlistDeals).not.toHaveProperty('deletedAt');
   });
 });
 
@@ -144,5 +126,43 @@ describe('Key column presence (structural — offline)', () => {
 
   it('invites table has expires_at column', () => {
     expect(schema.invites).toHaveProperty('expiresAt');
+  });
+
+  it('alertRules table has webhookSecret column', () => {
+    expect(schema.alertRules).toHaveProperty('webhookSecret');
+  });
+
+  it('deals table has exchangeRatio column', () => {
+    expect(schema.deals).toHaveProperty('exchangeRatio');
+  });
+});
+
+describe('notificationLog table (structural — offline)', () => {
+  it('exports notificationLog table', () => {
+    expect(schema).toHaveProperty('notificationLog');
+  });
+
+  it('notificationLog has firm_id column', () => {
+    expect(schema.notificationLog).toHaveProperty('firmId');
+  });
+
+  it('notificationLog has eventId column', () => {
+    expect(schema.notificationLog).toHaveProperty('eventId');
+  });
+
+  it('notificationLog has alertRuleId column', () => {
+    expect(schema.notificationLog).toHaveProperty('alertRuleId');
+  });
+
+  it('notificationLog has channel column', () => {
+    expect(schema.notificationLog).toHaveProperty('channel');
+  });
+
+  it('notificationLog has status column', () => {
+    expect(schema.notificationLog).toHaveProperty('status');
+  });
+
+  it('notificationLog has sentAt column', () => {
+    expect(schema.notificationLog).toHaveProperty('sentAt');
   });
 });

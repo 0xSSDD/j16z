@@ -1,16 +1,5 @@
 import { sql } from 'drizzle-orm';
-import {
-  boolean,
-  date,
-  integer,
-  jsonb,
-  numeric,
-  pgPolicy,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-} from 'drizzle-orm/pg-core';
+import { boolean, date, integer, jsonb, numeric, pgPolicy, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 // ---------------------------------------------------------------------------
 // Reusable timestamp column helper (all entity tables get these)
@@ -110,8 +99,7 @@ export const deals = pgTable(
   'deals',
   {
     id: uuid('id').defaultRandom().primaryKey(),
-    firmId: uuid('firm_id')
-      .references(() => firms.id), // NOW NULLABLE — auto-discovered deals have no firm until claimed
+    firmId: uuid('firm_id').references(() => firms.id), // NOW NULLABLE — auto-discovered deals have no firm until claimed
     symbol: text('symbol').notNull(),
     acquirer: text('acquirer').notNull(),
     target: text('target').notNull(),
@@ -137,6 +125,7 @@ export const deals = pgTable(
     acquirerCik: text('acquirer_cik'), // nullable — auto-resolved via SEC company_tickers.json
     targetCik: text('target_cik'), // nullable — auto-resolved via SEC company_tickers.json
     source: text('source'), // nullable — 'auto_edgar' for auto-created deals, null for user-created
+    exchangeRatio: numeric('exchange_ratio'), // nullable — for STOCK/MIXED consideration types
     ...timestamps,
   },
   () => firmIsolationPolicies(),
@@ -191,6 +180,18 @@ export const filings = pgTable('filings', {
   headlineSummary: text('headline_summary'), // nullable — 2-3 sentence analyst summary for Inbox/feed
   sectionSummary: text('section_summary'), // nullable — expandable section-level summary (S-4/DEFM14A)
   ...timestamps, // PRESERVE — provides createdAt, updatedAt, deletedAt (required by 02-03 queries)
+});
+
+export const ingestionStatus = pgTable('ingestion_status', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  sourceName: text('source_name').notNull().unique(),
+  lastSuccessfulSync: timestamp('last_successful_sync', { withTimezone: true }),
+  lastError: text('last_error'),
+  lastErrorAt: timestamp('last_error_at', { withTimezone: true }),
+  itemsIngested: integer('items_ingested').notNull().default(0),
+  isHealthy: boolean('is_healthy').notNull().default(true),
+  metadata: jsonb('metadata'),
+  ...timestamps,
 });
 
 // ---------------------------------------------------------------------------
@@ -293,6 +294,26 @@ export const watchlists = pgTable(
   () => firmIsolationPolicies(),
 );
 
+export const rssFeeds = pgTable(
+  'rss_feeds',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    firmId: uuid('firm_id')
+      .references(() => firms.id)
+      .notNull(),
+    watchlistId: uuid('watchlist_id').references(() => watchlists.id),
+    name: text('name').notNull(),
+    url: text('url').notNull(),
+    type: text('type').notNull().default('custom'),
+    status: text('status').notNull().default('active'),
+    lastError: text('last_error'),
+    lastSyncAt: timestamp('last_sync_at', { withTimezone: true }),
+    itemCount: integer('item_count').notNull().default(0),
+    ...timestamps,
+  },
+  () => firmIsolationPolicies(),
+);
+
 // ---------------------------------------------------------------------------
 // watchlist_deals — junction table linking watchlists to deals
 // ---------------------------------------------------------------------------
@@ -361,6 +382,7 @@ export const alertRules = pgTable(
     threshold: integer('threshold').notNull().default(50), // materiality_score threshold
     channels: text('channels').array().notNull().default(sql`'{}'::text[]`), // ['email', 'slack', 'webhook']
     webhookUrl: text('webhook_url'),
+    webhookSecret: text('webhook_secret'), // HMAC-SHA256 secret for webhook signing
     isActive: boolean('is_active').notNull().default(true),
     ...timestamps,
   },
@@ -397,4 +419,30 @@ export const auditLog = pgTable(
     }),
     // No UPDATE or DELETE policies on audit_log — records are immutable
   ],
+);
+
+// ---------------------------------------------------------------------------
+// notification_log — tracks alert deliveries for dedup and audit
+// ---------------------------------------------------------------------------
+export const notificationLog = pgTable(
+  'notification_log',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    firmId: uuid('firm_id')
+      .references(() => firms.id)
+      .notNull(),
+    eventId: uuid('event_id')
+      .references(() => events.id)
+      .notNull(),
+    alertRuleId: uuid('alert_rule_id')
+      .references(() => alertRules.id)
+      .notNull(),
+    userId: uuid('user_id').notNull(), // references auth.users
+    channel: text('channel').notNull(), // 'email' | 'slack' | 'webhook'
+    status: text('status').notNull().default('pending'), // 'pending' | 'sent' | 'failed'
+    errorMessage: text('error_message'),
+    sentAt: timestamp('sent_at', { withTimezone: true }),
+    ...timestamps,
+  },
+  () => firmIsolationPolicies(),
 );

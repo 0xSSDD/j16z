@@ -15,6 +15,20 @@
       "when": 1772401775575,
       "tag": "0001_melodic_gunslinger",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772886186454,
+      "tag": "0002_wooden_rocket_raccoon",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1773434824278,
+      "tag": "0003_chemical_grim_reaper",
+      "breakpoints": true
     }
   ]
 }
