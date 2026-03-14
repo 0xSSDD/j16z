@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "pnpm --recursive --parallel --filter \"./apps/*\" run dev",
     "dev:fe": "pnpm --filter j16z-frontend run dev",
-    "dev:be": "pnpm --filter @j16z/api run dev",
+    "dev:be": "bash apps/api/scripts/dev.sh",
     "build": "pnpm --recursive --filter \"./packages/*\" run build && pnpm --recursive --parallel --filter \"./apps/*\" run build",
     "test": "vitest",
-    "test:be": "vitest --project=j16z-backend",
+    "test:be": "pnpm --filter @j16z/api run test",
     "lint": "biome check",
     "lint:fix": "biome check --write --unsafe",
     "check": "tsc -b tsconfig.json",
