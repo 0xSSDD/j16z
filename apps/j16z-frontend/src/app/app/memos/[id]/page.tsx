@@ -6,7 +6,6 @@ import Link from 'next/link';
 import * as React from 'react';
 import { MemoEditor } from '@/components/memo/memo-editor';
 import { getDeal, getEvents, getMemo } from '@/lib/api';
-import { MOCK_DEALS } from '@/lib/constants';
 import type { Deal, Event, Memo } from '@/lib/types';
 
 // ---------------------------------------------------------------------------
@@ -240,19 +239,11 @@ export default function MemoPage({ params }: { params: Promise<{ id: string }> }
       try {
         memoData = await getMemo(id);
       } catch {
-        // Mock-mode fallback: synthetic memo linked to first mock deal
-        const fallbackDealId = MOCK_DEALS[0]?.id ?? 'deal-1';
-        memoData = {
-          id,
-          dealId: fallbackDealId,
-          title: 'Draft Memo',
-          content: FALLBACK_CONTENT,
-          createdBy: 'user-1',
-          visibility: 'private',
-          version: 1,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
+        if (!cancelled) {
+          setError('Memo not found');
+          setLoading(false);
+        }
+        return;
       }
 
       if (cancelled) return;

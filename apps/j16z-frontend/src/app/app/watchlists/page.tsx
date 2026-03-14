@@ -4,18 +4,12 @@ import { Edit2, List as ListIcon, Plus, Trash2, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
 import { useEffect, useState } from 'react';
-
-interface Watchlist {
-  id: string;
-  name: string;
-  description?: string;
-  dealCount: number;
-  createdAt: string;
-}
+import type { WatchlistRecord } from '@/lib/api';
+import { createWatchlist, getWatchlists } from '@/lib/api';
 
 interface WatchlistModalProps {
   isOpen: boolean;
-  watchlist: Watchlist | null;
+  watchlist: WatchlistRecord | null;
   onClose: () => void;
   onSave: (name: string, description: string) => void;
 }
@@ -50,6 +44,7 @@ function WatchlistModal({ isOpen, watchlist, onClose, onSave }: WatchlistModalPr
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-text-main">{watchlist ? 'Edit Watchlist' : 'Create Watchlist'}</h3>
           <button
+            type="button"
             onClick={onClose}
             className="rounded-md p-1 text-text-muted hover:bg-surfaceHighlight hover:text-text-main"
           >
@@ -59,8 +54,11 @@ function WatchlistModal({ isOpen, watchlist, onClose, onSave }: WatchlistModalPr
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-2 block text-sm font-medium text-text-main">Name</label>
+            <label htmlFor="watchlist-name" className="mb-2 block text-sm font-medium text-text-main">
+              Name
+            </label>
             <input
+              id="watchlist-name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -71,8 +69,11 @@ function WatchlistModal({ isOpen, watchlist, onClose, onSave }: WatchlistModalPr
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-text-main">Description (Optional)</label>
+            <label htmlFor="watchlist-description" className="mb-2 block text-sm font-medium text-text-main">
+              Description (Optional)
+            </label>
             <textarea
+              id="watchlist-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add notes about this watchlist..."
@@ -103,44 +104,51 @@ function WatchlistModal({ isOpen, watchlist, onClose, onSave }: WatchlistModalPr
 }
 
 export default function WatchlistsPage() {
-  const [watchlists, setWatchlists] = useState<Watchlist[]>([]);
+  const [watchlists, setWatchlists] = useState<WatchlistRecord[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [editingWatchlist, setEditingWatchlist] = useState<Watchlist | null>(null);
+  const [editingWatchlist, setEditingWatchlist] = useState<WatchlistRecord | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    // Load watchlists from localStorage
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('watchlists');
-      if (stored) {
-        try {
-          setWatchlists(JSON.parse(stored));
-        } catch {
-          // Ignore parse errors
+    let cancelled = false;
+
+    const loadWatchlists = async () => {
+      try {
+        const data = await getWatchlists();
+        if (!cancelled) {
+          setWatchlists(data);
+        }
+      } catch {
+        if (!cancelled) {
+          setWatchlists([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
         }
       }
-    }
+    };
+
+    loadWatchlists();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const handleSaveWatchlist = (name: string, description: string) => {
+  const handleSaveWatchlist = async (name: string, description: string) => {
     if (editingWatchlist) {
-      // Edit existing
       const updated = watchlists.map((w) => (w.id === editingWatchlist.id ? { ...w, name, description } : w));
       setWatchlists(updated);
-      localStorage.setItem('watchlists', JSON.stringify(updated));
       setEditingWatchlist(null);
     } else {
-      // Create new
-      const newWatchlist: Watchlist = {
-        id: `watchlist-${Date.now()}`,
-        name,
-        description,
-        dealCount: 0,
-        createdAt: new Date().toISOString(),
-      };
-      const updated = [...watchlists, newWatchlist];
-      setWatchlists(updated);
-      localStorage.setItem('watchlists', JSON.stringify(updated));
+      try {
+        const created = await createWatchlist({ name, description });
+        setWatchlists((prev) => [...prev, created]);
+      } catch {
+        setWatchlists((prev) => prev);
+      }
     }
   };
 
@@ -148,11 +156,10 @@ export default function WatchlistsPage() {
     if (confirm('Delete this watchlist? This action cannot be undone.')) {
       const updated = watchlists.filter((w) => w.id !== id);
       setWatchlists(updated);
-      localStorage.setItem('watchlists', JSON.stringify(updated));
     }
   };
 
-  const handleEditWatchlist = (watchlist: Watchlist) => {
+  const handleEditWatchlist = (watchlist: WatchlistRecord) => {
     setEditingWatchlist(watchlist);
     setShowModal(true);
   };
@@ -170,6 +177,7 @@ export default function WatchlistsPage() {
           <p className="mt-1 text-sm text-text-muted">Organize and track deals by custom groups</p>
         </div>
         <button
+          type="button"
           onClick={handleCreateNew}
           className="flex items-center gap-2 rounded-lg border border-border bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
         >
@@ -189,7 +197,15 @@ export default function WatchlistsPage() {
       />
 
       <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {watchlists.length === 0 ? (
+        {loading ? (
+          ['one', 'two', 'three', 'four', 'five', 'six'].map((skeletonKey) => (
+            <div key={`watchlist-skeleton-${skeletonKey}`} className="rounded-lg border border-border bg-surface p-6">
+              <div className="mb-3 h-6 w-2/3 animate-pulse rounded bg-surfaceHighlight" />
+              <div className="mb-2 h-4 w-full animate-pulse rounded bg-surfaceHighlight" />
+              <div className="h-4 w-1/3 animate-pulse rounded bg-surfaceHighlight" />
+            </div>
+          ))
+        ) : watchlists.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
             <ListIcon className="mb-4 h-12 w-12 text-text-dim" />
             <p className="text-sm text-text-muted">No watchlists yet</p>
@@ -199,8 +215,7 @@ export default function WatchlistsPage() {
           watchlists.map((watchlist) => (
             <div
               key={watchlist.id}
-              className="group relative cursor-pointer rounded-lg border border-border bg-surface p-6 transition-all hover:border-primary-500/30 hover:shadow-lg"
-              onClick={() => router.push(`/app/watchlists/${watchlist.id}`)}
+              className="group relative rounded-lg border border-border bg-surface p-6 transition-all hover:border-primary-500/30 hover:shadow-lg"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -208,12 +223,19 @@ export default function WatchlistsPage() {
                   {watchlist.description && (
                     <p className="mb-2 text-xs text-text-dim line-clamp-2">{watchlist.description}</p>
                   )}
-                  <p className="text-sm text-text-muted">
-                    {watchlist.dealCount} {watchlist.dealCount === 1 ? 'deal' : 'deals'}
-                  </p>
+                  <p className="text-sm text-text-muted">—</p>
                 </div>
                 <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                   <button
+                    type="button"
+                    onClick={() => router.push(`/app/watchlists/${watchlist.id}`)}
+                    className="rounded-md p-2 text-text-muted transition-all hover:bg-surfaceHighlight hover:text-text-main"
+                    title="Open watchlist"
+                  >
+                    <ListIcon className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleEditWatchlist(watchlist);
@@ -224,6 +246,7 @@ export default function WatchlistsPage() {
                     <Edit2 className="h-4 w-4" />
                   </button>
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteWatchlist(watchlist.id);

@@ -59,6 +59,113 @@ const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 // ---------------------------------------------------------------------------
+// Backend → Frontend type mappers
+//
+// The backend DB schema uses different field names than the frontend types.
+// These mappers bridge the gap so components can consume API data directly.
+// ---------------------------------------------------------------------------
+
+interface BackendDeal {
+  id: string;
+  firmId: string | null;
+  symbol: string;
+  acquirer: string;
+  target: string;
+  dealValue: string | null;
+  pricePerShare: string | null;
+  premium: string | null;
+  currentPrice: string | null;
+  grossSpread: string | null;
+  annualizedReturn: string | null;
+  status: string;
+  considerationType: string;
+  announcedDate: string | null;
+  expectedCloseDate: string | null;
+  outsideDate: string | null;
+  pCloseBase: string | null;
+  pBreakRegulatory: string | null;
+  pBreakLitigation: string | null;
+  regulatoryFlags: string[] | null;
+  litigationCount: number;
+  spreadEntryThreshold: string | null;
+  sizeBucket: string | null;
+  isStarter: boolean;
+  acquirerCik: string | null;
+  targetCik: string | null;
+  source: string | null;
+  exchangeRatio: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BackendEvent {
+  id: string;
+  firmId: string;
+  dealId: string;
+  type: string;
+  subType: string;
+  title: string;
+  description: string;
+  source: string;
+  sourceUrl: string;
+  timestamp: string;
+  materialityScore: number;
+  severity: string;
+  metadata: unknown;
+}
+
+function num(v: string | null | undefined): number {
+  if (v == null || v === '') return 0;
+  const n = Number(v);
+  return Number.isNaN(n) ? 0 : n;
+}
+
+function mapBackendDeal(raw: BackendDeal): Deal {
+  const pClose = num(raw.pCloseBase);
+  const spread = num(raw.grossSpread);
+  const pBreakReg = num(raw.pBreakRegulatory);
+  const pBreakLit = num(raw.pBreakLitigation);
+  const downside = pBreakReg + pBreakLit;
+  const ev = spread > 0 ? (spread * pClose - downside * (100 - pClose)) / 100 : num(raw.annualizedReturn);
+
+  return {
+    id: raw.id,
+    symbol: raw.symbol,
+    acquirerSymbol: raw.symbol,
+    companyName: raw.target,
+    acquirerName: raw.acquirer,
+    announcementDate: raw.announcedDate ?? '',
+    acquisitionDate: raw.expectedCloseDate ?? '',
+    outsideDate: raw.outsideDate ?? '',
+    reportedEquityTakeoverValue: num(raw.dealValue),
+    considerationType: (raw.considerationType as Deal['considerationType']) ?? 'CASH',
+    p_close_base: pClose,
+    spread_entry_threshold: num(raw.spreadEntryThreshold),
+    currentSpread: spread,
+    ev,
+    status: (raw.status as Deal['status']) ?? 'ANNOUNCED',
+    regulatoryFlags: (raw.regulatoryFlags ?? []) as Deal['regulatoryFlags'],
+    litigationCount: raw.litigationCount ?? 0,
+  };
+}
+
+function mapBackendEvent(raw: BackendEvent): Event {
+  return {
+    id: raw.id,
+    dealId: raw.dealId,
+    timestamp: raw.timestamp,
+    type: raw.type as Event['type'],
+    subtype: raw.subType,
+    severity: (raw.severity as Event['severity']) ?? 'INFO',
+    title: raw.title,
+    summary: raw.description,
+    sourceUrl: raw.sourceUrl,
+    sourceType: raw.source as Event['sourceType'],
+    materialityScore: raw.materialityScore,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // authFetch — wrapper around fetch that attaches the Supabase JWT as a Bearer
 // token on every request to the Hono API.
 //
@@ -103,7 +210,8 @@ export async function getDeals(): Promise<Deal[]> {
   }
 
   const response = await authFetch('/api/deals');
-  return response.json();
+  const raw: BackendDeal[] = await response.json();
+  return raw.map(mapBackendDeal);
 }
 
 /**
@@ -117,7 +225,8 @@ export async function getDeal(id: string): Promise<Deal | null> {
 
   try {
     const response = await authFetch(`/api/deals/${id}`);
-    return response.json();
+    const raw: BackendDeal = await response.json();
+    return mapBackendDeal(raw);
   } catch (err) {
     if (err instanceof Error && err.message.includes('404')) return null;
     throw err;
@@ -134,7 +243,8 @@ export async function getEvents(dealId: string): Promise<Event[]> {
   }
 
   const response = await authFetch(`/api/events?dealId=${dealId}`);
-  return response.json();
+  const raw: BackendEvent[] = await response.json();
+  return raw.map(mapBackendEvent);
 }
 
 /**
@@ -147,7 +257,8 @@ export async function getAllEvents(): Promise<Event[]> {
   }
 
   const response = await authFetch('/api/events');
-  return response.json();
+  const raw: BackendEvent[] = await response.json();
+  return raw.map(mapBackendEvent);
 }
 
 /**
@@ -929,6 +1040,75 @@ export async function deleteApiKey(id: string): Promise<void> {
 
   await authFetch(`/api/api-keys/${id}`, { method: 'DELETE' });
 }
+
+// ---------------------------------------------------------------------------
+// Watchlists API
+// ---------------------------------------------------------------------------
+
+export interface WatchlistRecord {
+  id: string;
+  name: string;
+  description: string | null;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WatchlistWithDeals extends WatchlistRecord {
+  deals: Deal[];
+}
+
+export async function getWatchlists(): Promise<WatchlistRecord[]> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return [];
+  }
+
+  const response = await authFetch('/api/watchlists');
+  return response.json();
+}
+
+export async function getWatchlist(id: string): Promise<WatchlistWithDeals | null> {
+  if (USE_MOCK_DATA) {
+    return null;
+  }
+
+  try {
+    const response = await authFetch(`/api/watchlists/${id}`);
+    const raw = await response.json();
+    return {
+      ...raw,
+      deals: (raw.deals ?? []).map(mapBackendDeal),
+    };
+  } catch (err) {
+    if (err instanceof Error && err.message.includes('404')) return null;
+    throw err;
+  }
+}
+
+export async function createWatchlist(data: { name: string; description?: string }): Promise<WatchlistRecord> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    return {
+      id: `wl-${Date.now()}`,
+      name: data.name,
+      description: data.description ?? null,
+      createdBy: 'user-1',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
+  const response = await authFetch('/api/watchlists', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  return response.json();
+}
+
+// ---------------------------------------------------------------------------
+// Market Snapshots API
+// ---------------------------------------------------------------------------
 
 export async function getLatestMarketSnapshot(dealId: string): Promise<MarketSnapshot | null> {
   if (USE_MOCK_DATA) {

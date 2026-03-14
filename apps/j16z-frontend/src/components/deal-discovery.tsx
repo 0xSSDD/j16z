@@ -3,29 +3,52 @@
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { Input } from '@/components/ui/input';
-import { MOCK_DEALS } from '@/lib/constants';
+import { getDeals } from '@/lib/api';
+import type { Deal } from '@/lib/types';
 
 export function DealDiscovery() {
   const router = useRouter();
   const [ticker, setTicker] = React.useState('');
-  const [results, setResults] = React.useState<typeof MOCK_DEALS>([]);
+  const [results, setResults] = React.useState<Deal[]>([]);
+  const [allDeals, setAllDeals] = React.useState<Deal[]>([]);
   const [isSearching, setIsSearching] = React.useState(false);
+
+  React.useEffect(() => {
+    let isMounted = true;
+
+    const fetchDeals = async () => {
+      try {
+        const deals = await getDeals();
+        if (isMounted) {
+          setAllDeals(deals);
+        }
+      } catch {
+        if (isMounted) {
+          setAllDeals([]);
+        }
+      }
+    };
+
+    fetchDeals();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleSearch = () => {
     if (!ticker.trim()) return;
 
     setIsSearching(true);
-    setTimeout(() => {
-      const filtered = MOCK_DEALS.filter(
-        (deal) =>
-          deal.symbol.toLowerCase().includes(ticker.toLowerCase()) ||
-          deal.acquirerSymbol.toLowerCase().includes(ticker.toLowerCase()) ||
-          deal.companyName.toLowerCase().includes(ticker.toLowerCase()) ||
-          deal.acquirerName.toLowerCase().includes(ticker.toLowerCase()),
-      );
-      setResults(filtered);
-      setIsSearching(false);
-    }, 500);
+    const filtered = allDeals.filter(
+      (deal) =>
+        deal.symbol.toLowerCase().includes(ticker.toLowerCase()) ||
+        deal.acquirerSymbol.toLowerCase().includes(ticker.toLowerCase()) ||
+        deal.companyName.toLowerCase().includes(ticker.toLowerCase()) ||
+        deal.acquirerName.toLowerCase().includes(ticker.toLowerCase()),
+    );
+    setResults(filtered);
+    setIsSearching(false);
   };
 
   return (
@@ -45,6 +68,7 @@ export function DealDiscovery() {
             className="flex-1 bg-background border-border text-text-main font-mono uppercase"
           />
           <button
+            type="button"
             onClick={handleSearch}
             disabled={isSearching || !ticker.trim()}
             className="px-6 py-2 bg-primary-500 hover:bg-primary-600 disabled:bg-surface disabled:text-text-dim text-background rounded-md font-mono text-sm transition-colors"
@@ -60,7 +84,8 @@ export function DealDiscovery() {
             Found {results.length} deal{results.length !== 1 ? 's' : ''}
           </h2>
           {results.map((deal) => (
-            <div
+            <button
+              type="button"
               key={deal.id}
               onClick={() => router.push(`/app/deals/${deal.id}`)}
               className="border border-border rounded-lg bg-surface p-4 hover:bg-surfaceHighlight cursor-pointer transition-colors"
@@ -79,7 +104,7 @@ export function DealDiscovery() {
                 </div>
                 <div className="text-primary-500 font-mono text-sm">→</div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       )}

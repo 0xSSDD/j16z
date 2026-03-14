@@ -3,7 +3,7 @@
 import { Document, HeadingLevel, Packer, Paragraph, TextRun } from 'docx';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
-import { MOCK_CLAUSES, MOCK_DEALS, MOCK_EVENTS } from '@/lib/constants';
+import { getClauses, getDeal, getEvents } from '@/lib/api';
 import { formatDate, formatDateForFilename, formatTime } from '@/lib/date-utils';
 import { exportTextFile } from '@/lib/file-utils';
 import type { Clause, Deal, Event } from '@/lib/types';
@@ -14,19 +14,53 @@ interface ResearchDraftProps {
 
 export function ResearchDraft({ dealId }: ResearchDraftProps) {
   const router = useRouter();
-  const deal = MOCK_DEALS.find((d) => d.id === dealId);
-  const events = MOCK_EVENTS.filter((e) => e.dealId === dealId);
-  const clauses = MOCK_CLAUSES.filter((c) => c.dealId === dealId);
+  const [deal, setDeal] = React.useState<Deal | null>(null);
+  const [events, setEvents] = React.useState<Event[]>([]);
+  const [clauses, setClauses] = React.useState<Clause[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
   const [content, setContent] = React.useState('');
   const [lastSaved, setLastSaved] = React.useState<Date | null>(null);
 
   React.useEffect(() => {
-    if (deal) {
-      const initialContent = generateDraft(deal, events, clauses);
-      setContent(initialContent);
-    }
-  }, [deal, events, clauses]);
+    let isMounted = true;
+
+    const fetchDraftData = async () => {
+      setLoading(true);
+
+      try {
+        const [fetchedDeal, fetchedEvents, fetchedClauses] = await Promise.all([
+          getDeal(dealId),
+          getEvents(dealId),
+          getClauses(dealId),
+        ]);
+
+        if (!isMounted) return;
+
+        setDeal(fetchedDeal);
+        setEvents(fetchedEvents);
+        setClauses(fetchedClauses);
+        setContent(fetchedDeal ? generateDraft(fetchedDeal, fetchedEvents, fetchedClauses) : '');
+      } catch {
+        if (!isMounted) return;
+
+        setDeal(null);
+        setEvents([]);
+        setClauses([]);
+        setContent('');
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchDraftData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [dealId]);
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -35,12 +69,22 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
     return () => clearTimeout(timer);
   }, []);
 
+  if (loading) {
+    return (
+      <div className="flex flex-col h-screen p-6 gap-4">
+        <div className="h-12 bg-surface rounded-lg animate-pulse" />
+        <div className="flex-1 bg-surface rounded-lg animate-pulse" />
+      </div>
+    );
+  }
+
   if (!deal) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <h1 className="text-2xl font-mono font-bold text-text-main mb-2">Deal Not Found</h1>
           <button
+            type="button"
             onClick={() => router.push('/app/deals')}
             className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-background rounded-md font-mono text-sm transition-colors"
           >
@@ -108,6 +152,7 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
       <div className="flex items-center justify-between p-4 border-b border-border bg-background">
         <div className="flex items-center gap-4">
           <button
+            type="button"
             onClick={() => router.push(`/app/deals/${dealId}`)}
             className="text-sm text-text-muted hover:text-text-main font-mono flex items-center gap-1"
           >
@@ -116,22 +161,29 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
           <h1 className="text-lg font-mono font-bold text-text-main">
             Research Draft: {deal.acquirerSymbol} / {deal.symbol}
           </h1>
+          <span className="text-xs text-text-muted font-mono">
+            {events.length} event{events.length !== 1 ? 's' : ''} • {clauses.length} clause
+            {clauses.length !== 1 ? 's' : ''}
+          </span>
         </div>
         <div className="flex items-center gap-2">
           {lastSaved && <span className="text-xs text-text-muted font-mono">Saved {formatTime(lastSaved)}</span>}
           <button
+            type="button"
             onClick={copyToClipboard}
             className="px-3 py-1.5 bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
           >
             Copy
           </button>
           <button
+            type="button"
             onClick={exportMarkdown}
             className="px-3 py-1.5 bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
           >
             Export .md
           </button>
           <button
+            type="button"
             onClick={exportDocx}
             className="px-3 py-1.5 bg-primary-500 hover:bg-primary-600 text-background rounded-md font-mono text-sm transition-colors"
           >
@@ -170,7 +222,7 @@ ${deal.acquirerName} announced its acquisition of ${deal.companyName} on ${forma
 
 ## Deal Terms
 
-${clauses.length > 0 ? clauses.map((c) => `**${c.type.replace(/_/g, ' ')}:** ${c.value} (${c.sourceFilingType} ${c.sourceSection})`).join('\n\n') : 'No deal terms available.'}
+  ${clauses.length > 0 ? clauses.map((c) => `**${c.type.replace(/_/g, ' ')}:** ${c.summary} (${c.sourceLocation})`).join('\n\n') : 'No deal terms available.'}
 
 ## Regulatory Review
 

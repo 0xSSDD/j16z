@@ -191,3 +191,172 @@ pnpm dev:be
 | `apps/api/.env` | All backend env vars | Supabase cloud + local Redis |
 | `apps/j16z-frontend/.env.local` | Frontend env vars | Supabase cloud + local API |
 | `apps/langextract/.env` | Python worker env | Same DB + Redis as API |
+
+## Setting Up a New Supabase Project (from scratch)
+
+Complete checklist for setting up Supabase for j16z. This covers everything — DB, auth, hooks, email, URLs.
+
+### 1. Create Project
+
+1. Go to [supabase.com/dashboard](https://supabase.com/dashboard)
+2. **New Project** → pick org, name `j16z`, region (eu-central-1 recommended), set DB password
+3. Wait for project to finish provisioning (~1 min)
+
+### 2. Get Credentials
+
+From **Settings → API Keys**:
+- Copy **Publishable key** (`sb_publishable_...`)
+- Copy **Secret key** (`sb_secret_...`) — click eye icon to reveal
+
+From the **Connect** button (top bar) → **Connection String** tab:
+- Switch Method to **"Session Pooler"** → copy the hostname
+- **CRITICAL:** Note the `aws-N` prefix — it's NOT always `aws-0`. Our project uses `aws-1-eu-central-1`
+
+```mermaid
+graph LR
+    subgraph "Dashboard: Connect → Session Pooler"
+        HOST["aws-{N}-{region}.pooler.supabase.com"]
+        WARN["⚠️ N varies per project!<br/>Copy EXACT hostname"]
+    end
+    HOST --> WARN
+```
+
+### 3. Configure .env Files
+
+**`apps/api/.env`:**
+```env
+PORT=3001
+DATABASE_URL=postgresql://postgres.{ref}:{password}@{pooler-host}:6543/postgres
+SUPABASE_URL=https://{ref}.supabase.co
+SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+SUPABASE_SECRET_KEY=sb_secret_...
+SUPABASE_DB_URL_SERVICE_ROLE=postgresql://postgres.{ref}:{password}@{pooler-host}:5432/postgres
+FRONTEND_URL=http://localhost:3000
+REDIS_URL=redis://localhost:6380
+```
+
+**`apps/j16z-frontend/.env.local`:**
+```env
+NEXT_PUBLIC_USE_MOCK_DATA=false
+NEXT_PUBLIC_SUPABASE_URL=https://{ref}.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+NEXT_PUBLIC_API_URL=http://localhost:3001
+```
+
+> **Password encoding:** URL-encode special chars in the password. `!` → `%21`, `@` → `%40`, `#` → `%23`.
+
+### 4. Push Database Schema
+
+```bash
+# Install & authenticate Supabase CLI
+brew install supabase/tap/supabase
+supabase login                                    # Opens browser for OAuth
+supabase init                                     # Creates supabase/ dir (if not exists)
+supabase link --project-ref {your-project-ref}    # Link to project
+
+# Copy Drizzle migrations to Supabase format
+cp apps/api/drizzle/0000_*.sql supabase/migrations/20260301000000_initial.sql
+cp apps/api/drizzle/0001_*.sql supabase/migrations/20260301000001_second.sql
+cp apps/api/drizzle/0002_*.sql supabase/migrations/20260301000002_third.sql
+cp apps/api/drizzle/0003_*.sql supabase/migrations/20260301000003_fourth.sql
+
+# Push access token hook
+cp apps/api/src/db/migrations/custom_access_token_hook.sql supabase/migrations/20260301000004_hook.sql
+
+# Apply all migrations (routes through Management API — IPv4 compatible)
+supabase db push --linked
+```
+
+### 5. Dashboard Configuration
+
+```mermaid
+graph TD
+    subgraph "Authentication Settings"
+        A["1. Auth Hooks"] --> B["Add hook → Customize Access Token (JWT) Claims"]
+        B --> C["Schema: public<br/>Function: custom_access_token_hook<br/>→ ENABLED ✅"]
+
+        D["2. URL Configuration"] --> E["Site URL: http://localhost:3000"]
+        E --> F["Redirect URLs: http://localhost:3000/**"]
+
+        G["3. Email (Notifications)"] --> H["Disable 'Enable email confirmations'<br/>for dev (skip email verify on signup)"]
+
+        I["4. Sign In / Providers"] --> J["Email provider: enabled (default)<br/>No other providers needed for dev"]
+    end
+```
+
+#### Step-by-step:
+
+**Auth Hooks** (Authentication → Auth Hooks):
+1. Click **Add hook** → **Customize Access Token (JWT) Claims hook**
+2. Type: **Postgres function**
+3. Schema: `public`
+4. Function: `custom_access_token_hook`
+5. Save — should show **ENABLED** ✅
+6. Without this, JWTs won't contain `firm_id` and all API data routes will return 403
+
+**URL Configuration** (Authentication → URL Configuration):
+1. Site URL: `http://localhost:3000`
+2. Redirect URLs: add `http://localhost:3000/**`
+3. Save — needed for auth redirects after email confirm/magic links
+
+**Email** (Authentication → Email under NOTIFICATIONS):
+1. For dev: **Disable email confirmations** → users can sign up and login immediately without clicking a confirmation link
+2. Supabase built-in email works on free tier (4 emails/hour) — no SMTP setup needed for dev
+3. For production: re-enable confirmations and configure custom SMTP (Resend, Postmark, etc.)
+
+**Sign In / Providers** (Authentication → Sign In / Providers):
+1. Email provider should be enabled by default
+2. No other providers needed for local dev
+
+### 6. Supabase MCP (optional)
+
+Add to `~/.config/opencode/opencode.json`:
+```json
+{
+  "mcp": {
+    "supabase": {
+      "type": "remote",
+      "url": "https://mcp.supabase.com/mcp?project_ref={your-project-ref}",
+      "enabled": true
+    }
+  }
+}
+```
+Then authenticate: `opencode mcp auth supabase`
+
+### 7. Verify Everything Works
+
+```bash
+# 1. Test DB connection via pooler
+PGPASSWORD='{password}' psql "postgresql://postgres.{ref}@{pooler-host}:5432/postgres" \
+  -c "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public';"
+# Expected: 16 tables
+
+# 2. Test access token hook exists
+PGPASSWORD='{password}' psql "postgresql://postgres.{ref}@{pooler-host}:5432/postgres" \
+  -c "SELECT proname FROM pg_proc WHERE proname = 'custom_access_token_hook';"
+# Expected: 1 row
+
+# 3. Start the stack
+pnpm infra:up              # Docker Redis
+cd apps/api && pnpm dev     # API on :3001
+cd apps/api && pnpm worker  # BullMQ worker (separate terminal)
+cd apps/j16z-frontend && pnpm dev  # Frontend on :3000
+
+# 4. Verify health
+curl http://localhost:3001/health
+# Expected: {"status":"ok","timestamp":"..."}
+
+# 5. Sign up via http://localhost:3000 → creates user → onboard → auto-seeds deals
+```
+
+### Troubleshooting
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| `EHOSTUNREACH` on migrations | Direct DB host is IPv6-only | Use `supabase db push --linked` (Management API, IPv4) |
+| `Tenant or user not found` on pooler | Wrong `aws-N` prefix | Copy exact hostname from Dashboard → Connect → Session Pooler |
+| API returns 403 on all data routes | Access token hook not enabled | Dashboard → Auth Hooks → enable `custom_access_token_hook` |
+| Signup fails silently | Email confirmation enabled | Disable in Dashboard → Email → uncheck "Enable email confirmations" |
+| JWT missing `firm_id` | User hasn't onboarded yet | Complete onboarding flow at `/app/onboarding` — creates firm + membership |
+| `prepare: false` errors | Using transaction pooler (port 6543) | Expected — transaction mode doesn't support prepared statements, Drizzle is configured correctly |

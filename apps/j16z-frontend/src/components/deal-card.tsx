@@ -11,9 +11,9 @@ import { NewsResearchTab } from '@/components/deal-card/tabs/news-research-tab';
 import { RegLitigationTab } from '@/components/deal-card/tabs/reg-litigation-tab';
 import { SpreadHistoryTab } from '@/components/deal-card/tabs/spread-history-tab';
 import { TermsTab } from '@/components/deal-card/tabs/terms-tab';
-import { getClauses, getFilings } from '@/lib/api';
-import { MOCK_CLAUSES, MOCK_DEALS, MOCK_EVENTS, MOCK_MARKET_SNAPSHOTS } from '@/lib/constants';
-import type { Clause, Filing } from '@/lib/types';
+import { getClauses, getDeal, getEvents, getFilings, getMarketSnapshots } from '@/lib/api';
+import { MOCK_CLAUSES } from '@/lib/constants';
+import type { Clause, Deal, Event, Filing, MarketSnapshot } from '@/lib/types';
 
 interface DealCardProps {
   dealId: string;
@@ -32,13 +32,20 @@ const TAB_LABELS: Record<TabValue, string> = {
 
 export function DealCard({ dealId }: DealCardProps) {
   const router = useRouter();
-  const deal = MOCK_DEALS.find((d) => d.id === dealId);
-  const events = MOCK_EVENTS.filter((e) => e.dealId === dealId);
-  const marketSnapshots = MOCK_MARKET_SNAPSHOTS.filter((s) => s.dealId === dealId);
+
+  // Fetch deal from API
+  const [deal, setDeal] = React.useState<Deal | null>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  // Fetch events from API
+  const [events, setEvents] = React.useState<Event[]>([]);
+
+  // Fetch market snapshots from API
+  const [marketSnapshots, setMarketSnapshots] = React.useState<MarketSnapshot[]>([]);
 
   const [clauses, setClauses] = React.useState<Clause[]>([]);
-  const [pCloseBase, setPCloseBase] = React.useState(deal?.p_close_base ?? 0);
-  const [spreadThreshold, setSpreadThreshold] = React.useState(deal?.spread_entry_threshold ?? 0);
+  const [pCloseBase, setPCloseBase] = React.useState(0);
+  const [spreadThreshold, setSpreadThreshold] = React.useState(0);
   const [isAlertModalOpen, setIsAlertModalOpen] = React.useState(false);
   const [isExportOpen, setIsExportOpen] = React.useState(false);
   const [filings, setFilings] = React.useState<Filing[]>([]);
@@ -47,6 +54,44 @@ export function DealCard({ dealId }: DealCardProps) {
   const [activeTab, setActiveTab] = React.useState<TabValue>('terms');
   const [selectedEventId, setSelectedEventId] = React.useState<string | null>(null);
   const [focusedEventIndex, setFocusedEventIndex] = React.useState(0);
+
+  // Fetch deal from API
+  React.useEffect(() => {
+    if (!dealId) return;
+    getDeal(dealId)
+      .then((data) => {
+        setDeal(data);
+        if (data) {
+          setPCloseBase(data.p_close_base);
+          setSpreadThreshold(data.spread_entry_threshold);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setDeal(null);
+        setLoading(false);
+      });
+  }, [dealId]);
+
+  // Fetch events from API
+  React.useEffect(() => {
+    if (!dealId) return;
+    getEvents(dealId)
+      .then(setEvents)
+      .catch(() => {
+        setEvents([]);
+      });
+  }, [dealId]);
+
+  // Fetch market snapshots from API
+  React.useEffect(() => {
+    if (!dealId) return;
+    getMarketSnapshots(dealId)
+      .then(setMarketSnapshots)
+      .catch(() => {
+        setMarketSnapshots([]);
+      });
+  }, [dealId]);
 
   // Fetch clauses from real API (falls back to mock data via getClauses when USE_MOCK_DATA=true)
   React.useEffect(() => {
@@ -162,6 +207,17 @@ export function DealCard({ dealId }: DealCardProps) {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [activeTab, events, focusedEventIndex, dealId, router]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-border border-t-aurora-primary rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-text-muted font-mono">Loading deal...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!deal) {
     return (

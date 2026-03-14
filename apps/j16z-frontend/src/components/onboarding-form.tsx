@@ -55,6 +55,11 @@ export const OnboardingForm: React.FC = () => {
       });
 
       if (!res.ok) {
+        if (res.status === 409) {
+          await supabase.auth.refreshSession();
+          router.push('/app/inbox');
+          return;
+        }
         const body = await res.json().catch(() => ({}));
         const msg = (body as { error?: string }).error ?? 'Failed to create firm. Please try again.';
         setError(msg);

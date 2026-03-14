@@ -73,6 +73,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [firmName, setFirmName] = useState<string | null>(null);
   const _router = useRouter();
 
   useEffect(() => {
@@ -115,9 +116,29 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    async function loadFirm() {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+        const { createClient } = await import('@/lib/supabase/client');
+        const supabase = createClient();
+        const { data } = await supabase.auth.getSession();
+        const jwt = data.session?.access_token;
+        if (!jwt) return;
+        const res = await fetch(`${apiUrl}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${jwt}` },
+        });
+        if (res.ok) {
+          const body = await res.json();
+          if (body.firm?.name) setFirmName(body.firm.name);
+        }
+      } catch {}
+    }
+    loadFirm();
+  }, []);
+
+  useEffect(() => {
     let isMounted = true;
 
-    // Update unread count from localStorage
     const updateUnreadCount = async () => {
       try {
         const { getAllEvents } = await import('@/lib/api');
@@ -233,10 +254,10 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
             <SidebarItem href="/app/settings" icon={SettingsIcon} label="Settings" />
             <div className="mt-2 flex items-center gap-3 rounded-lg border border-border/50 bg-surface px-4 py-3">
               <div className="flex h-8 w-8 items-center justify-center rounded bg-gradient-to-tr from-primary-500 to-primary-600 text-xs font-bold text-background shadow-sm">
-                DA
+                {(firmName ?? 'J16Z').slice(0, 2).toUpperCase()}
               </div>
               <div className="flex min-w-0 flex-1 flex-col">
-                <span className="truncate text-xs font-bold text-text-main">David&apos;s Analyst</span>
+                <span className="truncate text-xs font-bold text-text-main">{firmName ?? 'J16Z'}</span>
                 <span className="flex items-center gap-1 text-[10px] text-primary-500">
                   <span className="h-1 w-1 animate-pulse rounded-full bg-primary-500" />
                   Connected

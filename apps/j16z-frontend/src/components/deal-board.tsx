@@ -12,15 +12,15 @@ import { SimpleDropdown } from '@/components/ui/simple-dropdown';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { Tooltip, TooltipProvider } from '@/components/ui/tooltip';
 import { WatchlistModal } from '@/components/watchlist-modal';
-import { getFilings, getLatestMarketSnapshot } from '@/lib/api';
-import { MOCK_DEALS } from '@/lib/constants';
+import { getDeals, getFilings, getLatestMarketSnapshot } from '@/lib/api';
 import { daysUntil, formatDateForFilename } from '@/lib/date-utils';
 import { exportToCSV, exportToJSON } from '@/lib/file-utils';
 import type { Deal, MarketSnapshot } from '@/lib/types';
 
 export function DealBoard() {
   const router = useRouter();
-  const [deals, setDeals] = React.useState<Deal[]>(MOCK_DEALS);
+  const [deals, setDeals] = React.useState<Deal[]>([]);
+  const [loading, setLoading] = React.useState(true);
   const [isWatchlistModalOpen, setIsWatchlistModalOpen] = React.useState(false);
   const [isAddDealModalOpen, setIsAddDealModalOpen] = React.useState(false);
   const [spreadFilter, setSpreadFilter] = React.useState<string[]>([]);
@@ -32,6 +32,31 @@ export function DealBoard() {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [filingCounts, setFilingCounts] = React.useState<Record<string, number>>({});
   const [marketSnapshots, setMarketSnapshots] = React.useState<Record<string, MarketSnapshot>>({});
+
+  React.useEffect(() => {
+    let isMounted = true;
+
+    async function fetchDeals() {
+      try {
+        const fetchedDeals = await getDeals();
+        if (isMounted) {
+          setDeals(fetchedDeals);
+        }
+      } catch (error) {
+        console.error('Failed to fetch deals:', error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetchDeals();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Fetch filing counts for real data mode
   React.useEffect(() => {
@@ -249,8 +274,8 @@ export function DealBoard() {
           const stored = localStorage.getItem('watchlists');
           if (stored) {
             try {
-              const watchlists = JSON.parse(stored);
-              const isInWatchlist = watchlists.some((w: any) => w.dealIds?.includes(deal.id));
+              const watchlists = JSON.parse(stored) as Array<{ dealIds?: string[] }>;
+              const isInWatchlist = watchlists.some((watchlist) => watchlist.dealIds?.includes(deal.id));
               if (!isInWatchlist) return false;
             } catch (error) {
               console.error('Failed to check watchlist:', error);
@@ -288,7 +313,7 @@ export function DealBoard() {
     });
   }, [deals, spreadFilter, pCloseFilter, watchlistOnly, searchQuery]);
 
-  const activeFilters = React.useMemo(() => {
+  const activeFilters = (() => {
     const filters = [];
     spreadFilter.forEach((f) => {
       filters.push({ label: 'Spread', value: `>${f}%`, onRemove: () => toggleSpreadFilter(f) });
@@ -301,15 +326,7 @@ export function DealBoard() {
     });
     if (watchlistOnly) filters.push({ label: 'Watchlist', value: 'Only', onRemove: () => setWatchlistOnly(false) });
     return filters;
-  }, [
-    spreadFilter,
-    pCloseFilter,
-    sectorFilter,
-    watchlistOnly,
-    togglePCloseFilter,
-    toggleSectorFilter,
-    toggleSpreadFilter,
-  ]);
+  })();
 
   const totalPages = Math.ceil(filteredDeals.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
@@ -370,24 +387,28 @@ export function DealBoard() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
+              type="button"
               onClick={() => setIsAddDealModalOpen(true)}
               className="whitespace-nowrap px-4 py-2 bg-primary-500 hover:bg-primary-600 text-background rounded-md font-mono text-sm transition-colors"
             >
               + Add Deal
             </button>
             <button
+              type="button"
               onClick={() => setIsWatchlistModalOpen(true)}
               className="whitespace-nowrap px-4 py-2 border border-border bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
             >
               Watchlists
             </button>
             <button
+              type="button"
               onClick={exportDealBoardCSV}
               className="whitespace-nowrap px-4 py-2 border border-border bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
             >
               Export CSV
             </button>
             <button
+              type="button"
               onClick={exportJSON}
               className="whitespace-nowrap px-4 py-2 border border-border bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
             >
@@ -430,6 +451,7 @@ export function DealBoard() {
           />
 
           <button
+            type="button"
             onClick={() => setWatchlistOnly(!watchlistOnly)}
             className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
               watchlistOnly
@@ -453,25 +475,37 @@ export function DealBoard() {
           />
         )}
 
-        <div
-          onClick={(e) => {
-            const target = e.target as HTMLElement;
-            const row = target.closest('tr');
-            if (row && row.dataset.state !== undefined) {
-              const index = Array.from(row.parentElement?.children || []).indexOf(row);
-              if (index > 0) {
-                const _startIndex = (currentPage - 1) * pageSize;
-                handleRowClick(paginatedDeals[index - 1]);
+        {loading ? (
+          <div className="space-y-2 rounded-lg border border-border bg-background p-3">
+            {['1', '2', '3', '4', '5'].map((rowId) => (
+              <div
+                key={`deal-board-loading-row-${rowId}`}
+                className="h-12 animate-pulse rounded-lg border border-border bg-surface"
+              />
+            ))}
+          </div>
+        ) : (
+          <div
+            onClickCapture={(e) => {
+              const target = e.target as HTMLElement;
+              const row = target.closest('tr');
+              if (row && row.dataset.state !== undefined) {
+                const index = Array.from(row.parentElement?.children || []).indexOf(row);
+                if (index > 0) {
+                  const _startIndex = (currentPage - 1) * pageSize;
+                  handleRowClick(paginatedDeals[index - 1]);
+                }
               }
-            }
-          }}
-        >
-          <DataTable columns={columns} data={paginatedDeals} />
-        </div>
+            }}
+          >
+            <DataTable columns={columns} data={paginatedDeals} />
+          </div>
+        )}
 
         <div className="flex items-center justify-between gap-4 border-t border-border pt-4">
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => handlePageSizeChange(20)}
               className={`rounded border px-3 py-1 text-sm font-medium transition-colors ${
                 pageSize === 20
@@ -482,6 +516,7 @@ export function DealBoard() {
               20
             </button>
             <button
+              type="button"
               onClick={() => handlePageSizeChange(30)}
               className={`rounded border px-3 py-1 text-sm font-medium transition-colors ${
                 pageSize === 30
@@ -492,6 +527,7 @@ export function DealBoard() {
               30
             </button>
             <button
+              type="button"
               onClick={() => handlePageSizeChange(50)}
               className={`rounded border px-3 py-1 text-sm font-medium transition-colors ${
                 pageSize === 50
@@ -506,6 +542,7 @@ export function DealBoard() {
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
               className="rounded border border-border bg-surface px-3 py-1 text-sm font-medium text-text-main transition-colors hover:bg-surfaceHighlight disabled:opacity-50 disabled:cursor-not-allowed"
@@ -516,6 +553,7 @@ export function DealBoard() {
               Page {currentPage} of {totalPages}
             </span>
             <button
+              type="button"
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
               className="rounded border border-border bg-surface px-3 py-1 text-sm font-medium text-text-main transition-colors hover:bg-surfaceHighlight disabled:opacity-50 disabled:cursor-not-allowed"

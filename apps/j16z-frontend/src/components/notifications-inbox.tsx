@@ -3,7 +3,8 @@
 import { FileText, Newspaper, Scale, Shield, TrendingUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
-import { MOCK_EVENTS } from '@/lib/constants';
+import { getAllEvents } from '@/lib/api';
+import type { Event } from '@/lib/types';
 
 const EVENT_TYPE_STYLE: Record<string, { color: string; bg: string; icon: typeof FileText }> = {
   FILING: { color: 'text-primary-500', bg: 'bg-primary-500/10', icon: FileText },
@@ -15,9 +16,25 @@ const EVENT_TYPE_STYLE: Record<string, { color: string; bg: string; icon: typeof
 
 export function NotificationsInbox() {
   const router = useRouter();
-  const [events] = React.useState(MOCK_EVENTS);
+  const [events, setEvents] = React.useState<Event[]>([]);
+  const [loading, setLoading] = React.useState(true);
   const [filter, setFilter] = React.useState<string>('all');
   const [readEvents, setReadEvents] = React.useState<Set<string>>(new Set());
+
+  React.useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const data = await getAllEvents();
+        setEvents(data);
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const filteredEvents = React.useMemo(() => {
     if (filter === 'all') return events;
@@ -39,6 +56,24 @@ export function NotificationsInbox() {
   const markAllRead = () => {
     setReadEvents(new Set(events.map((e) => e.id)));
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-6 p-6 max-w-4xl mx-auto">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-mono font-bold text-text-main">Notifications</h1>
+            <p className="text-sm text-text-muted font-mono mt-1">Loading events...</p>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <div className="h-20 animate-pulse rounded-lg border border-border bg-surface" />
+          <div className="h-20 animate-pulse rounded-lg border border-border bg-surface" />
+          <div className="h-20 animate-pulse rounded-lg border border-border bg-surface" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-4xl mx-auto">
@@ -65,7 +100,9 @@ export function NotificationsInbox() {
             key={type}
             onClick={() => setFilter(type)}
             className={`px-3 py-1.5 rounded-md font-mono text-xs transition-colors ${
-              filter === type ? 'bg-primary-500 text-background' : 'bg-surface text-text-muted hover:bg-surfaceHighlight'
+              filter === type
+                ? 'bg-primary-500 text-background'
+                : 'bg-surface text-text-muted hover:bg-surfaceHighlight'
             }`}
           >
             {type === 'all' ? 'All' : type}

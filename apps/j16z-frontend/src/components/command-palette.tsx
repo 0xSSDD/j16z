@@ -4,7 +4,8 @@ import { FileText, Inbox, List, PenSquare, Plus, Search, Settings, TrendingUp } 
 import { useRouter } from 'next/navigation';
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { MOCK_DEALS } from '@/lib/constants';
+import { getDeals } from '@/lib/api';
+import type { Deal } from '@/lib/types';
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -29,6 +30,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [deals, setDeals] = useState<Deal[]>([]);
   const [recentCommands, setRecentCommands] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('recentCommands');
@@ -36,6 +38,14 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
     }
     return [];
   });
+
+  useEffect(() => {
+    if (isOpen && deals.length === 0) {
+      getDeals()
+        .then(setDeals)
+        .catch(() => {});
+    }
+  }, [isOpen, deals.length]);
 
   const saveRecentCommand = (commandId: string) => {
     const updated = [commandId, ...recentCommands.filter((id) => id !== commandId)].slice(0, 5);
@@ -63,7 +73,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
         onClose();
       },
     })),
-    ...MOCK_DEALS.map((deal) => ({
+    ...deals.map((deal) => ({
       id: `deal:${deal.id}`,
       name: `${deal.acquirerSymbol} / ${deal.symbol}`,
       category: 'deal' as const,
@@ -110,7 +120,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       category: 'action' as const,
       icon: PenSquare,
       action: () => {
-        const firstDeal = MOCK_DEALS[0];
+        const firstDeal = deals[0];
         if (firstDeal) {
           router.push(`/app/deals/${firstDeal.id}/draft`);
           saveRecentCommand('action:generate-draft');

@@ -78,8 +78,7 @@ export const LoginForm: React.FC = () => {
           hasFirm = body.firm !== null;
         }
       } catch {
-        // If API is unavailable, default to inbox — onboarding will redirect if needed
-        hasFirm = true;
+        hasFirm = false;
       }
       const next = searchParams.get('next') ?? '/app/inbox';
       router.push(hasFirm ? next : '/app/onboarding');
@@ -97,7 +96,7 @@ export const LoginForm: React.FC = () => {
     setLoading(true);
     try {
       const supabase = createClient();
-      const { error: authError } = await supabase.auth.signUp({
+      const { data, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -106,9 +105,13 @@ export const LoginForm: React.FC = () => {
       });
       if (authError) {
         setError(authError.message);
-      } else {
-        setMessage('Check your email to confirm your account before signing in.');
+        return;
       }
+      if (data.session) {
+        router.push('/app/onboarding');
+        return;
+      }
+      setMessage('Check your email to confirm your account before signing in.');
     } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
