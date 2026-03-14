@@ -38,10 +38,10 @@ export function DealCardHeader({
   }, [deal.outsideDate]);
 
   return (
-    <div className="sticky top-0 z-10 bg-background border-b border-border px-6 py-4">
+    <div className="sticky top-0 z-10 bg-background border-b border-border px-4 py-4 md:px-6">
       {/* Back + Title row */}
-      <div className="flex items-start justify-between mb-3">
-        <div>
+      <div className="flex flex-col gap-2 mb-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
           <button
             type="button"
             onClick={() => router.push('/app/deals')}
@@ -49,10 +49,10 @@ export function DealCardHeader({
           >
             ← Back to Deals
           </button>
-          <h1 className="text-2xl font-mono font-bold text-text-main">
+          <h1 className="text-xl font-mono font-bold text-text-main leading-tight md:text-2xl">
             {deal.acquirerName} → {deal.companyName}
           </h1>
-          <div className="flex items-center gap-4 flex-wrap mt-1">
+          <div className="flex items-center gap-3 flex-wrap mt-1">
             <StatusBadge status={deal.status} />
             <span className="text-sm text-text-muted font-mono">Announced: {formatDate(deal.announcementDate)}</span>
             <span className="text-sm text-primary-500 font-mono">
@@ -101,7 +101,7 @@ export function DealCardHeader({
       </div>
 
       {/* Key metrics row */}
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5 md:gap-4">
         <div>
           <div className="text-xs text-text-muted font-mono uppercase mb-1">Spread</div>
           <div className="text-xl font-mono font-bold text-primary-500">{deal.currentSpread.toFixed(1)}%</div>

@@ -1,6 +1,18 @@
 'use client';
 
-import { Inbox, List, LogOut, Moon, Search, Settings as SettingsIcon, Sun, TrendingUp, Zap } from 'lucide-react';
+import {
+  Inbox,
+  List,
+  LogOut,
+  Menu,
+  Moon,
+  Search,
+  Settings as SettingsIcon,
+  Sun,
+  TrendingUp,
+  X,
+  Zap,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import type React from 'react';
@@ -50,18 +62,9 @@ const SidebarItem = ({
 };
 
 const Logo = () => (
-  <div className="flex items-center gap-2.5">
-    <div className="relative flex h-7 w-7 items-center justify-center overflow-hidden rounded-lg border border-border bg-gradient-to-br from-surface to-background shadow-inner">
-      <div className="flex h-3.5 items-end gap-[2px]">
-        <div className="h-2 w-1 rounded-sm bg-primary-500/40" />
-        <div className="h-3.5 w-1 rounded-sm bg-primary-500" />
-        <div className="h-2.5 w-1 rounded-sm bg-primary-500/70" />
-      </div>
-    </div>
-    <div className="flex flex-col">
-      <span className="font-sans text-base font-bold leading-none tracking-tight text-text-main">J16Z</span>
-      <span className="mt-0.5 font-mono text-[9px] uppercase tracking-widest text-text-dim">Terminal</span>
-    </div>
+  <div className="flex items-center">
+    <span className="font-sans text-base font-bold tracking-tight text-text-main">J16Z</span>
+    <span className="ml-2 font-mono text-[9px] uppercase tracking-widest text-text-dim">Terminal</span>
   </div>
 );
 
@@ -70,6 +73,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
   const [mounted, setMounted] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const _router = useRouter();
 
   useEffect(() => {
@@ -144,6 +148,13 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
     };
   }, []);
 
+  // Close sidebar when route changes on mobile
+  const pathname = usePathname();
+  // biome-ignore lint/correctness/useExhaustiveDependencies: pathname change is the intended trigger
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [pathname]);
+
   const toggleTheme = () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
@@ -169,9 +180,32 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
       <CommandPalette isOpen={isCmdKOpen} onClose={() => setIsCmdKOpen(false)} />
 
       <div className="flex h-screen overflow-hidden bg-background font-sans text-text-muted transition-colors duration-300">
-        <aside className="flex w-64 flex-col border-r border-border bg-background pt-2">
+        {/* Mobile backdrop */}
+        {isSidebarOpen && (
+          <button
+            type="button"
+            aria-label="Close sidebar"
+            className="fixed inset-0 z-20 bg-black/50 md:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        <aside
+          className={`fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-border bg-background pt-2 transition-transform duration-200 md:static md:translate-x-0 ${
+            isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
           <div className="mb-2 flex items-center justify-between px-6 py-4">
             <Logo />
+            {/* Close button visible only on mobile */}
+            <button
+              type="button"
+              onClick={() => setIsSidebarOpen(false)}
+              className="rounded-full p-1 text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-text-main md:hidden"
+              aria-label="Close sidebar"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
 
           <div className="mb-4 px-4">
@@ -213,21 +247,30 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
         </aside>
 
         <div className="relative flex min-w-0 flex-1 flex-col bg-background">
-          <header className="flex h-14 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-md">
-            <div className="flex flex-1 items-center gap-4">
-              <div className="flex items-center gap-2 text-xs font-mono text-text-dim">
+          <header className="flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md md:px-6">
+            <div className="flex flex-1 items-center gap-3">
+              {/* Hamburger — only on mobile */}
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(true)}
+                className="rounded-full p-2 text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-text-main md:hidden"
+                aria-label="Open sidebar"
+              >
+                <Menu className="h-4 w-4" />
+              </button>
+              <div className="hidden items-center gap-2 text-xs font-mono text-text-dim sm:flex">
                 <span className="h-2 w-2 rounded-full bg-primary-500" />
                 SYSTEM_NOMINAL
                 <span className="text-border">/</span>
                 <span className="text-text-muted">LATENCY: 12ms</span>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1">
+            <div className="flex items-center gap-2 md:gap-4">
+              <div className="hidden items-center gap-1 rounded-full border border-border bg-surface px-3 py-1 sm:flex">
                 <Zap className="h-3 w-3 fill-primary-500 text-primary-500" />
                 <span className="text-xs font-bold text-text-main">Pro Plan</span>
               </div>
-              <div className="h-4 w-px bg-border" />
+              <div className="hidden h-4 w-px bg-border sm:block" />
               <button
                 onClick={toggleTheme}
                 className="rounded-full p-2 text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-text-main"
@@ -245,7 +288,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
             </div>
           </header>
 
-          <main className="z-10 flex-1 overflow-auto p-6">{children}</main>
+          <main className="z-10 flex-1 overflow-auto p-4 md:p-6">{children}</main>
         </div>
       </div>
     </>

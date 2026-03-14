@@ -35,16 +35,7 @@ const SPREAD_DATA = [
 // --- SUBCOMPONENTS ---
 
 const LandingLogo = () => (
-  <div className="flex items-center gap-2.5">
-    <div className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border border-border bg-surface shadow-inner">
-      <div className="flex h-4 items-end gap-[2px]">
-        <div className="h-2.5 w-1 rounded-sm bg-primary-500/40" />
-        <div className="h-4 w-1 rounded-sm bg-primary-500" />
-        <div className="h-3 w-1 rounded-sm bg-primary-500/70" />
-      </div>
-    </div>
-    <span className="font-sans text-xl font-bold tracking-tight text-text-main">J16Z</span>
-  </div>
+  <span className="font-sans text-xl font-bold tracking-tight text-text-main">J16Z</span>
 );
 
 // --- PRODUCT MOCKUP COMPONENTS ---

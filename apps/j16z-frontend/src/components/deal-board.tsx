@@ -360,44 +360,44 @@ export function DealBoard() {
 
   return (
     <TooltipProvider>
-      <div className="flex flex-col gap-6 p-6">
-        <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-mono font-bold text-text-main">Deals</h1>
             <p className="text-sm text-text-muted font-mono mt-1">
               {filteredDeals.length} of {deals.length} deals
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setIsAddDealModalOpen(true)}
-              className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-background rounded-md font-mono text-sm transition-colors"
+              className="whitespace-nowrap px-4 py-2 bg-primary-500 hover:bg-primary-600 text-background rounded-md font-mono text-sm transition-colors"
             >
               + Add Deal
             </button>
             <button
               onClick={() => setIsWatchlistModalOpen(true)}
-              className="px-4 py-2 border border-border bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
+              className="whitespace-nowrap px-4 py-2 border border-border bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
             >
               Watchlists
             </button>
             <button
               onClick={exportDealBoardCSV}
-              className="px-4 py-2 border border-border bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
+              className="whitespace-nowrap px-4 py-2 border border-border bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
             >
               Export CSV
             </button>
             <button
               onClick={exportJSON}
-              className="px-4 py-2 border border-border bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
+              className="whitespace-nowrap px-4 py-2 border border-border bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
             >
               Export JSON
             </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 flex-wrap">
-          <div className="relative flex-1 max-w-md">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative w-full sm:flex-1 sm:max-w-md">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
             <input
               type="text"

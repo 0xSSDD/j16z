@@ -11,8 +11,8 @@ export function InboxHeader() {
   };
 
   return (
-    <div className="border-b border-border px-6 py-4">
-      <div className="flex items-center justify-between">
+    <div className="border-b border-border px-4 py-4 md:px-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text-main">Inbox</h1>
           <p className="text-sm text-text-muted">Unified event timeline with severity scoring</p>
@@ -23,7 +23,7 @@ export function InboxHeader() {
         </div>
         <button
           onClick={handleMarkAllRead}
-          className="flex items-center gap-2 rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text-main transition-colors hover:bg-surfaceHighlight"
+          className="flex w-fit items-center gap-2 rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text-main transition-colors hover:bg-surfaceHighlight"
         >
           <CheckCheck className="h-4 w-4" />
           Mark All Read

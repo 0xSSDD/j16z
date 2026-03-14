@@ -15,6 +15,7 @@ export default defineWorkspace([
       root: 'apps/api',
       environment: 'node',
       include: ['src/tests/**/*.test.ts', '!src/tests/cross-tenant.test.ts'],
+      exclude: ['**/dist/**'],
     },
   },
   {
@@ -23,6 +24,7 @@ export default defineWorkspace([
       root: 'apps/api',
       environment: 'node',
       include: ['src/tests/cross-tenant.test.ts'],
+      exclude: ['**/dist/**'],
     },
   },
 ]);

@@ -18,7 +18,7 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-6 max-w-4xl">
+    <div className="flex flex-col gap-4 p-4 max-w-4xl md:gap-6 md:p-6">
       <div>
         <h1 className="text-2xl font-mono font-bold text-text-main">Settings</h1>
         <p className="text-sm text-text-muted font-mono mt-1">Manage your account and preferences</p>
@@ -30,23 +30,23 @@ export function SettingsPage() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-mono text-text-muted mb-2">API Key</label>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <input
                   type={showApiKey ? 'text' : 'password'}
                   value={apiKey}
                   readOnly
-                  className="flex-1 bg-surface border border-border text-text-main font-mono text-sm p-2 rounded-md"
+                  className="min-w-0 flex-1 bg-surface border border-border text-text-main font-mono text-sm p-2 rounded-md"
                   placeholder="No API key generated"
                 />
                 <button
                   onClick={() => setShowApiKey(!showApiKey)}
-                  className="px-4 py-2 bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
+                  className="shrink-0 px-4 py-2 bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
                 >
                   {showApiKey ? 'Hide' : 'Show'}
                 </button>
                 <button
                   onClick={generateApiKey}
-                  className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-background rounded-md font-mono text-sm transition-colors"
+                  className="shrink-0 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-background rounded-md font-mono text-sm transition-colors"
                 >
                   Generate
                 </button>

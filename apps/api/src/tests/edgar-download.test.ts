@@ -12,11 +12,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 // ---------------------------------------------------------------------------
 
 const mockWhere = vi.fn().mockResolvedValue([]);
+const mockFrom = vi.fn().mockReturnValue({ where: mockWhere });
+const mockSelect = vi.fn().mockReturnValue({ from: mockFrom });
 const mockSet = vi.fn(() => ({ where: mockWhere }));
 const mockUpdate = vi.fn(() => ({ set: mockSet }));
 
 vi.mock('../db/index.js', () => ({
   adminDb: {
+    select: mockSelect,
     update: mockUpdate,
   },
 }));
@@ -28,6 +31,12 @@ vi.mock('../edgar/client.js', () => ({
     `https://www.sec.gov/Archives/edgar/data/${cik}/${accession.replace(/-/g, '')}/${doc}`,
   buildIndexUrl: (cik: string, accession: string) =>
     `https://www.sec.gov/Archives/edgar/data/${cik}/${accession.replace(/-/g, '')}/${accession}-index.json`,
+}));
+
+vi.mock('../queues/ingestion.js', () => ({
+  ingestionQueue: {
+    add: vi.fn().mockResolvedValue(undefined),
+  },
 }));
 
 // ---------------------------------------------------------------------------

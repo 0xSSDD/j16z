@@ -12,12 +12,26 @@ import type { FilingMetadata } from '../edgar/types.js';
 // Mocks
 // ---------------------------------------------------------------------------
 
-const mockValues = vi.fn().mockResolvedValue([]);
+let capturedEventArray: any[] = [];
+const mockReturning = vi.fn().mockImplementation(() => {
+  // Return array of { id } objects matching the number of events
+  return Promise.resolve(capturedEventArray.map((_, i) => ({ id: `event-id-${i}` })));
+});
+const mockValues = vi.fn().mockImplementation((eventArray) => {
+  capturedEventArray = eventArray;
+  return { returning: mockReturning };
+});
 const mockInsert = vi.fn(() => ({ values: mockValues }));
 
 vi.mock('../db/index.js', () => ({
   adminDb: {
     insert: mockInsert,
+  },
+}));
+
+vi.mock('../queues/ingestion.js', () => ({
+  ingestionQueue: {
+    add: vi.fn().mockResolvedValue(undefined),
   },
 }));
 

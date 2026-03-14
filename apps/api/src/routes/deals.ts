@@ -68,6 +68,28 @@ export const dealsRoutes = new Hono<AuthEnv>()
       .orderBy(schema.clauses.createdAt);
     return c.json(rows);
   })
+  .get('/:id/news', async (c) => {
+    // GET /api/deals/:id/news — return news items for a deal; scoped to firm
+    const dealId = c.req.param('id');
+    const firmId = c.get('firmId');
+
+    // Verify the deal belongs to this firm
+    const [deal] = await adminDb
+      .select({ id: schema.deals.id })
+      .from(schema.deals)
+      .where(and(eq(schema.deals.id, dealId), eq(schema.deals.firmId, firmId), isNull(schema.deals.deletedAt)))
+      .limit(1);
+    if (!deal) {
+      return c.json({ error: 'Deal not found' }, 404);
+    }
+
+    const rows = await adminDb
+      .select()
+      .from(schema.newsItems)
+      .where(and(eq(schema.newsItems.dealId, dealId), eq(schema.newsItems.firmId, firmId)))
+      .orderBy(schema.newsItems.publishedAt);
+    return c.json(rows);
+  })
   .get('/:id', async (c) => {
     // GET /api/deals/:id — return single deal or 404; scoped to firm
     const id = c.req.param('id');
