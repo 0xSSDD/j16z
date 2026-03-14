@@ -86,6 +86,10 @@ export default function InboxPage() {
             router.push('/app/deals');
             gPressed = false;
             break;
+          case 'm':
+            router.push('/app/memos');
+            gPressed = false;
+            break;
           case 'w':
             router.push('/app/watchlists');
             gPressed = false;

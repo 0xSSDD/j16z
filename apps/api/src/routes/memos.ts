@@ -1,5 +1,5 @@
 import { zValidator } from '@hono/zod-validator';
-import { and, eq, isNull, or } from 'drizzle-orm';
+import { and, desc, eq, isNull, or } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { adminDb } from '../db/index.js';
@@ -30,30 +30,54 @@ const createSnapshotSchema = z.object({
 export const memosRoutes = new Hono<AuthEnv>()
 
   // ---------------------------------------------------------------------------
-  // GET /api/memos?dealId={id} — list memos for a deal
-  // Returns: id, title, createdBy, visibility, version, createdAt, updatedAt
+  // GET /api/memos?dealId={id} — list memos for a deal OR all firm memos
+  // Returns: id, dealId, title, createdBy, visibility, version, createdAt, updatedAt, dealTitle
   // No content field — too large for list view
+  // dealTitle = acquirer / target (from deals table)
   // ---------------------------------------------------------------------------
   .get('/', async (c) => {
     const firmId = c.get('firmId');
     const userId = c.get('userId');
     const dealId = c.req.query('dealId');
 
-    if (!dealId) {
-      return c.json({ error: 'dealId query param required' }, 400);
+    if (dealId) {
+      // Verify the deal belongs to this firm
+      const [deal] = await adminDb
+        .select({ id: schema.deals.id })
+        .from(schema.deals)
+        .where(and(eq(schema.deals.id, dealId), eq(schema.deals.firmId, firmId), isNull(schema.deals.deletedAt)))
+        .limit(1);
+      if (!deal) {
+        return c.json({ error: 'Deal not found' }, 404);
+      }
+
+      // Return creator's own memos + firm-visible memos for this deal
+      const rows = await adminDb
+        .select({
+          id: schema.memos.id,
+          dealId: schema.memos.dealId,
+          title: schema.memos.title,
+          createdBy: schema.memos.createdBy,
+          visibility: schema.memos.visibility,
+          version: schema.memos.version,
+          createdAt: schema.memos.createdAt,
+          updatedAt: schema.memos.updatedAt,
+        })
+        .from(schema.memos)
+        .where(
+          and(
+            eq(schema.memos.dealId, dealId),
+            eq(schema.memos.firmId, firmId),
+            isNull(schema.memos.deletedAt),
+            or(eq(schema.memos.createdBy, userId), eq(schema.memos.visibility, 'firm')),
+          ),
+        )
+        .orderBy(desc(schema.memos.updatedAt));
+
+      return c.json(rows);
     }
 
-    // Verify the deal belongs to this firm
-    const [deal] = await adminDb
-      .select({ id: schema.deals.id })
-      .from(schema.deals)
-      .where(and(eq(schema.deals.id, dealId), eq(schema.deals.firmId, firmId), isNull(schema.deals.deletedAt)))
-      .limit(1);
-    if (!deal) {
-      return c.json({ error: 'Deal not found' }, 404);
-    }
-
-    // Return creator's own memos + firm-visible memos
+    // No dealId: return all memos for the firm (joined with deals for dealTitle)
     const rows = await adminDb
       .select({
         id: schema.memos.id,
@@ -64,19 +88,34 @@ export const memosRoutes = new Hono<AuthEnv>()
         version: schema.memos.version,
         createdAt: schema.memos.createdAt,
         updatedAt: schema.memos.updatedAt,
+        acquirer: schema.deals.acquirer,
+        target: schema.deals.target,
       })
       .from(schema.memos)
+      .innerJoin(schema.deals, eq(schema.memos.dealId, schema.deals.id))
       .where(
         and(
-          eq(schema.memos.dealId, dealId),
           eq(schema.memos.firmId, firmId),
           isNull(schema.memos.deletedAt),
           or(eq(schema.memos.createdBy, userId), eq(schema.memos.visibility, 'firm')),
         ),
       )
-      .orderBy(schema.memos.updatedAt);
+      .orderBy(desc(schema.memos.updatedAt));
 
-    return c.json(rows);
+    // Map to construct dealTitle as "acquirer / target"
+    const mappedRows = rows.map((row) => ({
+      id: row.id,
+      dealId: row.dealId,
+      title: row.title,
+      createdBy: row.createdBy,
+      visibility: row.visibility,
+      version: row.version,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+      dealTitle: `${row.acquirer} / ${row.target}`,
+    }));
+
+    return c.json(mappedRows);
   })
 
   // ---------------------------------------------------------------------------

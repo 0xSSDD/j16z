@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Bell,
-  FileText,
-  LayoutDashboard,
-  List,
-  MessageSquareText,
-  PenSquare,
-  Plus,
-  Radio,
-  Search,
-  Settings,
-  ShieldAlert,
-  TrendingUp,
-} from 'lucide-react';
+import { FileText, Inbox, List, PenSquare, Plus, Search, Settings, TrendingUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
 import { useEffect, useState } from 'react';
@@ -57,15 +44,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
   };
 
   const pages: Page[] = [
-    { name: 'Dashboard', path: '/app', icon: LayoutDashboard },
-    { name: 'Live Monitor', path: '/app/feed', icon: Radio },
     { name: 'Deals', path: '/app/deals', icon: TrendingUp },
-    { name: 'Discovery', path: '/app/discovery', icon: Search },
-    { name: 'Notifications', path: '/app/notifications', icon: Bell },
-    { name: 'Deal Intelligence', path: '/app/intelligence', icon: FileText },
-    { name: 'AI Analyst', path: '/app/chat', icon: MessageSquareText },
-    { name: 'Prediction Markets', path: '/app/markets', icon: TrendingUp },
-    { name: 'Risk Radar', path: '/app/risk', icon: ShieldAlert },
+    { name: 'Memos', path: '/app/memos', icon: FileText },
+    { name: 'Inbox', path: '/app/inbox', icon: Inbox },
+    { name: 'Watchlists', path: '/app/watchlists', icon: List },
     { name: 'Settings', path: '/app/settings', icon: Settings },
   ];
 

@@ -17,6 +17,7 @@ export function KeyboardHelpModal({ isOpen, onClose }: KeyboardHelpModalProps) {
       items: [
         { keys: ['g', 'i'], description: 'Go to Inbox' },
         { keys: ['g', 'd'], description: 'Go to Deals' },
+        { keys: ['g', 'm'], description: 'Go to Memos' },
         { keys: ['g', 'w'], description: 'Go to Watchlists' },
         { keys: ['g', 's'], description: 'Go to Settings' },
         { keys: ['⌘', 'k'], description: 'Open command palette' },

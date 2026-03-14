@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  FileText,
   Inbox,
   List,
   LogOut,
@@ -11,7 +12,6 @@ import {
   Sun,
   TrendingUp,
   X,
-  Zap,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -210,6 +210,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
 
           <div className="mb-4 px-4">
             <button
+              type="button"
               onClick={() => setIsCmdKOpen(true)}
               className="group flex w-full items-center gap-2 rounded-lg border border-border bg-surfaceHighlight/50 px-3 py-2 text-xs text-text-muted transition-colors hover:border-primary-500/30 hover:text-text-main"
             >
@@ -222,10 +223,10 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
             </button>
           </div>
 
-          <nav className="flex-1 space-y-0.5 overflow-y-auto">
-            <div className="px-6 pb-2 pt-2 text-[10px] font-bold uppercase tracking-wider text-text-dim">Platform</div>
-            <SidebarItem href="/app/inbox" icon={Inbox} label="Inbox" badge={unreadCount} />
+          <nav className="flex-1 space-y-0.5 overflow-y-auto pt-1">
             <SidebarItem href="/app/deals" icon={TrendingUp} label="Deals" />
+            <SidebarItem href="/app/memos" icon={FileText} label="Memos" />
+            <SidebarItem href="/app/inbox" icon={Inbox} label="Inbox" badge={unreadCount} />
             <SidebarItem href="/app/watchlists" icon={List} label="Watchlists" />
           </nav>
 
@@ -242,51 +243,40 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
                   Connected
                 </span>
               </div>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  className="rounded-full p-1.5 text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-text-main"
+                  title="Toggle Theme"
+                >
+                  {isDarkMode ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="rounded-full p-1.5 text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-rose-500"
+                  title="Log Out"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         </aside>
 
         <div className="relative flex min-w-0 flex-1 flex-col bg-background">
-          <header className="flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md md:px-6">
-            <div className="flex flex-1 items-center gap-3">
-              {/* Hamburger — only on mobile */}
-              <button
-                type="button"
-                onClick={() => setIsSidebarOpen(true)}
-                className="rounded-full p-2 text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-text-main md:hidden"
-                aria-label="Open sidebar"
-              >
-                <Menu className="h-4 w-4" />
-              </button>
-              <div className="hidden items-center gap-2 text-xs font-mono text-text-dim sm:flex">
-                <span className="h-2 w-2 rounded-full bg-primary-500" />
-                SYSTEM_NOMINAL
-                <span className="text-border">/</span>
-                <span className="text-text-muted">LATENCY: 12ms</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 md:gap-4">
-              <div className="hidden items-center gap-1 rounded-full border border-border bg-surface px-3 py-1 sm:flex">
-                <Zap className="h-3 w-3 fill-primary-500 text-primary-500" />
-                <span className="text-xs font-bold text-text-main">Pro Plan</span>
-              </div>
-              <div className="hidden h-4 w-px bg-border sm:block" />
-              <button
-                onClick={toggleTheme}
-                className="rounded-full p-2 text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-text-main"
-                title="Toggle Theme"
-              >
-                {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              </button>
-              <button
-                onClick={handleLogout}
-                className="rounded-full p-2 text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-rose-500"
-                title="Log Out"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
-            </div>
-          </header>
+          {/* Mobile-only hamburger */}
+          <div className="flex h-12 items-center px-4 md:hidden">
+            <button
+              type="button"
+              onClick={() => setIsSidebarOpen(true)}
+              className="rounded-full p-2 text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-text-main"
+              aria-label="Open sidebar"
+            >
+              <Menu className="h-4 w-4" />
+            </button>
+          </div>
 
           <main className="z-10 flex-1 overflow-auto p-4 md:p-6">{children}</main>
         </div>

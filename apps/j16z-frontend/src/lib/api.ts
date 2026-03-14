@@ -593,14 +593,180 @@ export async function updateDigestPreferences(prefs: DigestPreferences): Promise
 // Memos API
 // ---------------------------------------------------------------------------
 
+// Mock memos spanning multiple deals for development mode
+const MOCK_MEMOS: (Memo & { dealTitle: string })[] = [
+  {
+    id: 'memo-1',
+    dealId: 'deal-1',
+    dealTitle: 'Microsoft / Activision Blizzard',
+    title: 'Initial Spread Analysis',
+    content: {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'text',
+              text: 'Spread remains attractive at 4.2% with FTC challenge ongoing. CMA clearance is the binding constraint.',
+            },
+          ],
+        },
+      ],
+    },
+    createdBy: 'user-1',
+    visibility: 'firm',
+    version: 3,
+    createdAt: '2026-03-10T09:15:00Z',
+    updatedAt: '2026-03-13T14:22:00Z',
+  },
+  {
+    id: 'memo-2',
+    dealId: 'deal-1',
+    dealTitle: 'Microsoft / Activision Blizzard',
+    title: 'Regulatory Risk Assessment',
+    content: {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'text',
+              text: 'FTC second request timeline analysis and UK CMA phase 2 review implications for deal closure probability.',
+            },
+          ],
+        },
+      ],
+    },
+    createdBy: 'user-1',
+    visibility: 'private',
+    version: 2,
+    createdAt: '2026-03-08T11:30:00Z',
+    updatedAt: '2026-03-12T16:45:00Z',
+  },
+  {
+    id: 'memo-3',
+    dealId: 'deal-3',
+    dealTitle: 'Kroger / Albertsons Companies',
+    title: 'IC Memo Draft',
+    content: {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'text',
+              text: 'Investment committee memo draft. FTC divestiture package of 413 stores may satisfy competitive concerns. Spread entry at 6.8% presents compelling risk/reward.',
+            },
+          ],
+        },
+      ],
+    },
+    createdBy: 'user-1',
+    visibility: 'firm',
+    version: 5,
+    createdAt: '2026-03-05T08:00:00Z',
+    updatedAt: '2026-03-14T10:15:00Z',
+  },
+  {
+    id: 'memo-4',
+    dealId: 'deal-4',
+    dealTitle: 'JetBlue / Spirit Airlines',
+    title: 'Post-DOJ Ruling Update',
+    content: {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'text',
+              text: 'DOJ successfully blocked the merger. Evaluating appeal likelihood and updated downside scenarios.',
+            },
+          ],
+        },
+      ],
+    },
+    createdBy: 'user-1',
+    visibility: 'firm',
+    version: 1,
+    createdAt: '2026-03-12T15:00:00Z',
+    updatedAt: '2026-03-12T15:00:00Z',
+  },
+  {
+    id: 'memo-5',
+    dealId: 'deal-6',
+    dealTitle: 'Broadcom / VMware Inc.',
+    title: 'Post-Close Integration Notes',
+    content: {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'text',
+              text: 'Deal closed 11/22. Final spread capture was 29bps. Documenting timeline for future reference on mega-cap semiconductor M&A.',
+            },
+          ],
+        },
+      ],
+    },
+    createdBy: 'user-1',
+    visibility: 'private',
+    version: 2,
+    createdAt: '2026-03-01T10:00:00Z',
+    updatedAt: '2026-03-11T09:30:00Z',
+  },
+  {
+    id: 'memo-6',
+    dealId: 'deal-3',
+    dealTitle: 'Kroger / Albertsons Companies',
+    title: 'Divestiture Package Analysis',
+    content: {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'text',
+              text: 'C&S Wholesale Grocers proposed as divestiture buyer for 413 stores. Analyzing buyer credibility and FTC precedent for grocery mergers.',
+            },
+          ],
+        },
+      ],
+    },
+    createdBy: 'user-1',
+    visibility: 'firm',
+    version: 4,
+    createdAt: '2026-03-07T13:45:00Z',
+    updatedAt: '2026-03-13T11:00:00Z',
+  },
+];
+
+/**
+ * Get all memos across deals (for the memos index page).
+ */
+export async function getAllMemos(): Promise<(Memo & { dealTitle: string })[]> {
+  if (USE_MOCK_DATA) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return MOCK_MEMOS;
+  }
+
+  const response = await authFetch('/api/memos');
+  return response.json();
+}
+
 /**
  * Get memos for a deal (list view — no content field).
- * Returns empty array when NEXT_PUBLIC_USE_MOCK_DATA=true (no mock memos).
  */
 export async function getMemos(dealId: string): Promise<Memo[]> {
   if (USE_MOCK_DATA) {
     await new Promise((resolve) => setTimeout(resolve, 100));
-    return [];
+    return MOCK_MEMOS.filter((m) => m.dealId === dealId);
   }
 
   const response = await authFetch(`/api/memos?dealId=${dealId}`);
@@ -612,7 +778,10 @@ export async function getMemos(dealId: string): Promise<Memo[]> {
  */
 export async function getMemo(id: string): Promise<Memo> {
   if (USE_MOCK_DATA) {
-    throw new Error('Memos not available in mock mode');
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const memo = MOCK_MEMOS.find((m) => m.id === id);
+    if (!memo) throw new Error(`Memo ${id} not found`);
+    return memo;
   }
 
   const response = await authFetch(`/api/memos/${id}`);
