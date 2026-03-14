@@ -1,0 +1,1 @@
+ALTER TABLE "clauses" ALTER COLUMN "filing_id" DROP NOT NULL;

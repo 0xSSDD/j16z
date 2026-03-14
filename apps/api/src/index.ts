@@ -4,6 +4,7 @@ import { Scalar } from '@scalar/hono-api-reference';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
+import { adminMiddleware } from './middleware/admin.js';
 import { authMiddleware } from './middleware/auth.js';
 import { firmContextMiddleware } from './middleware/firm-context.js';
 import { registerSchedules } from './queues/scheduler.js';
@@ -82,7 +83,10 @@ api.use('/watchlists/*', firmContextMiddleware);
 api.use('/market-snapshots/*', firmContextMiddleware);
 api.use('/memos/*', firmContextMiddleware);
 
-// Mount routes
+// Admin routes — requires admin role
+api.use('/admin/*', adminMiddleware);
+api.route('/admin', apiRoutes.admin);
+
 api.route('/alert-rules', apiRoutes.alertRules);
 api.route('/api-keys', apiRoutes.apiKeys);
 api.route('/auth', apiRoutes.auth);

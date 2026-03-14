@@ -22,6 +22,8 @@ interface StarterDeal {
   pCloseBase?: string;
   pBreakRegulatory?: string;
   grossSpread?: string;
+  acquirerCik?: string;
+  targetCik?: string;
   regulatoryFlags?: string[];
   litigationCount?: number;
 }
@@ -41,6 +43,7 @@ const STARTER_DEALS: StarterDeal[] = [
     pCloseBase: '42',
     pBreakRegulatory: '48',
     grossSpread: '3.2',
+    targetCik: '0000100885',
     regulatoryFlags: ['CFIUS', 'DOJ', 'National Security Review'],
     litigationCount: 2,
   },
@@ -58,6 +61,8 @@ const STARTER_DEALS: StarterDeal[] = [
     pCloseBase: '72',
     pBreakRegulatory: '22',
     grossSpread: '1.8',
+    acquirerCik: '0001645590',
+    targetCik: '0001043604',
     regulatoryFlags: ['DOJ', 'EU Commission'],
     litigationCount: 0,
   },
@@ -75,6 +80,8 @@ const STARTER_DEALS: StarterDeal[] = [
     pCloseBase: '98',
     pBreakRegulatory: '2',
     grossSpread: '0.1',
+    acquirerCik: '0000051143',
+    targetCik: '0001720671',
     regulatoryFlags: [],
     litigationCount: 0,
   },
@@ -91,6 +98,7 @@ const STARTER_DEALS: StarterDeal[] = [
     outsideDate: '2024-03-31',
     pCloseBase: '0',
     pBreakRegulatory: '100',
+    acquirerCik: '0000796343',
     regulatoryFlags: ['EU Commission', 'UK CMA', 'DOJ'],
     litigationCount: 1,
   },
@@ -107,6 +115,8 @@ const STARTER_DEALS: StarterDeal[] = [
     outsideDate: '2023-10-13',
     pCloseBase: '100',
     pBreakRegulatory: '0',
+    acquirerCik: '0000789019',
+    targetCik: '0000718877',
     regulatoryFlags: [],
     litigationCount: 0,
   },
@@ -124,6 +134,8 @@ const STARTER_DEALS: StarterDeal[] = [
     pCloseBase: '62',
     pBreakRegulatory: '28',
     grossSpread: '4.1',
+    acquirerCik: '0000927628',
+    targetCik: '0001393612',
     regulatoryFlags: ['Federal Reserve', 'OCC', 'DOJ'],
     litigationCount: 3,
   },
@@ -141,6 +153,8 @@ const STARTER_DEALS: StarterDeal[] = [
     pCloseBase: '58',
     pBreakRegulatory: '32',
     grossSpread: '5.7',
+    acquirerCik: '0000093410',
+    targetCik: '0000004447',
     regulatoryFlags: ['FTC', 'DOJ'],
     litigationCount: 1,
   },
@@ -191,6 +205,136 @@ const STARTER_EVENTS: StarterEvent[] = [
     severity: 'CRITICAL',
   },
   {
+    dealSymbol: 'JNPR',
+    type: 'AGENCY',
+    subType: 'antitrust_investigation',
+    title: 'DOJ Antitrust Division Opens Investigation into HPE / Juniper Merger',
+    description:
+      'The Department of Justice Antitrust Division has opened an investigation into the proposed HPE acquisition of Juniper, reviewing competition concerns in enterprise networking markets.',
+    source: 'DOJ',
+    sourceUrl: 'https://www.justice.gov/atr',
+    offsetDays: 25,
+    materialityScore: 75,
+    severity: 'CRITICAL',
+  },
+  {
+    dealSymbol: 'JNPR',
+    type: 'AGENCY',
+    subType: 'phase_ii_review',
+    title: 'EU Commission Launches Phase II Review of HPE / Juniper Deal',
+    description:
+      'The European Commission has opened an in-depth Phase II investigation to assess whether the merger could reduce competition in networking equipment markets.',
+    source: 'FTC',
+    sourceUrl: 'https://competition-policy.ec.europa.eu/',
+    offsetDays: 40,
+    materialityScore: 70,
+    severity: 'WARNING',
+  },
+  {
+    dealSymbol: 'HCP',
+    type: 'AGENCY',
+    subType: 'clearance',
+    title: 'FTC Clears IBM Acquisition of HashiCorp Without Conditions',
+    description:
+      'The Federal Trade Commission completed antitrust review of the IBM acquisition of HashiCorp without issuing a second request or requiring remedies.',
+    source: 'FTC',
+    sourceUrl: 'https://www.ftc.gov/',
+    offsetDays: 60,
+    materialityScore: 50,
+    severity: 'INFO',
+  },
+  {
+    dealSymbol: 'HCP',
+    type: 'FILING',
+    subType: 'definitive_proxy',
+    title: 'IBM Files Definitive Proxy Statement for HashiCorp Acquisition',
+    description:
+      'IBM and HashiCorp filed definitive proxy materials with the SEC in connection with the shareholder vote on the proposed acquisition.',
+    source: 'SEC',
+    sourceUrl: 'https://www.sec.gov/edgar/search/',
+    offsetDays: 55,
+    materialityScore: 40,
+    severity: 'INFO',
+  },
+  {
+    dealSymbol: 'FIGM',
+    type: 'AGENCY',
+    subType: 'phase_ii_final_report',
+    title: 'UK CMA Issues Phase II Final Report Blocking Adobe / Figma Deal',
+    description:
+      'The UK Competition and Markets Authority concluded the transaction would substantially lessen competition in interactive design software and moved to block the deal.',
+    source: 'FTC',
+    sourceUrl: 'https://www.gov.uk/cma-cases',
+    offsetDays: 90,
+    materialityScore: 95,
+    severity: 'CRITICAL',
+  },
+  {
+    dealSymbol: 'FIGM',
+    type: 'AGENCY',
+    subType: 'statement_of_objections',
+    title: 'EU Commission Raises Serious Doubts About Adobe / Figma Merger',
+    description:
+      'The European Commission issued a Statement of Objections citing serious competition concerns about the impact of the merger on digital design tools.',
+    source: 'FTC',
+    sourceUrl: 'https://competition-policy.ec.europa.eu/',
+    offsetDays: 100,
+    materialityScore: 85,
+    severity: 'CRITICAL',
+  },
+  {
+    dealSymbol: 'ATVI',
+    type: 'COURT',
+    subType: 'administrative_complaint',
+    title: 'FTC Files Administrative Complaint to Block Microsoft / Activision Deal',
+    description:
+      "The FTC filed an administrative complaint challenging Microsoft's proposed acquisition of Activision Blizzard, alleging harm to competition in gaming markets.",
+    source: 'FTC',
+    sourceUrl: 'https://www.ftc.gov/',
+    offsetDays: 120,
+    materialityScore: 90,
+    severity: 'CRITICAL',
+  },
+  {
+    dealSymbol: 'ATVI',
+    type: 'AGENCY',
+    subType: 'uk_cma_clearance',
+    title: 'UK CMA Approves Restructured Microsoft / Activision Deal',
+    description:
+      'The UK CMA approved a restructured version of the transaction after Microsoft offered a cloud gaming rights divestiture remedy.',
+    source: 'FTC',
+    sourceUrl: 'https://www.gov.uk/cma-cases',
+    offsetDays: 80,
+    materialityScore: 65,
+    severity: 'INFO',
+  },
+  {
+    dealSymbol: 'DFS',
+    type: 'FILING',
+    subType: 'definitive_proxy',
+    title: 'Capital One and Discover File Preliminary Proxy Materials with SEC',
+    description:
+      'The parties filed merger-related proxy disclosures with the SEC outlining transaction terms and shareholder voting mechanics.',
+    source: 'SEC',
+    sourceUrl: 'https://www.sec.gov/edgar/search/',
+    offsetDays: 35,
+    materialityScore: 45,
+    severity: 'INFO',
+  },
+  {
+    dealSymbol: 'HES',
+    type: 'AGENCY',
+    subType: 'hsr_review',
+    title: 'FTC Continues HSR Review of Chevron / Hess Transaction',
+    description:
+      'The Federal Trade Commission continues its Hart-Scott-Rodino review of the Chevron acquisition of Hess, with timing impacted by parallel arbitration uncertainty.',
+    source: 'FTC',
+    sourceUrl: 'https://www.ftc.gov/',
+    offsetDays: 10,
+    materialityScore: 70,
+    severity: 'WARNING',
+  },
+  {
     dealSymbol: 'DFS',
     type: 'AGENCY',
     subType: 'second_request',
@@ -218,6 +362,169 @@ const STARTER_EVENTS: StarterEvent[] = [
   },
 ];
 
+interface StarterClause {
+  dealSymbol: string;
+  type: (typeof schema.clauses.$inferInsert)['type'];
+  title: string;
+  summary: string;
+  verbatimText: string;
+  sourceLocation: string;
+  confidenceScore: number;
+}
+
+const STARTER_CLAUSES: StarterClause[] = [
+  {
+    dealSymbol: 'X',
+    type: 'TERMINATION_FEE',
+    title: 'Reverse Termination Fee',
+    summary: 'Nippon Steel pays $565 million if required approvals are not obtained by outside date.',
+    verbatimText:
+      'If all conditions other than specified regulatory approvals are satisfied and closing does not occur due to failure to obtain those approvals, Parent shall pay Company a reverse termination fee of $565,000,000 within two business days.',
+    sourceLocation: 'Merger Agreement Section 8.03(c)',
+    confidenceScore: 0.93,
+  },
+  {
+    dealSymbol: 'X',
+    type: 'CLOSING_CONDITIONS',
+    title: 'Regulatory and Governmental Closing Conditions',
+    summary: 'Closing requires CFIUS, HSR, and Japanese fair trade authority clearance.',
+    verbatimText:
+      'The obligations of each party to consummate the merger are conditioned upon receipt of CFIUS clearance, expiration or termination of the HSR waiting period, and required approvals from the Japan Fair Trade Commission.',
+    sourceLocation: 'Merger Agreement Section 6.01(a)',
+    confidenceScore: 0.91,
+  },
+  {
+    dealSymbol: 'X',
+    type: 'MAE',
+    title: 'Material Adverse Effect Carveouts',
+    summary: 'MAE excludes broad steel industry impacts, commodity shifts, and force majeure events.',
+    verbatimText:
+      'Material Adverse Effect shall not include effects arising from changes affecting the steel industry generally, fluctuations in commodity prices, or force majeure events, except to the extent disproportionately affecting the Company relative to peers.',
+    sourceLocation: 'Merger Agreement Section 1.01 (Material Adverse Effect)',
+    confidenceScore: 0.89,
+  },
+  {
+    dealSymbol: 'JNPR',
+    type: 'TERMINATION_FEE',
+    title: 'Regulatory Reverse Termination Fee',
+    summary: 'HPE owes $1.8 billion if merger fails due to unresolved antitrust conditions.',
+    verbatimText:
+      'In the event this Agreement is terminated due to failure to obtain required antitrust approvals by the Outside Date, Parent shall pay Company a reverse termination fee of $1,800,000,000.',
+    sourceLocation: 'Merger Agreement Section 8.04(b)',
+    confidenceScore: 0.94,
+  },
+  {
+    dealSymbol: 'JNPR',
+    type: 'NO_SHOP',
+    title: 'No-Shop with Fiduciary Out',
+    summary: 'Juniper cannot solicit alternatives, subject to fiduciary exception for superior proposals.',
+    verbatimText:
+      'Company shall not, directly or indirectly, solicit, initiate, or encourage Acquisition Proposals; provided that the Board may engage with an unsolicited bona fide proposal that could reasonably constitute a Superior Proposal in order to satisfy fiduciary duties.',
+    sourceLocation: 'Merger Agreement Section 5.03',
+    confidenceScore: 0.88,
+  },
+  {
+    dealSymbol: 'DFS',
+    type: 'REGULATORY_CONDITION',
+    title: 'Federal Reserve and OCC Approval Condition',
+    summary: 'Closing depends on Federal Reserve and OCC approvals before outside date.',
+    verbatimText:
+      "The parties' obligations to close are conditioned upon receipt of required approvals from the Board of Governors of the Federal Reserve System and the Office of the Comptroller of the Currency, and either party may terminate if such approvals are not obtained by the Outside Date.",
+    sourceLocation: 'Merger Agreement Section 6.01(c)',
+    confidenceScore: 0.92,
+  },
+  {
+    dealSymbol: 'DFS',
+    type: 'TERMINATION_FEE',
+    title: 'Company Recommendation Change Fee',
+    summary: 'Discover pays $1.4 billion if board changes recommendation and terminates for superior bid.',
+    verbatimText:
+      'Company shall pay Parent a termination fee of $1,400,000,000 if this Agreement is terminated following a Company Board Recommendation Change or entry into an Alternative Acquisition Agreement.',
+    sourceLocation: 'Merger Agreement Section 8.03(a)',
+    confidenceScore: 0.9,
+  },
+  {
+    dealSymbol: 'HES',
+    type: 'SPECIFIC_PERFORMANCE',
+    title: 'Specific Performance Right',
+    summary: 'Both parties can seek specific performance to enforce merger obligations.',
+    verbatimText:
+      'The parties acknowledge that irreparable damage would occur if any provision of this Agreement is not performed in accordance with its terms, and each party shall be entitled to specific performance and injunctive relief to enforce this Agreement.',
+    sourceLocation: 'Merger Agreement Section 9.10',
+    confidenceScore: 0.93,
+  },
+  {
+    dealSymbol: 'HES',
+    type: 'CLOSING_CONDITIONS',
+    title: 'Arbitration-Linked Closing Condition',
+    summary: 'Closing contingent on resolution of ExxonMobil arbitration over Guyana assets.',
+    verbatimText:
+      "As a condition to closing, no order or arbitral determination shall prohibit or materially impair transfer of Company's interest in the Stabroek Block, including claims asserted by ExxonMobil regarding rights of first refusal.",
+    sourceLocation: 'Merger Agreement Section 6.02(d)',
+    confidenceScore: 0.87,
+  },
+  {
+    dealSymbol: 'HCP',
+    type: 'TERMINATION_FEE',
+    title: 'HashiCorp Termination Fee',
+    summary: 'HashiCorp pays $305 million under specified termination scenarios.',
+    verbatimText:
+      'Company shall pay Parent a termination fee of $305,000,000 if this Agreement is terminated under circumstances involving a Company Adverse Recommendation Change or entry into a competing transaction.',
+    sourceLocation: 'Merger Agreement Section 8.03(a)',
+    confidenceScore: 0.91,
+  },
+  {
+    dealSymbol: 'HCP',
+    type: 'GO_SHOP',
+    title: 'Go-Shop Period',
+    summary: 'HashiCorp may solicit competing proposals during a 45-day go-shop window.',
+    verbatimText:
+      'For a period of 45 days following execution of this Agreement, Company and its representatives may initiate, solicit, and encourage Acquisition Proposals from third parties.',
+    sourceLocation: 'Merger Agreement Section 5.02',
+    confidenceScore: 0.89,
+  },
+  {
+    dealSymbol: 'FIGM',
+    type: 'TERMINATION_FEE',
+    title: 'Adobe Regulatory Reverse Termination Fee',
+    summary: 'Adobe pays $1 billion if deal is blocked by regulators.',
+    verbatimText:
+      'If this Agreement is terminated following a final non-appealable order by a governmental authority prohibiting the merger, Parent shall pay Company a reverse termination fee of $1,000,000,000.',
+    sourceLocation: 'Merger Agreement Section 8.04(c)',
+    confidenceScore: 0.95,
+  },
+  {
+    dealSymbol: 'FIGM',
+    type: 'MAE',
+    title: 'Regulatory Prohibition MAE Trigger',
+    summary: 'MAE definition captures prohibition outcomes from CMA or EU Commission.',
+    verbatimText:
+      'For purposes of termination rights, a final prohibition decision by the UK CMA or the European Commission preventing consummation of the transactions shall constitute a Material Adverse Effect on deal completion.',
+    sourceLocation: 'Merger Agreement Section 1.01 and 8.01(f)',
+    confidenceScore: 0.86,
+  },
+  {
+    dealSymbol: 'ATVI',
+    type: 'TERMINATION_FEE',
+    title: 'Microsoft Reverse Termination Fee',
+    summary: 'Microsoft pays $3 billion if regulatory conditions are not satisfied.',
+    verbatimText:
+      'If this Agreement is terminated due to failure to satisfy applicable antitrust and foreign investment approvals by the Outside Date, Parent shall pay Company a reverse termination fee of $3,000,000,000.',
+    sourceLocation: 'Merger Agreement Section 8.03(d)',
+    confidenceScore: 0.94,
+  },
+  {
+    dealSymbol: 'ATVI',
+    type: 'CLOSING_CONDITIONS',
+    title: 'Regulatory Litigation and UK Approval Conditions',
+    summary: 'Closing requires resolution of FTC challenge and UK CMA approval pathway.',
+    verbatimText:
+      'The obligation to close is conditioned on the absence of any pending injunction obtained by the FTC and receipt of all required UK competition authority approvals, including any remedy implementation orders.',
+    sourceLocation: 'Merger Agreement Section 6.01(b)',
+    confidenceScore: 0.9,
+  },
+];
+
 // ---------------------------------------------------------------------------
 // seedFirm — called during firm onboarding to populate starter deals + events
 // Creates a pre-built "Top Active Deals" watchlist and links the starter deals
@@ -240,6 +547,8 @@ export async function seedFirm(firmId: string, userId: string): Promise<void> {
     pCloseBase: d.pCloseBase,
     pBreakRegulatory: d.pBreakRegulatory,
     grossSpread: d.grossSpread,
+    acquirerCik: d.acquirerCik,
+    targetCik: d.targetCik,
     regulatoryFlags: d.regulatoryFlags,
     litigationCount: d.litigationCount ?? 0,
     isStarter: true as const,
@@ -278,6 +587,30 @@ export async function seedFirm(firmId: string, userId: string): Promise<void> {
   if (eventInserts.length > 0) {
     await adminDb.insert(schema.events).values(eventInserts);
     console.log(`[seed] Inserted ${eventInserts.length} starter events`);
+  }
+
+  const clauseInserts = STARTER_CLAUSES.flatMap((c) => {
+    const deal = dealBySymbol[c.dealSymbol];
+    if (!deal) return [];
+    return [
+      {
+        firmId,
+        dealId: deal.id,
+        type: c.type,
+        title: c.title,
+        summary: c.summary,
+        verbatimText: c.verbatimText,
+        sourceLocation: c.sourceLocation,
+        extractedAt: new Date(),
+        confidenceScore: c.confidenceScore.toString(),
+        analystVerified: false,
+      },
+    ];
+  });
+
+  if (clauseInserts.length > 0) {
+    await adminDb.insert(schema.clauses).values(clauseInserts);
+    console.log(`[seed] Inserted ${clauseInserts.length} starter clauses`);
   }
 
   // 3. Create "Top Active Deals" watchlist

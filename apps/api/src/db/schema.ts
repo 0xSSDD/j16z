@@ -213,9 +213,7 @@ export const clauses = pgTable(
     dealId: uuid('deal_id')
       .references(() => deals.id)
       .notNull(),
-    filingId: uuid('filing_id')
-      .references(() => filings.id)
-      .notNull(),
+    filingId: uuid('filing_id').references(() => filings.id),
     type: text('type').notNull(), // ClauseType — see comment above for valid values
     title: text('title').notNull(),
     summary: text('summary').notNull(),

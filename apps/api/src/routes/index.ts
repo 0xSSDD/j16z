@@ -1,3 +1,4 @@
+import { adminRoutes } from './admin.js';
 import { alertRulesRoutes } from './alert-rules.js';
 import { apiKeyRoutes } from './api-keys.js';
 import { authRoutes } from './auth.js';
@@ -13,6 +14,7 @@ import { watchlistsRoutes } from './watchlists.js';
 import { webhooksRoutes } from './webhooks.js';
 
 export const apiRoutes = {
+  admin: adminRoutes,
   alertRules: alertRulesRoutes,
   apiKeys: apiKeyRoutes,
   auth: authRoutes,

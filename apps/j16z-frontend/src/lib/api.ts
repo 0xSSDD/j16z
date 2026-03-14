@@ -1137,3 +1137,102 @@ export async function getLatestMarketSnapshot(dealId: string): Promise<MarketSna
     throw err;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Admin API
+// ---------------------------------------------------------------------------
+
+export interface AdminSystemHealth {
+  state: 'healthy' | 'degraded' | 'incident';
+  silentFailure: boolean;
+  api: { healthy: boolean };
+  redis: { healthy: boolean; error?: string };
+  postgres: { healthy: boolean; error?: string };
+  workers: { nodeJs: number; healthy: boolean };
+  queue: { active: number; waiting: number; completed: number; failed: number; delayed: number };
+  firm: { id: string } | null;
+  timestamp: string;
+}
+
+export interface AdminQueueData {
+  counts: Record<string, number>;
+  failedJobs: Array<{
+    id: string;
+    name: string;
+    failedReason: string;
+    attemptsMade: number;
+    timestamp: number;
+    finishedOn: number;
+  }>;
+  schedulers: Array<{
+    id: string;
+    name: string;
+    pattern: string;
+    next: number;
+    tz?: string;
+  }>;
+}
+
+export interface AdminScheduleData {
+  config: Record<string, string>;
+  active: Array<{
+    id: string;
+    name: string;
+    pattern: string;
+    next: string | null;
+    tz?: string;
+  }>;
+}
+
+export interface AdminOverview {
+  firmId: string;
+  members: number;
+  deals: number;
+  events: number;
+  filings: number;
+}
+
+export async function getAdminSystemHealth(): Promise<AdminSystemHealth> {
+  const response = await authFetch('/api/admin/system');
+  return response.json();
+}
+
+export async function getAdminQueues(): Promise<AdminQueueData> {
+  const response = await authFetch('/api/admin/queues');
+  return response.json();
+}
+
+export async function getAdminSchedules(): Promise<AdminScheduleData> {
+  const response = await authFetch('/api/admin/schedules');
+  return response.json();
+}
+
+export async function getAdminIngestion(): Promise<{ sources: Array<Record<string, unknown>> }> {
+  const response = await authFetch('/api/admin/ingestion');
+  return response.json();
+}
+
+export async function getAdminOverview(): Promise<AdminOverview> {
+  const response = await authFetch('/api/admin/overview');
+  return response.json();
+}
+
+export interface AdminPipeline {
+  funnel: { discovered: number; downloaded: number; extracted: number; eventsCreated: number };
+  dealFreshness: Array<{
+    dealId: string;
+    symbol: string;
+    acquirer: string;
+    target: string;
+    status: string;
+    lastEventAt: string | null;
+    stale: boolean;
+  }>;
+  oldestPendingMs: number;
+  failureGroups: Array<{ count: number; lastError: string; lastTime: number }>;
+}
+
+export async function getAdminPipeline(): Promise<AdminPipeline> {
+  const response = await authFetch('/api/admin/pipeline');
+  return response.json();
+}

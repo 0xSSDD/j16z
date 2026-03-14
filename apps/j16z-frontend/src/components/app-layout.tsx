@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  Activity,
   FileText,
   Inbox,
   List,
@@ -74,6 +75,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [firmName, setFirmName] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const _router = useRouter();
   const pathname = usePathname();
 
@@ -133,6 +135,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
           const body = await res.json();
           if (body.firm?.name) {
             setFirmName(body.firm.name);
+            setIsAdmin(body.firm.role === 'admin');
           } else {
             _router.push('/app/onboarding');
           }
@@ -256,6 +259,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
 
           <div className="mt-auto border-t border-border p-4">
             <SidebarItem href="/app/settings" icon={SettingsIcon} label="Settings" />
+            {isAdmin && <SidebarItem href="/app/admin" icon={Activity} label="Admin" />}
             <div className="mt-2 flex items-center gap-3 rounded-lg border border-border/50 bg-surface px-4 py-3">
               <div className="flex h-8 w-8 items-center justify-center rounded bg-gradient-to-tr from-primary-500 to-primary-600 text-xs font-bold text-background shadow-sm">
                 {(firmName ?? 'J16Z').slice(0, 2).toUpperCase()}
