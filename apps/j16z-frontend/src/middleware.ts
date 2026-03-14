@@ -67,17 +67,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Authenticated users without a firm → redirect to onboarding
-  // (unless they're already on the onboarding page)
-  if (user && pathname.startsWith('/app') && pathname !== '/app/onboarding') {
-    const firmId = user.app_metadata?.firm_id as string | undefined;
-    if (!firmId) {
-      const redirectUrl = request.nextUrl.clone();
-      redirectUrl.pathname = '/app/onboarding';
-      return NextResponse.redirect(redirectUrl);
-    }
-  }
-
   // Authenticated users visiting /login → redirect to /app/inbox
   if (user && pathname === '/login') {
     const redirectUrl = request.nextUrl.clone();

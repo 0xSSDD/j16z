@@ -491,9 +491,8 @@ export function DealBoard() {
               const row = target.closest('tr');
               if (row && row.dataset.state !== undefined) {
                 const index = Array.from(row.parentElement?.children || []).indexOf(row);
-                if (index > 0) {
-                  const _startIndex = (currentPage - 1) * pageSize;
-                  handleRowClick(paginatedDeals[index - 1]);
+                if (index >= 0 && index < paginatedDeals.length) {
+                  handleRowClick(paginatedDeals[index]);
                 }
               }
             }}

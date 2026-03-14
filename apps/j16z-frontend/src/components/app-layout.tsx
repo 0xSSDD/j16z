@@ -75,6 +75,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [firmName, setFirmName] = useState<string | null>(null);
   const _router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     setMounted(true);
@@ -116,6 +117,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    if (pathname.includes('/onboarding')) return;
     async function loadFirm() {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
@@ -129,12 +131,16 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
         });
         if (res.ok) {
           const body = await res.json();
-          if (body.firm?.name) setFirmName(body.firm.name);
+          if (body.firm?.name) {
+            setFirmName(body.firm.name);
+          } else {
+            _router.push('/app/onboarding');
+          }
         }
       } catch {}
     }
     loadFirm();
-  }, []);
+  }, [_router, pathname]);
 
   useEffect(() => {
     let isMounted = true;
@@ -168,8 +174,6 @@ export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
     };
   }, []);
 
-  // Close sidebar when route changes on mobile
-  const pathname = usePathname();
   // biome-ignore lint/correctness/useExhaustiveDependencies: pathname change is the intended trigger
   useEffect(() => {
     setIsSidebarOpen(false);
