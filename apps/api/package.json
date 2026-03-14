@@ -1,0 +1,49 @@
+{
+  "name": "@j16z/api",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "worker": "tsx src/worker.ts",
+    "worker:dev": "tsx watch src/worker.ts",
+    "test": "vitest",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:seed": "tsx src/db/seed.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@hono/zod-openapi": "0.18.4",
+    "@hono/zod-validator": "^0.4.3",
+    "@react-email/components": "^1.0.9",
+    "@scalar/hono-api-reference": "^0.10.3",
+    "@slack/webhook": "^7.0.8",
+    "@supabase/supabase-js": "^2.49.4",
+    "bullmq": "^5.70.1",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.44.2",
+    "hono": "^4.7.4",
+    "html-to-text": "^9.0.5",
+    "jose": "^5.10.0",
+    "limiter": "^3.0.0",
+    "postgres": "^3.4.5",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
+    "resend": "^6.9.3",
+    "rss-parser": "^3.13.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/html-to-text": "^9.0.4",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "drizzle-kit": "^0.30.5",
+    "tsx": "^4.19.3",
+    "typescript": "^5.9.2",
+    "vitest": "^4.0.2"
+  }
+}

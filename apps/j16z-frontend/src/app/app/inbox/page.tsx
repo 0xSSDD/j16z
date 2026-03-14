@@ -1,0 +1,213 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { AddToMemoDialog } from '@/components/inbox/add-to-memo-dialog';
+import { InboxFilters } from '@/components/inbox/inbox-filters';
+import { InboxHeader } from '@/components/inbox/inbox-header';
+import { InboxSidePanel } from '@/components/inbox/inbox-side-panel';
+import { InboxTimeline } from '@/components/inbox/inbox-timeline';
+import { KeyboardHelpModal } from '@/components/keyboard-help-modal';
+import type { Event } from '@/lib/types';
+
+export default function InboxPage() {
+  const router = useRouter();
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showHelpModal, setShowHelpModal] = useState(false);
+  const [addToMemoEvent, setAddToMemoEvent] = useState<Event | null>(null);
+  const [filters, setFilters] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('inbox_filters');
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch {
+          // Ignore parse errors
+        }
+      }
+    }
+    return {
+      severity: [] as string[],
+      eventType: [] as string[],
+      deal: [] as string[],
+      watchlist: [] as string[],
+      unreadOnly: false,
+    };
+  });
+
+  useEffect(() => {
+    localStorage.setItem('inbox_filters', JSON.stringify(filters));
+  }, [filters]);
+
+  useEffect(() => {
+    let gPressed = false;
+    let gTimeout: NodeJS.Timeout;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if typing in input fields
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+        return;
+      }
+
+      // Help modal (Shift + ?)
+      if (e.key === '?' && e.shiftKey) {
+        e.preventDefault();
+        setShowHelpModal(true);
+        return;
+      }
+
+      // Close side panel with Esc
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setSelectedEventId(null);
+        setAddToMemoEvent(null);
+        setShowHelpModal(false);
+        return;
+      }
+
+      // g+x navigation shortcuts
+      if (e.key === 'g' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        gPressed = true;
+        clearTimeout(gTimeout);
+        gTimeout = setTimeout(() => {
+          gPressed = false;
+        }, 1000);
+        return;
+      }
+
+      if (gPressed) {
+        e.preventDefault();
+        switch (e.key) {
+          case 'i':
+            router.push('/app/inbox');
+            gPressed = false;
+            break;
+          case 'd':
+            router.push('/app/deals');
+            gPressed = false;
+            break;
+          case 'm':
+            router.push('/app/memos');
+            gPressed = false;
+            break;
+          case 'w':
+            router.push('/app/watchlists');
+            gPressed = false;
+            break;
+          case 's':
+            router.push('/app/settings');
+            gPressed = false;
+            break;
+        }
+        return;
+      }
+
+      // Toggle severity filters (1-3 for CRITICAL/WARNING/INFO)
+      if (e.key === '1' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        const newSeverity = filters.severity.includes('CRITICAL')
+          ? filters.severity.filter((l: string) => l !== 'CRITICAL')
+          : [...filters.severity, 'CRITICAL'];
+        setFilters({ ...filters, severity: newSeverity });
+        return;
+      }
+
+      if (e.key === '2' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        const newSeverity = filters.severity.includes('WARNING')
+          ? filters.severity.filter((l: string) => l !== 'WARNING')
+          : [...filters.severity, 'WARNING'];
+        setFilters({ ...filters, severity: newSeverity });
+        return;
+      }
+
+      if (e.key === '3' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        const newSeverity = filters.severity.includes('INFO')
+          ? filters.severity.filter((l: string) => l !== 'INFO')
+          : [...filters.severity, 'INFO'];
+        setFilters({ ...filters, severity: newSeverity });
+        return;
+      }
+
+      // Mark as read (e key)
+      if (e.key === 'e' && selectedEventId && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        const { markEventAsRead } = require('@/lib/read-status');
+        markEventAsRead(selectedEventId);
+        window.dispatchEvent(new CustomEvent('inbox:unread-updated'));
+        return;
+      }
+
+      // View deal card (v key)
+      if (e.key === 'v' && selectedEventId && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        const { getAllEvents } = require('@/lib/api');
+        getAllEvents().then((events: Event[]) => {
+          const event = events.find((e) => e.id === selectedEventId);
+          if (event?.dealId) {
+            router.push(`/app/deals/${event.dealId}`);
+          }
+        });
+        return;
+      }
+
+      if (e.key === 'm' && selectedEventId && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        const { getAllEvents } = require('@/lib/api');
+        getAllEvents().then((events: Event[]) => {
+          const event = events.find((evt) => evt.id === selectedEventId);
+          if (event) {
+            setAddToMemoEvent(event);
+          }
+        });
+        return;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      clearTimeout(gTimeout);
+    };
+  }, [filters, selectedEventId, router]);
+
+  return (
+    <div className="flex h-full flex-col">
+      <InboxHeader />
+
+      <InboxFilters
+        filters={filters}
+        onFiltersChange={setFilters}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
+
+      <div className="flex flex-1 overflow-hidden">
+        <InboxTimeline
+          filters={filters}
+          selectedEventId={selectedEventId}
+          onEventSelect={setSelectedEventId}
+          searchQuery={searchQuery}
+          selectedIndex={selectedIndex}
+          onIndexChange={setSelectedIndex}
+        />
+
+        {selectedEventId && <InboxSidePanel eventId={selectedEventId} onClose={() => setSelectedEventId(null)} />}
+      </div>
+
+      <KeyboardHelpModal isOpen={showHelpModal} onClose={() => setShowHelpModal(false)} />
+      <AddToMemoDialog
+        event={addToMemoEvent}
+        open={addToMemoEvent !== null}
+        onOpenChange={(open) => {
+          if (!open) setAddToMemoEvent(null);
+        }}
+      />
+    </div>
+  );
+}

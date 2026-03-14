@@ -1,22 +1,11 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import {
-  LayoutDashboard,
-  Radio,
-  FileText,
-  Settings,
-  Search,
-  MessageSquareText,
-  TrendingUp,
-  ShieldAlert,
-  Bell,
-  Plus,
-  List,
-  PenSquare,
-} from "lucide-react";
-import { MOCK_DEALS } from "@/lib/constants";
+import { FileText, Inbox, List, PenSquare, Plus, Search, Settings, TrendingUp } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { getDeals } from '@/lib/api';
+import type { Deal } from '@/lib/types';
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -32,50 +21,51 @@ interface Page {
 interface Command {
   id: string;
   name: string;
-  category: "navigation" | "deal" | "action";
+  category: 'navigation' | 'deal' | 'action';
   icon: React.ComponentType<{ className?: string }>;
   action: () => void;
 }
 
-export const CommandPalette: React.FC<CommandPaletteProps> = ({
-  isOpen,
-  onClose,
-}) => {
+export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose }) => {
   const router = useRouter();
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [deals, setDeals] = useState<Deal[]>([]);
   const [recentCommands, setRecentCommands] = useState<string[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("recentCommands");
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('recentCommands');
       return stored ? JSON.parse(stored) : [];
     }
     return [];
   });
 
+  useEffect(() => {
+    if (isOpen && deals.length === 0) {
+      getDeals()
+        .then(setDeals)
+        .catch(() => {});
+    }
+  }, [isOpen, deals.length]);
+
   const saveRecentCommand = (commandId: string) => {
-    const updated = [commandId, ...recentCommands.filter(id => id !== commandId)].slice(0, 5);
+    const updated = [commandId, ...recentCommands.filter((id) => id !== commandId)].slice(0, 5);
     setRecentCommands(updated);
-    localStorage.setItem("recentCommands", JSON.stringify(updated));
+    localStorage.setItem('recentCommands', JSON.stringify(updated));
   };
 
   const pages: Page[] = [
-    { name: "Dashboard", path: "/app", icon: LayoutDashboard },
-    { name: "Live Monitor", path: "/app/feed", icon: Radio },
-    { name: "Deals", path: "/app/deals", icon: TrendingUp },
-    { name: "Discovery", path: "/app/discovery", icon: Search },
-    { name: "Notifications", path: "/app/notifications", icon: Bell },
-    { name: "Deal Intelligence", path: "/app/intelligence", icon: FileText },
-    { name: "AI Analyst", path: "/app/chat", icon: MessageSquareText },
-    { name: "Prediction Markets", path: "/app/markets", icon: TrendingUp },
-    { name: "Risk Radar", path: "/app/risk", icon: ShieldAlert },
-    { name: "Settings", path: "/app/settings", icon: Settings },
+    { name: 'Deals', path: '/app/deals', icon: TrendingUp },
+    { name: 'Memos', path: '/app/memos', icon: FileText },
+    { name: 'Inbox', path: '/app/inbox', icon: Inbox },
+    { name: 'Watchlists', path: '/app/watchlists', icon: List },
+    { name: 'Settings', path: '/app/settings', icon: Settings },
   ];
 
   const commands: Command[] = [
-    ...pages.map(page => ({
+    ...pages.map((page) => ({
       id: `nav:${page.path}`,
       name: `Go to ${page.name}`,
-      category: "navigation" as const,
+      category: 'navigation' as const,
       icon: page.icon,
       action: () => {
         router.push(page.path);
@@ -83,10 +73,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         onClose();
       },
     })),
-    ...MOCK_DEALS.map(deal => ({
+    ...deals.map((deal) => ({
       id: `deal:${deal.id}`,
       name: `${deal.acquirerSymbol} / ${deal.symbol}`,
-      category: "deal" as const,
+      category: 'deal' as const,
       icon: TrendingUp,
       action: () => {
         router.push(`/app/deals/${deal.id}`);
@@ -95,67 +85,65 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       },
     })),
     {
-      id: "action:new-deal",
-      name: "New Deal",
-      category: "action" as const,
+      id: 'action:new-deal',
+      name: 'New Deal',
+      category: 'action' as const,
       icon: Plus,
       action: () => {
-        router.push("/app/deals");
-        saveRecentCommand("action:new-deal");
+        router.push('/app/deals');
+        saveRecentCommand('action:new-deal');
         onClose();
         setTimeout(() => {
-          const event = new CustomEvent("openAddDealModal");
+          const event = new CustomEvent('openAddDealModal');
           window.dispatchEvent(event);
         }, 100);
       },
     },
     {
-      id: "action:manage-watchlists",
-      name: "Manage Watchlists",
-      category: "action" as const,
+      id: 'action:manage-watchlists',
+      name: 'Manage Watchlists',
+      category: 'action' as const,
       icon: List,
       action: () => {
-        router.push("/app/deals");
-        saveRecentCommand("action:manage-watchlists");
+        router.push('/app/deals');
+        saveRecentCommand('action:manage-watchlists');
         onClose();
         setTimeout(() => {
-          const event = new CustomEvent("openWatchlistModal");
+          const event = new CustomEvent('openWatchlistModal');
           window.dispatchEvent(event);
         }, 100);
       },
     },
     {
-      id: "action:generate-draft",
-      name: "Generate Draft",
-      category: "action" as const,
+      id: 'action:generate-draft',
+      name: 'Generate Draft',
+      category: 'action' as const,
       icon: PenSquare,
       action: () => {
-        const firstDeal = MOCK_DEALS[0];
+        const firstDeal = deals[0];
         if (firstDeal) {
           router.push(`/app/deals/${firstDeal.id}/draft`);
-          saveRecentCommand("action:generate-draft");
+          saveRecentCommand('action:generate-draft');
         }
         onClose();
       },
     },
   ];
 
-  const filtered = commands.filter((cmd) =>
-    cmd.name.toLowerCase().includes(query.toLowerCase())
-  );
+  const filtered = commands.filter((cmd) => cmd.name.toLowerCase().includes(query.toLowerCase()));
 
-  const recentItems = commands.filter(cmd => recentCommands.includes(cmd.id)).slice(0, 5);
+  const recentItems = commands.filter((cmd) => recentCommands.includes(cmd.id)).slice(0, 5);
 
   // When no query, show recent + all commands
   // When query exists, show filtered results
-  const shouldShowSections = query === "" && recentItems.length > 0;
-  const displayItems = query === "" ? commands : filtered;
+  const shouldShowSections = query === '' && recentItems.length > 0;
+  const displayItems = query === '' ? commands : filtered;
 
   useEffect(() => {
     if (!isOpen) return;
 
     const timer = setTimeout(() => {
-      setQuery("");
+      setQuery('');
       setSelectedIndex(0);
     }, 0);
 
@@ -167,16 +155,16 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowDown") {
+    if (e.key === 'ArrowDown') {
       e.preventDefault();
       setSelectedIndex((i) => (i + 1) % displayItems.length);
-    } else if (e.key === "ArrowUp") {
+    } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       setSelectedIndex((i) => (i - 1 + displayItems.length) % displayItems.length);
-    } else if (e.key === "Enter") {
+    } else if (e.key === 'Enter') {
       e.preventDefault();
       if (displayItems[selectedIndex]) handleSelect(displayItems[selectedIndex]);
-    } else if (e.key === "Escape") {
+    } else if (e.key === 'Escape') {
       e.preventDefault();
       onClose();
     }
@@ -196,7 +184,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         <div className="flex items-center border-b border-border bg-background/50 px-4 py-3">
           <Search className="mr-3 h-5 w-5 text-text-muted" />
           <input
-            autoFocus
             className="flex-1 border-none bg-transparent text-sm font-sans text-text-main outline-none placeholder:text-text-dim"
             placeholder="Search commands, deals, or actions..."
             value={query}
@@ -212,43 +199,33 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         </div>
         <div className="max-h-[400px] overflow-y-auto p-2">
           {displayItems.length === 0 ? (
-            <div className="p-8 text-center text-sm text-text-muted">
-              No results found.
-            </div>
+            <div className="p-8 text-center text-sm text-text-muted">No results found.</div>
           ) : shouldShowSections ? (
             <>
               {/* Recent Commands Section */}
               {recentItems.length > 0 && (
                 <>
-                  <div className="px-3 py-2 text-[10px] font-mono text-text-dim uppercase tracking-wide">
-                    Recent
-                  </div>
+                  <div className="px-3 py-2 text-[10px] font-mono text-text-dim uppercase tracking-wide">Recent</div>
                   {recentItems.map((command, idx) => (
                     <div
                       key={command.id}
                       className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                         idx === selectedIndex
-                          ? "bg-amber-500 text-zinc-950"
-                          : "text-text-muted hover:bg-surfaceHighlight hover:text-text-main"
+                          ? 'bg-primary-500 text-background'
+                          : 'text-text-muted hover:bg-surfaceHighlight hover:text-text-main'
                       }`}
                       onClick={() => handleSelect(command)}
                       onMouseEnter={() => setSelectedIndex(idx)}
                     >
                       <command.icon
-                        className={`h-4 w-4 ${idx === selectedIndex ? "text-zinc-950" : "text-text-dim"}`}
+                        className={`h-4 w-4 ${idx === selectedIndex ? 'text-background' : 'text-text-dim'}`}
                       />
                       <span className="flex-1">{command.name}</span>
-                      {command.category === "deal" && (
-                        <span className="text-[10px] font-mono opacity-60">Deal</span>
-                      )}
-                      {command.category === "action" && (
+                      {command.category === 'deal' && <span className="text-[10px] font-mono opacity-60">Deal</span>}
+                      {command.category === 'action' && (
                         <span className="text-[10px] font-mono opacity-60">Action</span>
                       )}
-                      {idx === selectedIndex && (
-                        <div className="ml-2 font-mono text-[10px] opacity-80">
-                          ⏎
-                        </div>
-                      )}
+                      {idx === selectedIndex && <div className="ml-2 font-mono text-[10px] opacity-80">⏎</div>}
                     </div>
                   ))}
 
@@ -258,9 +235,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               )}
 
               {/* All Commands Section */}
-              <div className="px-3 py-2 text-[10px] font-mono text-text-dim uppercase tracking-wide">
-                All Commands
-              </div>
+              <div className="px-3 py-2 text-[10px] font-mono text-text-dim uppercase tracking-wide">All Commands</div>
               {displayItems.map((command, idx) => {
                 const actualIndex = recentItems.length > 0 ? idx + recentItems.length : idx;
                 return (
@@ -268,27 +243,19 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                     key={command.id}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                       actualIndex === selectedIndex
-                        ? "bg-amber-500 text-zinc-950"
-                        : "text-text-muted hover:bg-surfaceHighlight hover:text-text-main"
+                        ? 'bg-primary-500 text-background'
+                        : 'text-text-muted hover:bg-surfaceHighlight hover:text-text-main'
                     }`}
                     onClick={() => handleSelect(command)}
                     onMouseEnter={() => setSelectedIndex(actualIndex)}
                   >
                     <command.icon
-                      className={`h-4 w-4 ${actualIndex === selectedIndex ? "text-zinc-950" : "text-text-dim"}`}
+                      className={`h-4 w-4 ${actualIndex === selectedIndex ? 'text-background' : 'text-text-dim'}`}
                     />
                     <span className="flex-1">{command.name}</span>
-                    {command.category === "deal" && (
-                      <span className="text-[10px] font-mono opacity-60">Deal</span>
-                    )}
-                    {command.category === "action" && (
-                      <span className="text-[10px] font-mono opacity-60">Action</span>
-                    )}
-                    {actualIndex === selectedIndex && (
-                      <div className="ml-2 font-mono text-[10px] opacity-80">
-                        ⏎
-                      </div>
-                    )}
+                    {command.category === 'deal' && <span className="text-[10px] font-mono opacity-60">Deal</span>}
+                    {command.category === 'action' && <span className="text-[10px] font-mono opacity-60">Action</span>}
+                    {actualIndex === selectedIndex && <div className="ml-2 font-mono text-[10px] opacity-80">⏎</div>}
                   </div>
                 );
               })}
@@ -300,38 +267,24 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                 key={command.id}
                 className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                   idx === selectedIndex
-                    ? "bg-amber-500 text-zinc-950"
-                    : "text-text-muted hover:bg-surfaceHighlight hover:text-text-main"
+                    ? 'bg-primary-500 text-background'
+                    : 'text-text-muted hover:bg-surfaceHighlight hover:text-text-main'
                 }`}
                 onClick={() => handleSelect(command)}
                 onMouseEnter={() => setSelectedIndex(idx)}
               >
-                <command.icon
-                  className={`h-4 w-4 ${idx === selectedIndex ? "text-zinc-950" : "text-text-dim"}`}
-                />
+                <command.icon className={`h-4 w-4 ${idx === selectedIndex ? 'text-background' : 'text-text-dim'}`} />
                 <span className="flex-1">{command.name}</span>
-                {command.category === "deal" && (
-                  <span className="text-[10px] font-mono opacity-60">Deal</span>
-                )}
-                {command.category === "action" && (
-                  <span className="text-[10px] font-mono opacity-60">Action</span>
-                )}
-                {idx === selectedIndex && (
-                  <div className="ml-2 font-mono text-[10px] opacity-80">
-                    ⏎
-                  </div>
-                )}
+                {command.category === 'deal' && <span className="text-[10px] font-mono opacity-60">Deal</span>}
+                {command.category === 'action' && <span className="text-[10px] font-mono opacity-60">Action</span>}
+                {idx === selectedIndex && <div className="ml-2 font-mono text-[10px] opacity-80">⏎</div>}
               </div>
             ))
           )}
         </div>
         <div className="flex items-center justify-between border-t border-border bg-surfaceHighlight/30 px-4 py-2">
-          <span className="font-sans text-[10px] text-text-dim">
-            ↑↓ navigate • ⏎ select • esc close
-          </span>
-          <span className="font-sans text-[10px] text-text-dim">
-            J16Z Command
-          </span>
+          <span className="font-sans text-[10px] text-text-dim">↑↓ navigate • ⏎ select • esc close</span>
+          <span className="font-sans text-[10px] text-text-dim">J16Z Command</span>
         </div>
       </div>
     </div>

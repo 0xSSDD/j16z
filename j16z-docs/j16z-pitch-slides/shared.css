@@ -1,0 +1,30 @@
+/* j16z Pitch Deck - Dark Financial Terminal Aesthetic */
+:root {
+  /* Brand Colors */
+  --color-surface: #0a0a0a;
+  --color-surface-foreground: #ffffff;
+
+  --color-primary: #2e5cff;
+  --color-primary-light: #5580ff;
+  --color-primary-dark: #1a3dd9;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #1a1a1a;
+  --color-secondary-foreground: #ffffff;
+
+  --color-accent: #ff6b42;
+  --color-accent-foreground: #ffffff;
+
+  --color-muted: #2a2a2a;
+  --color-muted-foreground: #a0a0a0;
+
+  --color-border: #333333;
+
+  /* Typography */
+  --font-family-display: Arial, sans-serif;
+  --font-weight-display: 700;
+  --font-family-content: Arial, sans-serif;
+  --font-weight-content: 400;
+  --font-size-content: 14px;
+  --line-height-content: 1.5;
+}

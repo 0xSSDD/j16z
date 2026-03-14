@@ -7,12 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": [
-      "**",
-      "!**/node_modules/",
-      "!**/dist",
-      "!**/apps/j16z-backend/prisma"
-    ]
+    "includes": ["**", "!**/node_modules/", "!**/dist", "!**/apps/j16z-backend/prisma"]
   },
   "formatter": {
     "enabled": true,

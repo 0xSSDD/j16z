@@ -1,0 +1,34 @@
+'use client';
+
+import { CheckCheck } from 'lucide-react';
+
+export function InboxHeader() {
+  const handleMarkAllRead = () => {
+    if (confirm('Mark all events as read?')) {
+      // TODO: Implement mark all as read
+      console.log('Mark all read');
+    }
+  };
+
+  return (
+    <div className="border-b border-border px-4 py-4 md:px-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-text-main">Inbox</h1>
+          <p className="text-sm text-text-muted">Unified event timeline with severity scoring</p>
+          <p className="mt-1 text-xs text-text-dim">
+            Press <kbd className="rounded border border-border bg-surfaceHighlight px-1 font-mono">?</kbd> for keyboard
+            shortcuts
+          </p>
+        </div>
+        <button
+          onClick={handleMarkAllRead}
+          className="flex w-fit items-center gap-2 rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text-main transition-colors hover:bg-surfaceHighlight"
+        >
+          <CheckCheck className="h-4 w-4" />
+          Mark All Read
+        </button>
+      </div>
+    </div>
+  );
+}

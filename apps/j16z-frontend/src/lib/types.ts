@@ -1,15 +1,15 @@
 export enum ItemType {
-  SEC_FILING = "SEC_FILING",
-  NEWS = "NEWS",
-  LITIGATION = "LITIGATION",
-  PREDICTION = "PREDICTION",
+  SEC_FILING = 'SEC_FILING',
+  NEWS = 'NEWS',
+  LITIGATION = 'LITIGATION',
+  PREDICTION = 'PREDICTION',
 }
 
 export enum Priority {
-  CRITICAL = "CRITICAL",
-  HIGH = "HIGH",
-  MEDIUM = "MEDIUM",
-  LOW = "LOW",
+  CRITICAL = 'CRITICAL',
+  HIGH = 'HIGH',
+  MEDIUM = 'MEDIUM',
+  LOW = 'LOW',
 }
 
 export interface IntelligenceItem {
@@ -34,15 +34,15 @@ export interface IntelligenceItem {
 export interface DataSource {
   id: string;
   name: string;
-  status: "active" | "pending" | "error";
-  type: "api" | "rss" | "websocket";
+  status: 'active' | 'pending' | 'error';
+  type: 'api' | 'rss' | 'websocket';
   itemsToday: number;
   lastUpdate: string;
 }
 
 export interface ChatMessage {
   id: string;
-  role: "user" | "model";
+  role: 'user' | 'model';
   content: string;
   timestamp: number;
   isThinking?: boolean;
@@ -75,7 +75,7 @@ export interface Deal {
 }
 
 export type EventType = 'FILING' | 'COURT' | 'AGENCY' | 'SPREAD_MOVE' | 'NEWS';
-export type Materiality = 'HIGH' | 'MEDIUM' | 'LOW';
+export type Severity = 'CRITICAL' | 'WARNING' | 'INFO';
 export type SourceType = 'SEC_EDGAR' | 'COURT_LISTENER' | 'FTC_GOV' | 'DOJ_GOV' | 'RSS';
 
 export interface Event {
@@ -84,23 +84,50 @@ export interface Event {
   timestamp: string;
   type: EventType;
   subtype: string;
-  materiality: Materiality;
+  severity: Severity;
   title: string;
   summary: string;
+  content?: string;
   sourceUrl: string;
   sourceType: SourceType;
+  // DB-stored materiality score from Python extraction pipeline (EXTRACT-07)
+  // 0 = not set (pre-extraction events); falls back to client-side calculation
+  materialityScore?: number;
 }
 
-export type ClauseType = 'TERMINATION_FEE' | 'REVERSE_TERMINATION_FEE' | 'MAE' | 'REGULATORY_EFFORTS' | 'LITIGATION_CONDITION' | 'FINANCING_CONDITION';
+export type ClauseType =
+  | 'TERMINATION_FEE'
+  | 'REVERSE_TERMINATION_FEE'
+  | 'MAE'
+  | 'REGULATORY_EFFORTS'
+  | 'LITIGATION_CONDITION'
+  | 'FINANCING_CONDITION'
+  | 'GO_SHOP'
+  | 'TICKING_FEE'
+  | 'HELL_OR_HIGH_WATER'
+  | 'SPECIFIC_PERFORMANCE'
+  | 'NO_SHOP'
+  | 'MATCHING_RIGHTS'
+  | 'OTHER';
 
 export interface Clause {
   id: string;
   dealId: string;
+  // New extraction fields (populated by Python LangExtract pipeline)
+  filingId?: string;
   type: ClauseType;
-  value: string;
-  sourceFilingType: string;
-  sourceSection: string;
-  sourceUrl: string;
+  title?: string;
+  summary?: string;
+  verbatimText?: string;
+  sourceLocation?: string; // "start_pos:end_pos" format
+  extractedAt?: string;
+  confidenceScore?: number | null;
+  analystVerified?: boolean;
+  // Legacy fields for backward compatibility with mock data
+  value?: string;
+  sourceFilingType?: string;
+  sourceSection?: string;
+  sourceUrl?: string;
 }
 
 export interface MarketSnapshot {
@@ -122,4 +149,109 @@ export interface NewsItem {
   summary: string;
   url: string;
   tags: string[];
+}
+
+// Filing types for EDGAR ingestion
+export type FilingType =
+  | '8-K'
+  | '8-K/A'
+  | 'S-4'
+  | 'S-4/A'
+  | 'DEFM14A'
+  | 'SC 13D'
+  | 'SC 13D/A'
+  | 'SC 13G'
+  | 'SC 13G/A'
+  | 'SC TO-T'
+  | 'SC TO-T/A'
+  | 'SC TO-I'
+  | 'SC TO-I/A'
+  | 'PREM14A'
+  | 'SC 14D9'
+  | 'SC 14D9/A';
+export type FilingStatus = 'active' | 'pending_review' | 'dismissed';
+
+export interface Filing {
+  id: string;
+  dealId: string | null;
+  accessionNumber: string;
+  filingType: FilingType;
+  filerName: string | null;
+  filerCik: string;
+  filedDate: string;
+  rawUrl: string;
+  rawContent: string | null; // null = content pending (download in progress)
+  extracted: boolean;
+  status: FilingStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DealWithFilings extends Deal {
+  filingCount?: number;
+}
+
+// ---------------------------------------------------------------------------
+// Alert Rules (backend-grounded types)
+// ---------------------------------------------------------------------------
+
+export type AlertChannel = 'email' | 'slack' | 'webhook';
+
+export interface AlertRule {
+  id: string;
+  firmId: string;
+  dealId: string | null;
+  userId: string;
+  name: string;
+  threshold: number;
+  channels: AlertChannel[];
+  webhookUrl: string | null;
+  webhookSecret?: string | null; // only returned on creation
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateAlertRuleInput {
+  name: string;
+  threshold: number;
+  channels: AlertChannel[];
+  dealId?: string;
+  webhookUrl?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Digest Preferences
+// ---------------------------------------------------------------------------
+
+export interface DigestPreferences {
+  dailyEnabled: boolean;
+  weeklyEnabled: boolean;
+  suppressWeekend: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Memos — analyst-authored deal memos (tiptap JSON content)
+// ---------------------------------------------------------------------------
+
+export interface Memo {
+  id: string;
+  dealId: string;
+  title: string;
+  content: Record<string, unknown>; // tiptap JSON
+  createdBy: string;
+  visibility: 'private' | 'firm';
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MemoSnapshot {
+  id: string;
+  memoId: string;
+  name: string;
+  content: Record<string, unknown>; // tiptap JSON
+  version: number;
+  createdBy: string;
+  createdAt: string;
 }

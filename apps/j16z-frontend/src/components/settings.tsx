@@ -1,18 +1,19 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { Check, Clock, Database, Mail, Save, Shield } from "lucide-react";
+import { Check, Clock, Database, Mail, Save, Shield } from 'lucide-react';
+import type React from 'react';
+import { useState } from 'react';
 
 const Toggle = ({ enabled, onChange }: { enabled: boolean; onChange: () => void }) => (
   <button
     onClick={onChange}
     className={`relative h-5 w-10 rounded-full transition-colors ${
-      enabled ? "bg-primary-500" : "bg-surface border border-border"
+      enabled ? 'bg-primary-500' : 'bg-surface border border-border'
     }`}
   >
     <div
       className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
-        enabled ? "translate-x-5" : "translate-x-0.5"
+        enabled ? 'translate-x-5' : 'translate-x-0.5'
       }`}
     />
   </button>
@@ -34,9 +35,7 @@ const Section = ({
   <div className="mb-8 border border-border bg-background">
     <div className="flex items-center gap-3 border-b border-border bg-surface p-4">
       <Icon className="h-4 w-4 text-primary-500" />
-      <h3 className="text-sm font-bold uppercase tracking-wider text-text-main">
-        {title}
-      </h3>
+      <h3 className="text-sm font-bold uppercase tracking-wider text-text-main">{title}</h3>
     </div>
     <div className="space-y-6 p-6">{children}</div>
   </div>
@@ -52,7 +51,7 @@ export const Settings: React.FC = () => {
     },
     digest: {
       enabled: true,
-      time: "07:00",
+      time: '07:00',
     },
     sources: {
       edgar: true,
@@ -72,9 +71,7 @@ export const Settings: React.FC = () => {
     <div className="mx-auto max-w-4xl pb-12">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="font-narrative text-2xl font-bold text-text-main">
-            System Configuration
-          </h1>
+          <h1 className="font-narrative text-2xl font-bold text-text-main">System Configuration</h1>
           <p className="mt-1 text-xs uppercase tracking-widest text-text-muted">
             Manage Alert Rules & Integration Parameters
           </p>
@@ -84,7 +81,7 @@ export const Settings: React.FC = () => {
           className="flex items-center gap-2 bg-text-main px-4 py-2 text-xs font-bold uppercase tracking-wide text-background transition-colors hover:bg-text-muted"
         >
           {saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
-          {saved ? "Changes Saved" : "Save Config"}
+          {saved ? 'Changes Saved' : 'Save Config'}
         </button>
       </div>
 
@@ -92,12 +89,8 @@ export const Settings: React.FC = () => {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="flex items-center justify-between border border-border bg-surface/50 p-4">
             <div>
-              <div className="text-sm font-bold text-text-main">
-                M&A Announcements
-              </div>
-              <div className="mt-1 text-xs text-text-muted">
-                8-K Item 1.01, DEFM14A
-              </div>
+              <div className="text-sm font-bold text-text-main">M&A Announcements</div>
+              <div className="mt-1 text-xs text-text-muted">8-K Item 1.01, DEFM14A</div>
             </div>
             <Toggle
               enabled={config.alerts.mergers}
@@ -116,9 +109,7 @@ export const Settings: React.FC = () => {
           <div className="flex items-center justify-between border border-border bg-surface/50 p-4">
             <div>
               <div className="text-sm font-bold text-text-main">Litigation Risks</div>
-              <div className="mt-1 text-xs text-text-muted">
-                Antitrust & Class Action
-              </div>
+              <div className="mt-1 text-xs text-text-muted">Antitrust & Class Action</div>
             </div>
             <Toggle
               enabled={config.alerts.litigation}
@@ -156,9 +147,7 @@ export const Settings: React.FC = () => {
           <div className="flex items-center justify-between border border-border bg-surface/50 p-4">
             <div>
               <div className="text-sm font-bold text-text-main">All Filings (Raw)</div>
-              <div className="mt-1 text-xs text-text-muted">
-                Unfiltered stream (High Noise)
-              </div>
+              <div className="mt-1 text-xs text-text-muted">Unfiltered stream (High Noise)</div>
             </div>
             <Toggle
               enabled={config.alerts.filings}
@@ -182,12 +171,8 @@ export const Settings: React.FC = () => {
             <div className="flex items-center gap-3">
               <Mail className="h-5 w-5 text-text-muted" />
               <div>
-                <div className="text-sm font-bold text-text-main">
-                  Daily Analyst Digest
-                </div>
-                <div className="mt-1 text-xs text-text-muted">
-                  Consolidated PDF report via email
-                </div>
+                <div className="text-sm font-bold text-text-main">Daily Analyst Digest</div>
+                <div className="mt-1 text-xs text-text-muted">Consolidated PDF report via email</div>
               </div>
             </div>
             <Toggle
@@ -252,24 +237,22 @@ export const Settings: React.FC = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between p-3 transition-colors hover:bg-surface/50">
             <div className="flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="h-2 w-2 rounded-full bg-primary-500" />
               <span className="text-sm font-bold text-text-main">SEC EDGAR API</span>
             </div>
-            <span className="text-xs font-mono text-emerald-500">CONNECTED</span>
+            <span className="text-xs font-mono text-primary-500">CONNECTED</span>
           </div>
           <div className="flex items-center justify-between p-3 transition-colors hover:bg-surface/50">
             <div className="flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="h-2 w-2 rounded-full bg-primary-500" />
               <span className="text-sm font-bold text-text-main">CourtListener</span>
             </div>
-            <span className="text-xs font-mono text-emerald-500">CONNECTED</span>
+            <span className="text-xs font-mono text-primary-500">CONNECTED</span>
           </div>
           <div className="flex items-center justify-between p-3 transition-colors hover:bg-surface/50">
             <div className="flex items-center gap-3">
               <span className="h-2 w-2 animate-pulse rounded-full bg-primary-500" />
-              <span className="text-sm font-bold text-text-main">
-                Polymarket WebSocket
-              </span>
+              <span className="text-sm font-bold text-text-main">Polymarket WebSocket</span>
             </div>
             <span className="text-xs font-mono text-primary-500">SYNCING...</span>
           </div>

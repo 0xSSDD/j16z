@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useRouter } from "next/navigation";
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
-import { Deal, Event, Clause } from "@/lib/types";
-import { MOCK_DEALS, MOCK_EVENTS, MOCK_CLAUSES } from "@/lib/constants";
-import { formatDate, formatTime, formatDateForFilename } from "@/lib/date-utils";
-import { exportTextFile } from "@/lib/file-utils";
+import { Document, HeadingLevel, Packer, Paragraph, TextRun } from 'docx';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
+import { getClauses, getDeal, getEvents } from '@/lib/api';
+import { formatDate, formatDateForFilename, formatTime } from '@/lib/date-utils';
+import { exportTextFile } from '@/lib/file-utils';
+import type { Clause, Deal, Event } from '@/lib/types';
 
 interface ResearchDraftProps {
   dealId: string;
@@ -14,35 +14,79 @@ interface ResearchDraftProps {
 
 export function ResearchDraft({ dealId }: ResearchDraftProps) {
   const router = useRouter();
-  const deal = MOCK_DEALS.find((d) => d.id === dealId);
-  const events = MOCK_EVENTS.filter((e) => e.dealId === dealId);
-  const clauses = MOCK_CLAUSES.filter((c) => c.dealId === dealId);
+  const [deal, setDeal] = React.useState<Deal | null>(null);
+  const [events, setEvents] = React.useState<Event[]>([]);
+  const [clauses, setClauses] = React.useState<Clause[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
-  const [content, setContent] = React.useState("");
+  const [content, setContent] = React.useState('');
   const [lastSaved, setLastSaved] = React.useState<Date | null>(null);
 
   React.useEffect(() => {
-    if (deal) {
-      const initialContent = generateDraft(deal, events, clauses);
-      setContent(initialContent);
-    }
-  }, [deal, events, clauses]);
+    let isMounted = true;
+
+    const fetchDraftData = async () => {
+      setLoading(true);
+
+      try {
+        const [fetchedDeal, fetchedEvents, fetchedClauses] = await Promise.all([
+          getDeal(dealId),
+          getEvents(dealId),
+          getClauses(dealId),
+        ]);
+
+        if (!isMounted) return;
+
+        setDeal(fetchedDeal);
+        setEvents(fetchedEvents);
+        setClauses(fetchedClauses);
+        setContent(fetchedDeal ? generateDraft(fetchedDeal, fetchedEvents, fetchedClauses) : '');
+      } catch {
+        if (!isMounted) return;
+
+        setDeal(null);
+        setEvents([]);
+        setClauses([]);
+        setContent('');
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchDraftData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [dealId]);
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setLastSaved(new Date());
     }, 5000);
     return () => clearTimeout(timer);
-  }, [content]);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col h-screen p-6 gap-4">
+        <div className="h-12 bg-surface rounded-lg animate-pulse" />
+        <div className="flex-1 bg-surface rounded-lg animate-pulse" />
+      </div>
+    );
+  }
 
   if (!deal) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <h1 className="text-2xl font-mono font-bold text-foreground mb-2">Deal Not Found</h1>
+          <h1 className="text-2xl font-mono font-bold text-text-main mb-2">Deal Not Found</h1>
           <button
-            onClick={() => router.push("/app/deals")}
-            className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 dark:text-zinc-950 rounded-md font-mono text-sm transition-colors"
+            type="button"
+            onClick={() => router.push('/app/deals')}
+            className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-background rounded-md font-mono text-sm transition-colors"
           >
             Back to Deals
           </button>
@@ -59,7 +103,7 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
     exportTextFile(
       content,
       `${deal.acquirerSymbol}-${deal.symbol}-memo-${formatDateForFilename()}.md`,
-      "text/markdown"
+      'text/markdown',
     );
   };
 
@@ -67,27 +111,28 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
     const doc = new Document({
       sections: [
         {
-          children: content.split("\n").map((line) => {
-            if (line.startsWith("# ")) {
+          children: content.split('\n').map((line) => {
+            if (line.startsWith('# ')) {
               return new Paragraph({
-                text: line.replace("# ", ""),
+                text: line.replace('# ', ''),
                 heading: HeadingLevel.HEADING_1,
               });
-            } else if (line.startsWith("## ")) {
+            }
+            if (line.startsWith('## ')) {
               return new Paragraph({
-                text: line.replace("## ", ""),
+                text: line.replace('## ', ''),
                 heading: HeadingLevel.HEADING_2,
               });
-            } else if (line.startsWith("### ")) {
+            }
+            if (line.startsWith('### ')) {
               return new Paragraph({
-                text: line.replace("### ", ""),
+                text: line.replace('### ', ''),
                 heading: HeadingLevel.HEADING_3,
               });
-            } else {
-              return new Paragraph({
-                children: [new TextRun(line)],
-              });
             }
+            return new Paragraph({
+              children: [new TextRun(line)],
+            });
           }),
         },
       ],
@@ -95,7 +140,7 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
 
     const blob = await Packer.toBlob(doc);
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
     a.download = `${deal.acquirerSymbol}-${deal.symbol}-memo-${formatDateForFilename()}.docx`;
     a.click();
@@ -107,36 +152,40 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
       <div className="flex items-center justify-between p-4 border-b border-border bg-background">
         <div className="flex items-center gap-4">
           <button
+            type="button"
             onClick={() => router.push(`/app/deals/${dealId}`)}
-            className="text-sm text-muted-foreground hover:text-foreground font-mono flex items-center gap-1"
+            className="text-sm text-text-muted hover:text-text-main font-mono flex items-center gap-1"
           >
             ← Back to Deal
           </button>
-          <h1 className="text-lg font-mono font-bold text-foreground">
+          <h1 className="text-lg font-mono font-bold text-text-main">
             Research Draft: {deal.acquirerSymbol} / {deal.symbol}
           </h1>
+          <span className="text-xs text-text-muted font-mono">
+            {events.length} event{events.length !== 1 ? 's' : ''} • {clauses.length} clause
+            {clauses.length !== 1 ? 's' : ''}
+          </span>
         </div>
         <div className="flex items-center gap-2">
-          {lastSaved && (
-            <span className="text-xs text-muted-foreground font-mono">
-              Saved {formatTime(lastSaved)}
-            </span>
-          )}
+          {lastSaved && <span className="text-xs text-text-muted font-mono">Saved {formatTime(lastSaved)}</span>}
           <button
+            type="button"
             onClick={copyToClipboard}
-            className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-md font-mono text-sm transition-colors"
+            className="px-3 py-1.5 bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
           >
             Copy
           </button>
           <button
+            type="button"
             onClick={exportMarkdown}
-            className="px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-md font-mono text-sm transition-colors"
+            className="px-3 py-1.5 bg-surface hover:bg-surfaceHighlight text-text-main rounded-md font-mono text-sm transition-colors"
           >
             Export .md
           </button>
           <button
+            type="button"
             onClick={exportDocx}
-            className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-zinc-950 dark:text-zinc-950 rounded-md font-mono text-sm transition-colors"
+            className="px-3 py-1.5 bg-primary-500 hover:bg-primary-600 text-background rounded-md font-mono text-sm transition-colors"
           >
             Export .docx
           </button>
@@ -148,7 +197,7 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="w-full h-full bg-background text-foreground font-mono text-sm p-6 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
+          className="w-full h-full bg-background text-text-main font-mono text-sm p-6 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
           placeholder="Start writing your research memo..."
         />
       </div>
@@ -157,8 +206,8 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
 }
 
 function generateDraft(deal: Deal, events: Event[], clauses: Clause[]): string {
-  const regulatoryEvents = events.filter((e) => e.type === "AGENCY");
-  const litigationEvents = events.filter((e) => e.type === "COURT");
+  const regulatoryEvents = events.filter((e) => e.type === 'AGENCY');
+  const litigationEvents = events.filter((e) => e.type === 'COURT');
 
   return `# ${deal.acquirerName} / ${deal.companyName} - M&A Analysis
 
@@ -173,27 +222,35 @@ ${deal.acquirerName} announced its acquisition of ${deal.companyName} on ${forma
 
 ## Deal Terms
 
-${clauses.length > 0 ? clauses.map((c) => `**${c.type.replace(/_/g, " ")}:** ${c.value} (${c.sourceFilingType} ${c.sourceSection})`).join("\n\n") : "No deal terms available."}
+  ${clauses.length > 0 ? clauses.map((c) => `**${c.type.replace(/_/g, ' ')}:** ${c.summary} (${c.sourceLocation})`).join('\n\n') : 'No deal terms available.'}
 
 ## Regulatory Review
 
-${regulatoryEvents.length > 0 ? `The transaction is subject to regulatory review by multiple jurisdictions. Key developments include:
+${
+  regulatoryEvents.length > 0
+    ? `The transaction is subject to regulatory review by multiple jurisdictions. Key developments include:
 
-${regulatoryEvents.map((e) => `- **${formatDate(e.timestamp)}:** ${e.title} - ${e.summary}`).join("\n")}` : "No significant regulatory issues identified."}
+${regulatoryEvents.map((e) => `- **${formatDate(e.timestamp)}:** ${e.title} - ${e.summary}`).join('\n')}`
+    : 'No significant regulatory issues identified.'
+}
 
-${deal.regulatoryFlags.length > 0 ? `\n**Active Regulatory Concerns:** ${deal.regulatoryFlags.map((f) => f.replace(/_/g, " ")).join(", ")}` : ""}
+${deal.regulatoryFlags.length > 0 ? `\n**Active Regulatory Concerns:** ${deal.regulatoryFlags.map((f) => f.replace(/_/g, ' ')).join(', ')}` : ''}
 
 ## Litigation
 
-${litigationEvents.length > 0 ? `The transaction faces litigation challenges:
+${
+  litigationEvents.length > 0
+    ? `The transaction faces litigation challenges:
 
-${litigationEvents.map((e) => `- **${formatDate(e.timestamp)}:** ${e.title} - ${e.summary}`).join("\n")}` : "No active litigation."}
+${litigationEvents.map((e) => `- **${formatDate(e.timestamp)}:** ${e.title} - ${e.summary}`).join('\n')}`
+    : 'No active litigation.'
+}
 
 ## Risk Assessment
 
 **Key Risks:**
-${deal.regulatoryFlags.length > 0 ? `- Regulatory approval uncertainty (${deal.regulatoryFlags.length} active review${deal.regulatoryFlags.length > 1 ? "s" : ""})` : ""}
-${deal.litigationCount > 0 ? `- Litigation risk (${deal.litigationCount} active case${deal.litigationCount > 1 ? "s" : ""})` : ""}
+${deal.regulatoryFlags.length > 0 ? `- Regulatory approval uncertainty (${deal.regulatoryFlags.length} active review${deal.regulatoryFlags.length > 1 ? 's' : ''})` : ''}
+${deal.litigationCount > 0 ? `- Litigation risk (${deal.litigationCount} active case${deal.litigationCount > 1 ? 's' : ''})` : ''}
 - Market risk (current spread: ${deal.currentSpread.toFixed(1)}%)
 - Timing risk (outside date: ${formatDate(deal.outsideDate)})
 
@@ -211,7 +268,7 @@ ${deal.litigationCount > 0 ? `- Litigation risk (${deal.litigationCount} active 
 
 ## Recommendation
 
-${deal.ev > 2 ? "**BUY** - Attractive risk/reward profile with expected value above 2%." : deal.ev > 1 ? "**HOLD** - Moderate risk/reward profile." : "**PASS** - Insufficient expected value given risks."}
+${deal.ev > 2 ? '**BUY** - Attractive risk/reward profile with expected value above 2%.' : deal.ev > 1 ? '**HOLD** - Moderate risk/reward profile.' : '**PASS** - Insufficient expected value given risks.'}
 
 ---
 

@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+apps/*/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -19,6 +20,7 @@
 
 # production
 /build
+**/dist/
 
 # misc
 .DS_Store
@@ -39,3 +41,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# AI tool skills (Impeccable etc.)
+.agents/
+.claude/skills/
+.kiro/
+.trae/
+.windsurf/skills/
+skills/
+skills-lock.json
