@@ -384,6 +384,7 @@ export default function MemoPage({ params }: { params: Promise<{ id: string }> }
         {/* Editor pane */}
         <main className="flex-1 overflow-y-auto p-4">
           <MemoEditor
+            key={memo.id}
             initialContent={memo.content as JSONContent}
             memoId={memo.id}
             dealId={memo.dealId}

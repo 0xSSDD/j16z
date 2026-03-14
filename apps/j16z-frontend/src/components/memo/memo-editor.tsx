@@ -11,6 +11,9 @@ import { StarterKit } from '@tiptap/starter-kit';
 import { Download, FileText, History } from 'lucide-react';
 import * as React from 'react';
 import { updateMemo } from '@/lib/api';
+import { STALE_TRACKABLE_SECTIONS } from '@/lib/memo-sections';
+import { useMemoEventsStore } from '@/lib/stores/memo-events-store';
+import { PendingEventsBar } from './memo-pending-events';
 import { SectionRefreshBar } from './memo-section-refresh';
 import { MemoSnapshotPanel } from './memo-snapshot-panel';
 import { MemoToolbar } from './memo-toolbar';
@@ -86,7 +89,7 @@ export function MemoEditor({ initialContent, memoId, dealId, version, onVersionC
       }),
     ],
     content: initialContent,
-    immediatelyRender: false, // Next.js SSR compat
+    immediatelyRender: false,
     onUpdate: ({ editor: e }) => {
       // Clear existing debounce timer
       if (debounceRef.current) {
@@ -103,7 +106,13 @@ export function MemoEditor({ initialContent, memoId, dealId, version, onVersionC
     },
   });
 
-  // Cleanup debounce on unmount
+  React.useEffect(() => {
+    if (!editor || !initialContent) return;
+    if (editor.state.doc.childCount <= 1) {
+      editor.commands.setContent(initialContent);
+    }
+  }, [editor, initialContent]);
+
   React.useEffect(() => {
     return () => {
       if (debounceRef.current) {
@@ -111,6 +120,10 @@ export function MemoEditor({ initialContent, memoId, dealId, version, onVersionC
       }
     };
   }, []);
+
+  React.useEffect(() => {
+    useMemoEventsStore.getState().initSectionTimestamps(memoId, STALE_TRACKABLE_SECTIONS);
+  }, [memoId]);
 
   // -------------------------------------------------------------------------
   // Export handlers
@@ -163,12 +176,13 @@ export function MemoEditor({ initialContent, memoId, dealId, version, onVersionC
 
   return (
     <div className="border border-border rounded-md overflow-hidden flex flex-col">
-      {/* Toolbar */}
+      <PendingEventsBar editor={editor} memoId={memoId} dealId={dealId} />
+
       <MemoToolbar editor={editor} />
 
       {/* Secondary toolbar: section refresh + actions */}
       <div className="flex items-center justify-between px-3 py-1.5 bg-background border-b border-border gap-2 flex-wrap">
-        <SectionRefreshBar editor={editor} dealId={dealId} />
+        <SectionRefreshBar editor={editor} dealId={dealId} memoId={memoId} />
 
         <div className="flex items-center gap-1">
           {/* Version History button */}

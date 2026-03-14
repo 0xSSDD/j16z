@@ -2,11 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { AddToMemoDialog } from '@/components/inbox/add-to-memo-dialog';
 import { InboxFilters } from '@/components/inbox/inbox-filters';
 import { InboxHeader } from '@/components/inbox/inbox-header';
 import { InboxSidePanel } from '@/components/inbox/inbox-side-panel';
 import { InboxTimeline } from '@/components/inbox/inbox-timeline';
 import { KeyboardHelpModal } from '@/components/keyboard-help-modal';
+import type { Event } from '@/lib/types';
 
 export default function InboxPage() {
   const router = useRouter();
@@ -14,6 +16,7 @@ export default function InboxPage() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [addToMemoEvent, setAddToMemoEvent] = useState<Event | null>(null);
   const [filters, setFilters] = useState(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('inbox_filters');
@@ -60,6 +63,7 @@ export default function InboxPage() {
       if (e.key === 'Escape') {
         e.preventDefault();
         setSelectedEventId(null);
+        setAddToMemoEvent(null);
         setShowHelpModal(false);
         return;
       }
@@ -143,10 +147,22 @@ export default function InboxPage() {
       if (e.key === 'v' && selectedEventId && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
         const { getAllEvents } = require('@/lib/api');
-        getAllEvents().then((events: any[]) => {
+        getAllEvents().then((events: Event[]) => {
           const event = events.find((e) => e.id === selectedEventId);
           if (event?.dealId) {
             router.push(`/app/deals/${event.dealId}`);
+          }
+        });
+        return;
+      }
+
+      if (e.key === 'm' && selectedEventId && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        const { getAllEvents } = require('@/lib/api');
+        getAllEvents().then((events: Event[]) => {
+          const event = events.find((evt) => evt.id === selectedEventId);
+          if (event) {
+            setAddToMemoEvent(event);
           }
         });
         return;
@@ -185,6 +201,13 @@ export default function InboxPage() {
       </div>
 
       <KeyboardHelpModal isOpen={showHelpModal} onClose={() => setShowHelpModal(false)} />
+      <AddToMemoDialog
+        event={addToMemoEvent}
+        open={addToMemoEvent !== null}
+        onOpenChange={(open) => {
+          if (!open) setAddToMemoEvent(null);
+        }}
+      />
     </div>
   );
 }

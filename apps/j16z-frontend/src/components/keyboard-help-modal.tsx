@@ -29,6 +29,7 @@ export function KeyboardHelpModal({ isOpen, onClose }: KeyboardHelpModalProps) {
         { keys: ['↑', '↓'], description: 'Navigate events' },
         { keys: ['e'], description: 'Mark event as read' },
         { keys: ['v'], description: 'View deal card' },
+        { keys: ['m'], description: 'Add to Memo' },
         { keys: ['1'], description: 'Toggle HIGH filter' },
         { keys: ['2'], description: 'Toggle MEDIUM filter' },
         { keys: ['3'], description: 'Toggle LOW filter' },
@@ -69,12 +70,12 @@ export function KeyboardHelpModal({ isOpen, onClose }: KeyboardHelpModalProps) {
             <div key={section.category}>
               <h3 className="mb-3 text-sm font-medium text-text-muted">{section.category}</h3>
               <div className="space-y-2">
-                {section.items.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between">
+                {section.items.map((item) => (
+                  <div key={`${section.category}-${item.description}`} className="flex items-center justify-between">
                     <span className="text-sm text-text-main">{item.description}</span>
                     <div className="flex items-center gap-1">
                       {item.keys.map((key, keyIdx) => (
-                        <React.Fragment key={keyIdx}>
+                        <React.Fragment key={`${item.description}-${key}`}>
                           <kbd className="rounded border border-border bg-surfaceHighlight px-2 py-1 font-mono text-xs text-text-main">
                             {key}
                           </kbd>

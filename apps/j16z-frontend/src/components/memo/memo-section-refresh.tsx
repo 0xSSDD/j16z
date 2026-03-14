@@ -4,7 +4,10 @@ import type { Editor, JSONContent } from '@tiptap/react';
 import { RefreshCw } from 'lucide-react';
 import * as React from 'react';
 import { getDeal, getEvents, getMarketSnapshots } from '@/lib/api';
+import { countNewEventsForSection, STALE_TRACKABLE_SECTIONS } from '@/lib/memo-sections';
+import { useMemoEventsStore } from '@/lib/stores/memo-events-store';
 import type { Deal, Event, MarketSnapshot } from '@/lib/types';
+import { StaleBadge } from './memo-stale-badge';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -16,6 +19,7 @@ interface SectionRefreshButtonProps {
   editor: Editor;
   sectionTitle: RefreshableSection;
   dealId: string;
+  memoId: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -127,7 +131,7 @@ interface SectionBounds {
   to: number;
 }
 
-function findSectionBounds(editor: Editor, sectionTitle: string): SectionBounds | null {
+export function findSectionBounds(editor: Editor, sectionTitle: string): SectionBounds | null {
   const doc = editor.state.doc;
   let from = -1;
   let to = -1;
@@ -156,7 +160,7 @@ function findSectionBounds(editor: Editor, sectionTitle: string): SectionBounds 
 // SectionRefreshButton
 // ---------------------------------------------------------------------------
 
-export function SectionRefreshButton({ editor, sectionTitle, dealId }: SectionRefreshButtonProps) {
+export function SectionRefreshButton({ editor, sectionTitle, dealId, memoId }: SectionRefreshButtonProps) {
   const [loading, setLoading] = React.useState(false);
 
   const handleRefresh = React.useCallback(async () => {
@@ -193,12 +197,13 @@ export function SectionRefreshButton({ editor, sectionTitle, dealId }: SectionRe
       }
 
       editor.view.dispatch(tr);
+      useMemoEventsStore.getState().setSectionTimestamp(memoId, sectionTitle);
     } catch (err) {
       console.error(`Refresh failed for section "${sectionTitle}":`, err);
     } finally {
       setLoading(false);
     }
-  }, [editor, sectionTitle, dealId]);
+  }, [editor, sectionTitle, dealId, memoId]);
 
   return (
     <button
@@ -209,7 +214,7 @@ export function SectionRefreshButton({ editor, sectionTitle, dealId }: SectionRe
       className="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-mono text-text-muted hover:text-primary-400 hover:bg-primary-500/10 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
       <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
-      {loading ? 'Refreshing…' : 'Refresh'}
+      {loading ? 'Refreshing…' : sectionTitle}
     </button>
   );
 }
@@ -221,17 +226,39 @@ export function SectionRefreshButton({ editor, sectionTitle, dealId }: SectionRe
 interface SectionRefreshBarProps {
   editor: Editor;
   dealId: string;
+  memoId: string;
 }
 
 const REFRESHABLE_SECTIONS: RefreshableSection[] = ['Deal Terms', 'Regulatory Status', 'Litigation', 'Spread History'];
 
-export function SectionRefreshBar({ editor, dealId }: SectionRefreshBarProps) {
+export function SectionRefreshBar({ editor, dealId, memoId }: SectionRefreshBarProps) {
+  const [events, setEvents] = React.useState<Event[]>([]);
+  const sectionTimestamps = useMemoEventsStore((state) => state.sectionTimestamps);
+
+  React.useEffect(() => {
+    getEvents(dealId)
+      .then(setEvents)
+      .catch(() => {});
+  }, [dealId]);
+
   return (
     <div className="flex items-center gap-1 flex-wrap">
       <span className="text-xs font-mono text-text-dim mr-1">Refresh:</span>
-      {REFRESHABLE_SECTIONS.map((section) => (
-        <SectionRefreshButton key={section} editor={editor} sectionTitle={section} dealId={dealId} />
-      ))}
+      {REFRESHABLE_SECTIONS.map((section) => {
+        const isStaleTrackable = (STALE_TRACKABLE_SECTIONS as readonly string[]).includes(section);
+        const timestamp =
+          useMemoEventsStore.getState().getSectionTimestamp(memoId, section) ??
+          sectionTimestamps.find((entry) => entry.memoId === memoId && entry.section === section)?.lastRefreshedAt ??
+          null;
+        const newCount = isStaleTrackable ? countNewEventsForSection(events, section, timestamp) : 0;
+
+        return (
+          <div key={section} className="inline-flex items-center gap-1">
+            <SectionRefreshButton editor={editor} sectionTitle={section} dealId={dealId} memoId={memoId} />
+            <StaleBadge count={newCount} />
+          </div>
+        );
+      })}
     </div>
   );
 }

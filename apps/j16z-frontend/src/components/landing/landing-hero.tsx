@@ -148,7 +148,7 @@ export const LandingHero = () => (
             </div>
 
             <p className="mx-auto mt-8 max-w-xl font-body text-lg leading-relaxed text-text-muted lg:mx-0">
-              J16Z turns SEC filings, court dockets, and regulatory actions into analyst-ready intelligence —
+              J16Z turns SEC filings, court dockets, and regulatory actions into analyst-ready intelligence,
               automatically.
             </p>
 

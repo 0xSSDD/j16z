@@ -594,26 +594,41 @@ export async function updateDigestPreferences(prefs: DigestPreferences): Promise
 // ---------------------------------------------------------------------------
 
 // Mock memos spanning multiple deals for development mode
+function mockMemoContent(title: string, summary: string): Record<string, unknown> {
+  const h2 = (text: string) => ({ type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text }] });
+  const p = (text: string) => (text ? { type: 'paragraph', content: [{ type: 'text', text }] } : { type: 'paragraph' });
+  return {
+    type: 'doc',
+    content: [
+      { type: 'heading', attrs: { level: 1 }, content: [{ type: 'text', text: title }] },
+      h2('Executive Summary'),
+      p(summary),
+      h2('Deal Terms'),
+      p('See deal card for current terms.'),
+      h2('Regulatory Status'),
+      p('Regulatory review in progress.'),
+      h2('Litigation'),
+      p('No litigation events recorded yet.'),
+      h2('Key Clauses'),
+      p('Key clause analysis pending.'),
+      h2('Spread History'),
+      p('Spread data to be updated on next refresh.'),
+      h2('Analyst Notes'),
+      p(''),
+    ],
+  };
+}
+
 const MOCK_MEMOS: (Memo & { dealTitle: string })[] = [
   {
     id: 'memo-1',
     dealId: 'deal-1',
     dealTitle: 'Microsoft / Activision Blizzard',
     title: 'Initial Spread Analysis',
-    content: {
-      type: 'doc',
-      content: [
-        {
-          type: 'paragraph',
-          content: [
-            {
-              type: 'text',
-              text: 'Spread remains attractive at 4.2% with FTC challenge ongoing. CMA clearance is the binding constraint.',
-            },
-          ],
-        },
-      ],
-    },
+    content: mockMemoContent(
+      'Microsoft / Activision Blizzard — Initial Spread Analysis',
+      'Spread remains attractive at 4.2% with FTC challenge ongoing. CMA clearance is the binding constraint.',
+    ),
     createdBy: 'user-1',
     visibility: 'firm',
     version: 3,
@@ -625,20 +640,10 @@ const MOCK_MEMOS: (Memo & { dealTitle: string })[] = [
     dealId: 'deal-1',
     dealTitle: 'Microsoft / Activision Blizzard',
     title: 'Regulatory Risk Assessment',
-    content: {
-      type: 'doc',
-      content: [
-        {
-          type: 'paragraph',
-          content: [
-            {
-              type: 'text',
-              text: 'FTC second request timeline analysis and UK CMA phase 2 review implications for deal closure probability.',
-            },
-          ],
-        },
-      ],
-    },
+    content: mockMemoContent(
+      'Microsoft / Activision Blizzard — Regulatory Risk Assessment',
+      'FTC second request timeline analysis and UK CMA phase 2 review implications for deal closure probability.',
+    ),
     createdBy: 'user-1',
     visibility: 'private',
     version: 2,
@@ -650,20 +655,10 @@ const MOCK_MEMOS: (Memo & { dealTitle: string })[] = [
     dealId: 'deal-3',
     dealTitle: 'Kroger / Albertsons Companies',
     title: 'IC Memo Draft',
-    content: {
-      type: 'doc',
-      content: [
-        {
-          type: 'paragraph',
-          content: [
-            {
-              type: 'text',
-              text: 'Investment committee memo draft. FTC divestiture package of 413 stores may satisfy competitive concerns. Spread entry at 6.8% presents compelling risk/reward.',
-            },
-          ],
-        },
-      ],
-    },
+    content: mockMemoContent(
+      'Kroger / Albertsons — IC Memo Draft',
+      'Investment committee memo draft. FTC divestiture package of 413 stores may satisfy competitive concerns. Spread entry at 6.8% presents compelling risk/reward.',
+    ),
     createdBy: 'user-1',
     visibility: 'firm',
     version: 5,
@@ -675,20 +670,10 @@ const MOCK_MEMOS: (Memo & { dealTitle: string })[] = [
     dealId: 'deal-4',
     dealTitle: 'JetBlue / Spirit Airlines',
     title: 'Post-DOJ Ruling Update',
-    content: {
-      type: 'doc',
-      content: [
-        {
-          type: 'paragraph',
-          content: [
-            {
-              type: 'text',
-              text: 'DOJ successfully blocked the merger. Evaluating appeal likelihood and updated downside scenarios.',
-            },
-          ],
-        },
-      ],
-    },
+    content: mockMemoContent(
+      'JetBlue / Spirit Airlines — Post-DOJ Ruling Update',
+      'DOJ successfully blocked the merger. Evaluating appeal likelihood and updated downside scenarios.',
+    ),
     createdBy: 'user-1',
     visibility: 'firm',
     version: 1,
@@ -700,20 +685,10 @@ const MOCK_MEMOS: (Memo & { dealTitle: string })[] = [
     dealId: 'deal-6',
     dealTitle: 'Broadcom / VMware Inc.',
     title: 'Post-Close Integration Notes',
-    content: {
-      type: 'doc',
-      content: [
-        {
-          type: 'paragraph',
-          content: [
-            {
-              type: 'text',
-              text: 'Deal closed 11/22. Final spread capture was 29bps. Documenting timeline for future reference on mega-cap semiconductor M&A.',
-            },
-          ],
-        },
-      ],
-    },
+    content: mockMemoContent(
+      'Broadcom / VMware — Post-Close Integration Notes',
+      'Deal closed 11/22. Final spread capture was 29bps. Documenting timeline for future reference on mega-cap semiconductor M&A.',
+    ),
     createdBy: 'user-1',
     visibility: 'private',
     version: 2,
@@ -725,20 +700,10 @@ const MOCK_MEMOS: (Memo & { dealTitle: string })[] = [
     dealId: 'deal-3',
     dealTitle: 'Kroger / Albertsons Companies',
     title: 'Divestiture Package Analysis',
-    content: {
-      type: 'doc',
-      content: [
-        {
-          type: 'paragraph',
-          content: [
-            {
-              type: 'text',
-              text: 'C&S Wholesale Grocers proposed as divestiture buyer for 413 stores. Analyzing buyer credibility and FTC precedent for grocery mergers.',
-            },
-          ],
-        },
-      ],
-    },
+    content: mockMemoContent(
+      'Kroger / Albertsons — Divestiture Package Analysis',
+      'C&S Wholesale Grocers proposed as divestiture buyer for 413 stores. Analyzing buyer credibility and FTC precedent for grocery mergers.',
+    ),
     createdBy: 'user-1',
     visibility: 'firm',
     version: 4,
