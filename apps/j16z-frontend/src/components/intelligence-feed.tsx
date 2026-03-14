@@ -3,8 +3,9 @@
 import type React from 'react';
 import { useState } from 'react';
 import { DetailView } from '@/components/intelligence-item-detail';
-import { MOCK_ITEMS } from '@/lib/constants';
 import { type IntelligenceItem, ItemType, Priority } from '@/lib/types';
+
+const MOCK_ITEMS: IntelligenceItem[] = [];
 
 const PriorityBadge = ({ priority }: { priority: Priority }) => {
   const styles: Record<Priority, string> = {
@@ -96,7 +97,7 @@ export const IntelligenceFeed: React.FC = () => {
               <div className="col-span-2 text-[10px] font-mono uppercase text-text-muted">{item.source}</div>
               <div className="col-span-2">
                 <div className="flex flex-wrap gap-1">
-                  {item.tags.slice(0, 2).map((tag) => (
+                  {item.tags.slice(0, 2).map((tag: string) => (
                     <span key={tag} className="border border-border px-1 py-0.5 text-[9px] uppercase text-text-dim">
                       {tag}
                     </span>

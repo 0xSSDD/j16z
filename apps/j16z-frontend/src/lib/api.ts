@@ -8,7 +8,6 @@
  * Set NEXT_PUBLIC_USE_MOCK_DATA=false to call the real Hono API backend.
  */
 
-import { MOCK_CLAUSES, MOCK_DEALS, MOCK_EVENTS, MOCK_MARKET_SNAPSHOTS } from './constants';
 import type {
   AlertRule,
   Clause,
@@ -58,6 +57,24 @@ export interface RSSFeedRecord {
 const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
+function num(v: unknown): number {
+  if (v == null || v === '') return 0;
+  const n = Number(v);
+  return Number.isNaN(n) ? 0 : n;
+}
+
+function coerceDealNumerics(raw: Record<string, unknown>): Deal {
+  return {
+    ...raw,
+    dealValue: num(raw.dealValue),
+    grossSpread: num(raw.grossSpread),
+    pCloseBase: num(raw.pCloseBase),
+    spreadEntryThreshold: num(raw.spreadEntryThreshold),
+    annualizedReturn: num(raw.annualizedReturn),
+    litigationCount: num(raw.litigationCount),
+  } as Deal;
+}
+
 // ---------------------------------------------------------------------------
 // authFetch — wrapper around fetch that attaches the Supabase JWT as a Bearer
 // token on every request to the Hono API.
@@ -97,27 +114,21 @@ async function authFetch(path: string, options: RequestInit = {}): Promise<Respo
  * Get all deals
  */
 export async function getDeals(): Promise<Deal[]> {
-  if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    return MOCK_DEALS;
-  }
-
+  if (USE_MOCK_DATA) return [];
   const response = await authFetch('/api/deals');
-  return response.json();
+  const raw: Record<string, unknown>[] = await response.json();
+  return raw.map(coerceDealNumerics);
 }
 
 /**
  * Get a single deal by ID
  */
 export async function getDeal(id: string): Promise<Deal | null> {
-  if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    return MOCK_DEALS.find((d) => d.id === id) ?? null;
-  }
-
+  if (USE_MOCK_DATA) return null;
   try {
     const response = await authFetch(`/api/deals/${id}`);
-    return response.json();
+    const raw = await response.json();
+    return coerceDealNumerics(raw);
   } catch (err) {
     if (err instanceof Error && err.message.includes('404')) return null;
     throw err;
@@ -129,8 +140,7 @@ export async function getDeal(id: string): Promise<Deal | null> {
  */
 export async function getEvents(dealId: string): Promise<Event[]> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    return MOCK_EVENTS.filter((e) => e.dealId === dealId);
+    return [];
   }
 
   const response = await authFetch(`/api/events?dealId=${dealId}`);
@@ -142,8 +152,7 @@ export async function getEvents(dealId: string): Promise<Event[]> {
  */
 export async function getAllEvents(): Promise<Event[]> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    return MOCK_EVENTS;
+    return [];
   }
 
   const response = await authFetch('/api/events');
@@ -155,8 +164,7 @@ export async function getAllEvents(): Promise<Event[]> {
  */
 export async function getClauses(dealId: string): Promise<Clause[]> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    return MOCK_CLAUSES.filter((c) => c.dealId === dealId);
+    return [];
   }
 
   const response = await authFetch(`/api/deals/${dealId}/clauses`);
@@ -168,8 +176,7 @@ export async function getClauses(dealId: string): Promise<Clause[]> {
  */
 export async function getMarketSnapshots(dealId: string): Promise<MarketSnapshot[]> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    return MOCK_MARKET_SNAPSHOTS.filter((s) => s.dealId === dealId);
+    return [];
   }
 
   const response = await authFetch(`/api/deals/${dealId}/market-snapshots`);
@@ -194,8 +201,7 @@ export async function getNews(dealId: string): Promise<NewsItem[]> {
  */
 export async function createDeal(deal: Partial<Deal>): Promise<Deal> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    return { ...deal, id: `deal-${Date.now()}` } as Deal;
+    return { ...deal, id: crypto.randomUUID() } as Deal;
   }
 
   const response = await authFetch('/api/deals', {
@@ -210,10 +216,7 @@ export async function createDeal(deal: Partial<Deal>): Promise<Deal> {
  */
 export async function updateDeal(id: string, updates: Partial<Deal>): Promise<Deal> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    const deal = MOCK_DEALS.find((d) => d.id === id);
-    if (!deal) throw new Error('Deal not found');
-    return { ...deal, ...updates };
+    return { ...updates, id: crypto.randomUUID() } as Deal;
   }
 
   const response = await authFetch(`/api/deals/${id}`, {
@@ -274,58 +277,9 @@ export async function getFilingCount(dealId: string): Promise<number> {
   return filings.length;
 }
 
-const MOCK_INTEGRATION_HEALTH: IntegrationHealth[] = [
-  {
-    id: 'int-edgar',
-    source: 'SEC EDGAR',
-    status: 'healthy',
-    lastSyncAt: new Date(Date.now() - 1000 * 60 * 3).toISOString(),
-    itemsIngested: 1247,
-    lastError: null,
-    pollIntervalMinutes: 10,
-  },
-  {
-    id: 'int-ftc',
-    source: 'FTC.gov',
-    status: 'healthy',
-    lastSyncAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
-    itemsIngested: 89,
-    lastError: null,
-    pollIntervalMinutes: 30,
-  },
-  {
-    id: 'int-doj',
-    source: 'DOJ.gov',
-    status: 'degraded',
-    lastSyncAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-    itemsIngested: 42,
-    lastError: 'Rate limited — retry scheduled',
-    pollIntervalMinutes: 30,
-  },
-  {
-    id: 'int-court',
-    source: 'CourtListener',
-    status: 'healthy',
-    lastSyncAt: new Date(Date.now() - 1000 * 60 * 8).toISOString(),
-    itemsIngested: 316,
-    lastError: null,
-    pollIntervalMinutes: 15,
-  },
-  {
-    id: 'int-rss',
-    source: 'RSS Feeds',
-    status: 'healthy',
-    lastSyncAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-    itemsIngested: 523,
-    lastError: null,
-    pollIntervalMinutes: 15,
-  },
-];
-
 export async function getIntegrationHealth(): Promise<IntegrationHealthResponse> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    return { sources: MOCK_INTEGRATION_HEALTH };
+    return { sources: [] };
   }
 
   const response = await authFetch('/api/integrations/health');
@@ -357,49 +311,9 @@ export async function getIntegrationHealth(): Promise<IntegrationHealthResponse>
   };
 }
 
-const MOCK_RSS_FEEDS: RSSFeedRecord[] = [
-  {
-    id: 'rss-1',
-    name: 'Reuters M&A Wire',
-    url: 'https://www.reuters.com/business/deals/rss',
-    status: 'active',
-    lastSyncAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
-    itemCount: 234,
-    createdAt: '2024-01-15T00:00:00Z',
-  },
-  {
-    id: 'rss-2',
-    name: 'Bloomberg Law Mergers',
-    url: 'https://news.bloomberglaw.com/mergers-and-acquisitions/feed',
-    status: 'active',
-    lastSyncAt: new Date(Date.now() - 1000 * 60 * 8).toISOString(),
-    itemCount: 189,
-    createdAt: '2024-01-20T00:00:00Z',
-  },
-  {
-    id: 'rss-3',
-    name: 'Skadden M&A Alerts',
-    url: 'https://www.skadden.com/insights/rss/mergers-acquisitions',
-    status: 'paused',
-    lastSyncAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
-    itemCount: 67,
-    createdAt: '2024-02-01T00:00:00Z',
-  },
-  {
-    id: 'rss-4',
-    name: 'Wachtell Lipton Insights',
-    url: 'https://www.wlrk.com/insights/feed',
-    status: 'error',
-    lastSyncAt: null,
-    itemCount: 0,
-    createdAt: '2024-02-10T00:00:00Z',
-  },
-];
-
 export async function getRSSFeeds(): Promise<RSSFeedRecord[]> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    return MOCK_RSS_FEEDS;
+    return [];
   }
 
   const response = await authFetch('/api/rss-feeds');
@@ -408,16 +322,7 @@ export async function getRSSFeeds(): Promise<RSSFeedRecord[]> {
 
 export async function createRSSFeed(data: { name: string; url: string }): Promise<RSSFeedRecord> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    return {
-      id: `rss-${Date.now()}`,
-      name: data.name,
-      url: data.url,
-      status: 'active',
-      lastSyncAt: null,
-      itemCount: 0,
-      createdAt: new Date().toISOString(),
-    };
+    return {} as RSSFeedRecord;
   }
 
   const response = await authFetch('/api/rss-feeds', {
@@ -438,10 +343,7 @@ export async function deleteRSSFeed(id: string): Promise<void> {
 
 export async function updateRSSFeed(id: string, updates: Partial<RSSFeedRecord>): Promise<RSSFeedRecord> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    const feed = MOCK_RSS_FEEDS.find((f) => f.id === id);
-    if (!feed) throw new Error('Feed not found');
-    return { ...feed, ...updates };
+    return { ...updates, id } as RSSFeedRecord;
   }
 
   const response = await authFetch(`/api/rss-feeds/${id}`, {
@@ -455,27 +357,9 @@ export async function updateRSSFeed(id: string, updates: Partial<RSSFeedRecord>)
 // Alert Rules API
 // ---------------------------------------------------------------------------
 
-const MOCK_ALERT_RULES: AlertRule[] = [
-  {
-    id: 'ar-1',
-    firmId: 'firm-1',
-    dealId: null,
-    userId: 'user-1',
-    name: 'Critical alerts',
-    threshold: 70,
-    channels: ['email', 'slack'],
-    webhookUrl: null,
-    isActive: true,
-    createdAt: '2026-01-15T00:00:00Z',
-    updatedAt: '2026-01-15T00:00:00Z',
-  },
-];
-
 export async function getAlertRules(dealId?: string): Promise<AlertRule[]> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    if (dealId) return MOCK_ALERT_RULES.filter((r) => r.dealId === dealId);
-    return MOCK_ALERT_RULES;
+    return [];
   }
 
   const params = dealId ? `?dealId=${dealId}` : '';
@@ -485,20 +369,7 @@ export async function getAlertRules(dealId?: string): Promise<AlertRule[]> {
 
 export async function createAlertRule(rule: CreateAlertRuleInput): Promise<AlertRule> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    return {
-      id: `ar-${Date.now()}`,
-      firmId: 'firm-1',
-      dealId: rule.dealId ?? null,
-      userId: 'user-1',
-      name: rule.name,
-      threshold: rule.threshold,
-      channels: rule.channels,
-      webhookUrl: rule.webhookUrl ?? null,
-      isActive: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    return {} as AlertRule;
   }
 
   const response = await authFetch('/api/alert-rules', {
@@ -510,10 +381,7 @@ export async function createAlertRule(rule: CreateAlertRuleInput): Promise<Alert
 
 export async function updateAlertRule(id: string, updates: Partial<AlertRule>): Promise<AlertRule> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    const existing = MOCK_ALERT_RULES.find((r) => r.id === id);
-    if (!existing) throw new Error('Alert rule not found');
-    return { ...existing, ...updates };
+    return { ...updates, id } as AlertRule;
   }
 
   const response = await authFetch(`/api/alert-rules/${id}`, {
@@ -549,20 +417,12 @@ export async function testAlertRule(id: string): Promise<void> {
 // Digest Preferences API
 // ---------------------------------------------------------------------------
 
-const DEFAULT_DIGEST_PREFS: DigestPreferences = {
-  dailyEnabled: true,
-  weeklyEnabled: true,
-  suppressWeekend: false,
-};
-
 /**
  * Get the current user's digest preferences.
- * Returns defaults when NEXT_PUBLIC_USE_MOCK_DATA=true.
  */
 export async function getDigestPreferences(): Promise<DigestPreferences> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    return { ...DEFAULT_DIGEST_PREFS };
+    return {} as DigestPreferences;
   }
 
   const response = await authFetch('/api/digest-preferences');
@@ -574,8 +434,7 @@ export async function getDigestPreferences(): Promise<DigestPreferences> {
  */
 export async function updateDigestPreferences(prefs: DigestPreferences): Promise<DigestPreferences> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    return { ...prefs };
+    return {} as DigestPreferences;
   }
 
   const response = await authFetch('/api/digest-preferences', {
@@ -593,132 +452,12 @@ export async function updateDigestPreferences(prefs: DigestPreferences): Promise
 // Memos API
 // ---------------------------------------------------------------------------
 
-// Mock memos spanning multiple deals for development mode
-function mockMemoContent(title: string, summary: string): Record<string, unknown> {
-  const h2 = (text: string) => ({ type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text }] });
-  const p = (text: string) => (text ? { type: 'paragraph', content: [{ type: 'text', text }] } : { type: 'paragraph' });
-  return {
-    type: 'doc',
-    content: [
-      { type: 'heading', attrs: { level: 1 }, content: [{ type: 'text', text: title }] },
-      h2('Executive Summary'),
-      p(summary),
-      h2('Deal Terms'),
-      p('See deal card for current terms.'),
-      h2('Regulatory Status'),
-      p('Regulatory review in progress.'),
-      h2('Litigation'),
-      p('No litigation events recorded yet.'),
-      h2('Key Clauses'),
-      p('Key clause analysis pending.'),
-      h2('Spread History'),
-      p('Spread data to be updated on next refresh.'),
-      h2('Analyst Notes'),
-      p(''),
-    ],
-  };
-}
-
-const MOCK_MEMOS: (Memo & { dealTitle: string })[] = [
-  {
-    id: 'memo-1',
-    dealId: 'deal-1',
-    dealTitle: 'Microsoft / Activision Blizzard',
-    title: 'Initial Spread Analysis',
-    content: mockMemoContent(
-      'Microsoft / Activision Blizzard — Initial Spread Analysis',
-      'Spread remains attractive at 4.2% with FTC challenge ongoing. CMA clearance is the binding constraint.',
-    ),
-    createdBy: 'user-1',
-    visibility: 'firm',
-    version: 3,
-    createdAt: '2026-03-10T09:15:00Z',
-    updatedAt: '2026-03-13T14:22:00Z',
-  },
-  {
-    id: 'memo-2',
-    dealId: 'deal-1',
-    dealTitle: 'Microsoft / Activision Blizzard',
-    title: 'Regulatory Risk Assessment',
-    content: mockMemoContent(
-      'Microsoft / Activision Blizzard — Regulatory Risk Assessment',
-      'FTC second request timeline analysis and UK CMA phase 2 review implications for deal closure probability.',
-    ),
-    createdBy: 'user-1',
-    visibility: 'private',
-    version: 2,
-    createdAt: '2026-03-08T11:30:00Z',
-    updatedAt: '2026-03-12T16:45:00Z',
-  },
-  {
-    id: 'memo-3',
-    dealId: 'deal-3',
-    dealTitle: 'Kroger / Albertsons Companies',
-    title: 'IC Memo Draft',
-    content: mockMemoContent(
-      'Kroger / Albertsons — IC Memo Draft',
-      'Investment committee memo draft. FTC divestiture package of 413 stores may satisfy competitive concerns. Spread entry at 6.8% presents compelling risk/reward.',
-    ),
-    createdBy: 'user-1',
-    visibility: 'firm',
-    version: 5,
-    createdAt: '2026-03-05T08:00:00Z',
-    updatedAt: '2026-03-14T10:15:00Z',
-  },
-  {
-    id: 'memo-4',
-    dealId: 'deal-4',
-    dealTitle: 'JetBlue / Spirit Airlines',
-    title: 'Post-DOJ Ruling Update',
-    content: mockMemoContent(
-      'JetBlue / Spirit Airlines — Post-DOJ Ruling Update',
-      'DOJ successfully blocked the merger. Evaluating appeal likelihood and updated downside scenarios.',
-    ),
-    createdBy: 'user-1',
-    visibility: 'firm',
-    version: 1,
-    createdAt: '2026-03-12T15:00:00Z',
-    updatedAt: '2026-03-12T15:00:00Z',
-  },
-  {
-    id: 'memo-5',
-    dealId: 'deal-6',
-    dealTitle: 'Broadcom / VMware Inc.',
-    title: 'Post-Close Integration Notes',
-    content: mockMemoContent(
-      'Broadcom / VMware — Post-Close Integration Notes',
-      'Deal closed 11/22. Final spread capture was 29bps. Documenting timeline for future reference on mega-cap semiconductor M&A.',
-    ),
-    createdBy: 'user-1',
-    visibility: 'private',
-    version: 2,
-    createdAt: '2026-03-01T10:00:00Z',
-    updatedAt: '2026-03-11T09:30:00Z',
-  },
-  {
-    id: 'memo-6',
-    dealId: 'deal-3',
-    dealTitle: 'Kroger / Albertsons Companies',
-    title: 'Divestiture Package Analysis',
-    content: mockMemoContent(
-      'Kroger / Albertsons — Divestiture Package Analysis',
-      'C&S Wholesale Grocers proposed as divestiture buyer for 413 stores. Analyzing buyer credibility and FTC precedent for grocery mergers.',
-    ),
-    createdBy: 'user-1',
-    visibility: 'firm',
-    version: 4,
-    createdAt: '2026-03-07T13:45:00Z',
-    updatedAt: '2026-03-13T11:00:00Z',
-  },
-];
-
 /**
  * Get all memos across deals (for the memos index page).
  */
 export async function getAllMemos(): Promise<(Memo & { dealTitle: string })[]> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    return MOCK_MEMOS;
+    return [];
   }
 
   const response = await authFetch('/api/memos');
@@ -730,8 +469,7 @@ export async function getAllMemos(): Promise<(Memo & { dealTitle: string })[]> {
  */
 export async function getMemos(dealId: string): Promise<Memo[]> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    return MOCK_MEMOS.filter((m) => m.dealId === dealId);
+    return [];
   }
 
   const response = await authFetch(`/api/memos?dealId=${dealId}`);
@@ -743,10 +481,7 @@ export async function getMemos(dealId: string): Promise<Memo[]> {
  */
 export async function getMemo(id: string): Promise<Memo> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    const memo = MOCK_MEMOS.find((m) => m.id === id);
-    if (!memo) throw new Error(`Memo ${id} not found`);
-    return memo;
+    return {} as Memo;
   }
 
   const response = await authFetch(`/api/memos/${id}`);
@@ -763,18 +498,7 @@ export async function createMemo(data: {
   visibility?: string;
 }): Promise<Memo> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    return {
-      id: `memo-${Date.now()}`,
-      dealId: data.dealId,
-      title: data.title,
-      content: data.content,
-      createdBy: 'user-1',
-      visibility: (data.visibility as 'private' | 'firm') ?? 'private',
-      version: 1,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    return { ...data, id: crypto.randomUUID() } as Memo;
   }
 
   const response = await authFetch('/api/memos', {
@@ -792,8 +516,7 @@ export async function updateMemo(
   data: { content?: Record<string, unknown>; title?: string; visibility?: string; version: number },
 ): Promise<Memo> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    throw new Error('Memos not available in mock mode');
+    return { ...data, id: crypto.randomUUID() } as Memo;
   }
 
   const response = await authFetch(`/api/memos/${id}`, {
@@ -820,7 +543,7 @@ export async function deleteMemo(id: string): Promise<void> {
  */
 export async function createMemoSnapshot(memoId: string, name: string): Promise<MemoSnapshot> {
   if (USE_MOCK_DATA) {
-    throw new Error('Memos not available in mock mode');
+    return {} as MemoSnapshot;
   }
 
   const response = await authFetch(`/api/memos/${memoId}/snapshots`, {
@@ -847,7 +570,7 @@ export async function getMemoSnapshots(memoId: string): Promise<MemoSnapshot[]> 
  */
 export async function getMemoSnapshot(memoId: string, snapshotId: string): Promise<MemoSnapshot> {
   if (USE_MOCK_DATA) {
-    throw new Error('Memos not available in mock mode');
+    return {} as MemoSnapshot;
   }
 
   const response = await authFetch(`/api/memos/${memoId}/snapshots/${snapshotId}`);
@@ -859,7 +582,7 @@ export async function getMemoSnapshot(memoId: string, snapshotId: string): Promi
  */
 export async function restoreMemoSnapshot(memoId: string, snapshotId: string): Promise<Memo> {
   if (USE_MOCK_DATA) {
-    throw new Error('Memos not available in mock mode');
+    return {} as Memo;
   }
 
   const response = await authFetch(`/api/memos/${memoId}/snapshots/${snapshotId}/restore`, {
@@ -901,14 +624,7 @@ export async function listApiKeys(): Promise<ApiKeyRecord[]> {
  */
 export async function createApiKey(name: string): Promise<CreateApiKeyResponse> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    return {
-      id: `key-${Date.now()}`,
-      name,
-      key: `sk_live_${'x'.repeat(64)}`,
-      createdAt: new Date().toISOString(),
-      lastUsedAt: null,
-    };
+    return {} as CreateApiKeyResponse;
   }
 
   const response = await authFetch('/api/api-keys', {
@@ -964,7 +680,11 @@ export async function getWatchlist(id: string): Promise<WatchlistWithDeals | nul
 
   try {
     const response = await authFetch(`/api/watchlists/${id}`);
-    return response.json();
+    const watchlist: WatchlistWithDeals = await response.json();
+    return {
+      ...watchlist,
+      deals: (watchlist.deals ?? []).map((deal) => coerceDealNumerics(deal as unknown as Record<string, unknown>)),
+    };
   } catch (err) {
     if (err instanceof Error && err.message.includes('404')) return null;
     throw err;
@@ -973,15 +693,7 @@ export async function getWatchlist(id: string): Promise<WatchlistWithDeals | nul
 
 export async function createWatchlist(data: { name: string; description?: string }): Promise<WatchlistRecord> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    return {
-      id: `wl-${Date.now()}`,
-      name: data.name,
-      description: data.description ?? null,
-      createdBy: 'user-1',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    return {} as WatchlistRecord;
   }
 
   const response = await authFetch('/api/watchlists', {
@@ -997,11 +709,7 @@ export async function createWatchlist(data: { name: string; description?: string
 
 export async function getLatestMarketSnapshot(dealId: string): Promise<MarketSnapshot | null> {
   if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    const snapshots = MOCK_MARKET_SNAPSHOTS.filter((s) => s.dealId === dealId);
-    if (snapshots.length === 0) return null;
-    // Return the most recent snapshot
-    return snapshots.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+    return null;
   }
 
   try {

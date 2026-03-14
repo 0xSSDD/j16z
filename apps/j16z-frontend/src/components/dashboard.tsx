@@ -3,7 +3,18 @@
 import { Activity, AlertTriangle, ArrowUpRight, Eye, FileText, Plus, Scale, Trash2 } from 'lucide-react';
 import type React from 'react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { DATA_SOURCES } from '@/lib/constants';
+
+interface DataSource {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  frequency: string;
+  lastUpdate: string;
+  error: string | null;
+  itemsToday: number;
+}
+const DATA_SOURCES: DataSource[] = [];
 
 type MetricIconComponent = React.ComponentType<{
   className?: string;

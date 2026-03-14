@@ -12,7 +12,7 @@ import { RegLitigationTab } from '@/components/deal-card/tabs/reg-litigation-tab
 import { SpreadHistoryTab } from '@/components/deal-card/tabs/spread-history-tab';
 import { TermsTab } from '@/components/deal-card/tabs/terms-tab';
 import { getClauses, getDeal, getEvents, getFilings, getMarketSnapshots } from '@/lib/api';
-import { MOCK_CLAUSES } from '@/lib/constants';
+
 import type { Clause, Deal, Event, Filing, MarketSnapshot } from '@/lib/types';
 
 interface DealCardProps {
@@ -98,9 +98,7 @@ export function DealCard({ dealId }: DealCardProps) {
     if (!dealId) return;
     getClauses(dealId)
       .then(setClauses)
-      .catch(() => {
-        setClauses(MOCK_CLAUSES.filter((c) => c.dealId === dealId));
-      });
+      .catch(() => setClauses([]));
   }, [dealId]);
 
   // Fetch filings for this deal (real data only — no mock fallback)

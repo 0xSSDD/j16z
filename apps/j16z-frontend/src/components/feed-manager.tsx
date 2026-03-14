@@ -2,7 +2,17 @@
 
 import { CheckCircle2, Pause, Play, Radio, RefreshCw, Settings2, XCircle } from 'lucide-react';
 import type React from 'react';
-import { DATA_SOURCES } from '@/lib/constants';
+
+interface DataSource {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  frequency: string;
+  lastUpdate: string;
+  error: string | null;
+}
+const DATA_SOURCES: DataSource[] = [];
 
 export const FeedManager: React.FC = () => {
   return (

@@ -1,14 +1,21 @@
 'use client';
 
 import * as React from 'react';
-import { MOCK_NEWS } from '@/lib/constants';
+import { getNews } from '@/lib/api';
+import type { NewsItem } from '@/lib/types';
 
 interface NewsSectionProps {
   dealId: string;
 }
 
 export function NewsSection({ dealId }: NewsSectionProps) {
-  const news = MOCK_NEWS.filter((n) => n.dealId === dealId);
+  const [news, setNews] = React.useState<NewsItem[]>([]);
+
+  React.useEffect(() => {
+    getNews(dealId)
+      .then(setNews)
+      .catch(() => setNews([]));
+  }, [dealId]);
   const [notes, setNotes] = React.useState<{ [key: string]: string }>(() => {
     if (typeof window === 'undefined') return {};
     const stored = localStorage.getItem(`news-notes-${dealId}`);
