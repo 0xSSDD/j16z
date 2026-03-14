@@ -158,7 +158,7 @@ function DealContextPanel({ deal, events, onCollapse }: { deal: Deal; events: Ev
 
         {/* Keyboard hint */}
         <p className="text-center text-[10px] font-mono text-text-dim pt-1">
-          <kbd className="px-1 py-0.5 bg-background border border-border rounded text-[9px]">\u2318</kbd>{' '}
+          <kbd className="px-1 py-0.5 bg-background border border-border rounded text-[9px]">{'\u2318'}</kbd>{' '}
           <kbd className="px-1 py-0.5 bg-background border border-border rounded text-[9px]">\</kbd> to toggle
         </p>
       </div>

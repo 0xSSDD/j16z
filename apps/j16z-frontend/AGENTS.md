@@ -82,6 +82,24 @@ src/
 **Filters**: Multi-select dropdowns + FilterChips display, state in localStorage
 **Keyboard Shortcuts**: Cmd+K (palette), Shift+? (help), g+x (nav), Cmd+D/E (deal actions)
 
+## SUPABASE AUTH
+
+### Env Vars (March 2026 — new naming)
+
+| Env Var | Purpose |
+|---------|---------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project API URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Public client key (was `ANON_KEY`), format `sb_publishable_...` |
+| `NEXT_PUBLIC_USE_MOCK_DATA` | `true` = mock data, `false` = real API + Supabase auth |
+| `NEXT_PUBLIC_API_URL` | Hono API server URL (`http://localhost:3001` in dev) |
+
+### Auth Flow
+
+- `createBrowserClient(URL, PUBLISHABLE_KEY)` in `lib/supabase/client.ts` for client components
+- `createServerClient(URL, PUBLISHABLE_KEY)` in `lib/supabase/server.ts` for server components + middleware
+- Middleware (`middleware.ts`) refreshes session cookies on every request
+- Signout route (`/auth/signout`) clears all `sb-*` cookies
+
 ## NOTES
 
 - Landing page (758 lines) has parallax scroll with Recharts — performance sensitive

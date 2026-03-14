@@ -158,7 +158,7 @@ authRoutes.post('/invite', zValidator('json', inviteSchema), async (c) => {
   const firmId = membership.firmId;
 
   // Use Supabase admin client to send invitation email
-  const supabaseAdmin = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+  const supabaseAdmin = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 

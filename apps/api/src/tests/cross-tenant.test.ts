@@ -11,7 +11,7 @@
  * REQUIRES (integration test — needs a live environment):
  *   - API_URL: running API server (default: http://localhost:3001)
  *   - SUPABASE_URL: Supabase project URL
- *   - SUPABASE_SERVICE_ROLE_KEY: Supabase service role key
+ *   - SUPABASE_SECRET_KEY: Supabase secret key
  *   - DATABASE_URL: Postgres connection string (for adminDb in seed helpers)
  *   - SUPABASE_DB_URL_SERVICE_ROLE: Admin postgres URL
  *
@@ -35,14 +35,14 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 const API_URL = process.env.API_URL ?? 'http://localhost:3001';
 const SUPABASE_URL = process.env.SUPABASE_URL!;
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const SECRET_KEY = process.env.SUPABASE_SECRET_KEY!;
 
 // Skip the test suite if environment isn't configured
-const SKIP = !SUPABASE_URL || !SERVICE_ROLE_KEY;
+const SKIP = !SUPABASE_URL || !SECRET_KEY;
 
 describe('Cross-tenant isolation (AUTH-06 CI gate)', () => {
   if (SKIP) {
-    it.skip('Skipped — SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not configured', () => {});
+    it.skip('Skipped — SUPABASE_URL or SUPABASE_SECRET_KEY not configured', () => {});
     return;
   }
 
@@ -57,7 +57,7 @@ describe('Cross-tenant isolation (AUTH-06 CI gate)', () => {
   const userBEmail = `test-firm-b-${timestamp}@j16z-test.com`;
   const TEST_PASSWORD = 'TestPass123!@#';
 
-  const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+  const supabaseAdmin = createClient(SUPABASE_URL, SECRET_KEY, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
@@ -84,7 +84,7 @@ describe('Cross-tenant isolation (AUTH-06 CI gate)', () => {
 
     // Exchange credentials for a JWT using the admin signInWithPassword approach
     // Use a regular (anon-key) client for this since we need the user's JWT, not service role
-    const supabaseUserA = createClient(SUPABASE_URL, process.env.SUPABASE_ANON_KEY ?? SERVICE_ROLE_KEY, {
+    const supabaseUserA = createClient(SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY ?? SECRET_KEY, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
@@ -111,7 +111,7 @@ describe('Cross-tenant isolation (AUTH-06 CI gate)', () => {
     await onboardARes.json();
 
     // Sign in as User B
-    const supabaseUserB = createClient(SUPABASE_URL, process.env.SUPABASE_ANON_KEY ?? SERVICE_ROLE_KEY, {
+    const supabaseUserB = createClient(SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY ?? SECRET_KEY, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 

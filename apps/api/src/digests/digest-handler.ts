@@ -107,7 +107,7 @@ async function resolveEmail(userId: string): Promise<string | null> {
   // Import supabase client lazily to avoid circular deps
   try {
     const { createClient } = await import('@supabase/supabase-js');
-    const supabase = createClient(process.env.SUPABASE_URL ?? '', process.env.SUPABASE_SERVICE_ROLE_KEY ?? '');
+    const supabase = createClient(process.env.SUPABASE_URL ?? '', process.env.SUPABASE_SECRET_KEY ?? '');
     const { data } = await supabase.auth.admin.getUserById(userId);
     return data.user?.email ?? null;
   } catch {

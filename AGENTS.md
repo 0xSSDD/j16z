@@ -102,35 +102,103 @@ EDGAR (SEC)                    Frontend (Next.js)
 - **NO** refactoring while fixing bugs — minimal fixes only
 - **NO** `window.dispatchEvent` for new cross-component communication — use Zustand (available but unused)
 
+## SUPABASE SETUP
+
+**Project:** tppysrmbmnedkswlpgkw | **Region:** eu-central-1 (Frankfurt) | **CLI linked**
+
+### API Keys (new naming — March 2026)
+
+Supabase replaced `anon`/`service_role` JWT keys with new prefixed keys:
+
+| Old Name | New Name | Env Var | Format |
+|----------|----------|---------|--------|
+| `anon` key | Publishable key | `SUPABASE_PUBLISHABLE_KEY` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_...` |
+| `service_role` key | Secret key | `SUPABASE_SECRET_KEY` | `sb_secret_...` |
+
+Legacy JWT keys still work but are deprecated. New keys are drop-in compatible with `@supabase/supabase-js` — same `createClient(url, key)` API.
+
+**Key difference:** Secret keys are blocked by Supabase API Gateway when sent from browsers (User-Agent check). Publishable keys work everywhere.
+
+### Connection (IPv6 / IPv4)
+
+- **Direct connection** (`db.xxx.supabase.co:5432`) is **IPv6-only** on free tier
+- Most local dev environments (macOS, GitHub Actions, Vercel) are IPv4-only
+- **Workaround:** Use Supabase CLI (`supabase db push`) which routes through the Management API (IPv4)
+- **For app runtime:** Use Session Pooler (`aws-{N}-[region].pooler.supabase.com`) for IPv4 support. **WARNING: The `N` prefix is NOT always `0` — copy exact hostname from Dashboard → Connect → Session Pooler.** Our project uses `aws-1-eu-central-1`.
+- **IPv4 add-on** available on paid plans for direct connections
+
+### Migrations
+
+Drizzle ORM manages the schema (`apps/api/drizzle/`), but migrations are pushed via **Supabase CLI** due to IPv6:
+
+```bash
+supabase login                    # One-time auth (opens browser)
+supabase link --project-ref ...   # Link to project
+supabase db push --linked         # Push migrations from supabase/migrations/
+```
+
+Migration SQL files are copied from `apps/api/drizzle/*.sql` → `supabase/migrations/` with timestamp prefixes.
+
+### Access Token Hook
+
+`custom_access_token_hook` is deployed as a Postgres function. It injects `firm_id` and `firm_role` into every JWT's `app_metadata` by looking up `firm_members`.
+
+**After deploying the SQL, enable in Supabase Dashboard:**
+Dashboard → Authentication → Hooks → Custom Access Token Hook → Enable → Select `public.custom_access_token_hook`
+
+### Redis (BullMQ)
+
+`connection.ts` supports dual mode:
+- **Local dev:** `REDIS_URL=redis://localhost:6380` (Docker)
+- **Production:** `UPSTASH_REDIS_HOST` + `UPSTASH_REDIS_PASSWORD` (TLS)
+
+`REDIS_URL` takes priority when set.
+
+### MCP Integration
+
+Supabase MCP is configured in `~/.config/opencode/opencode.json`:
+```json
+"supabase": { "type": "remote", "url": "https://mcp.supabase.com/mcp?project_ref=tppysrmbmnedkswlpgkw", "enabled": true }
+```
+Auth: `opencode mcp auth supabase`
+
 ## CRITICAL KNOWN ISSUES
 
-| Issue | Severity | Location |
-|-------|----------|----------|
-| Payload key mismatch (camelCase→snake_case) | CRITICAL | api/edgar/download.ts → langextract/worker.py |
-| Missing /api/deals/:id/clauses route | CRITICAL | api/routes/deals.ts |
-| Redis TLS mismatch (Node vs Python) | CRITICAL | api/queues/connection.ts vs langextract/.env |
-| Pre-existing TS errors (.materiality field) | LOW | notifications-inbox.tsx, event-timeline.tsx |
-| No CI/CD pipeline | MEDIUM | No .github/workflows/ |
-| .env files committed to repo | SECURITY | api/.env, frontend/.env.local |
+| Issue | Severity | Location | Status |
+|-------|----------|----------|--------|
+| ~~Payload key mismatch (camelCase→snake_case)~~ | ~~CRITICAL~~ | api/edgar/download.ts → langextract/worker.py | **FIXED** |
+| ~~Missing /api/deals/:id/clauses route~~ | ~~CRITICAL~~ | api/routes/deals.ts | **FIXED** |
+| ~~Redis TLS mismatch (Node vs Python)~~ | ~~CRITICAL~~ | api/queues/connection.ts vs langextract/.env | **FIXED** |
+| newsItems table missing from schema | MEDIUM | api/routes/deals.ts (GET /:id/news) | OPEN |
+| Pre-existing TS errors (.materiality field) | LOW | notifications-inbox.tsx, event-timeline.tsx | OPEN |
+| No CI/CD pipeline | MEDIUM | No .github/workflows/ | OPEN |
 
 ## COMMANDS
 
 ```bash
 pnpm dev                  # Start frontend + API in parallel
+pnpm dev:fe               # Frontend only
+pnpm dev:be               # Backend: Docker + migrations + API + worker
 pnpm build                # Build packages → apps
 pnpm lint                 # Biome check
 pnpm lint:fix             # Biome auto-fix
 pnpm check                # TypeScript type-check (tsc -b)
 pnpm test                 # Vitest all projects
 pnpm test:be              # Backend tests only
+pnpm infra:up             # Start Docker (Postgres + Redis)
+pnpm infra:down           # Stop Docker
 
 # API-specific (from apps/api/)
 pnpm worker               # Start BullMQ Node.js worker
-pnpm worker:dev            # Watch mode worker
-pnpm db:generate           # Generate Drizzle migrations
-pnpm db:migrate            # Run migrations
-pnpm db:push               # Push schema (dev only)
-pnpm db:seed               # Seed starter data
+pnpm worker:dev           # Watch mode worker
+pnpm db:generate          # Generate Drizzle migrations
+pnpm db:migrate           # Run migrations (needs IPv6 or pooler)
+pnpm db:push              # Push schema (dev only)
+pnpm db:seed              # Seed starter data
+
+# Supabase CLI (for IPv4 environments)
+supabase db push --linked  # Push migrations via Management API
+supabase db dump           # Dump remote schema
 
 # Python (from apps/langextract/)
 pnpm dev                  # python worker.py
@@ -147,3 +215,4 @@ pnpm install:py           # pip install with dev deps
 - `google-generativeai` package is deprecated — `google.genai` is replacement (flagged, not blocking)
 - LangExtract 1.1.1 AlignmentStatus uses `MATCH_EXACT/GREATER/LESSER/FUZZY` (not `ALIGNED/APPROXIMATE/FAILED` from research docs)
 - S-4/DEFM14A filings auto-create deals with `firmId=null, source='auto_edgar'` — live in discovery pool until claimed
+- Supabase env vars use new naming: `SUPABASE_PUBLISHABLE_KEY` (not `ANON_KEY`), `SUPABASE_SECRET_KEY` (not `SERVICE_ROLE_KEY`)

@@ -121,6 +121,34 @@ pnpm db:push      # Push schema (dev only)
 pnpm db:seed      # Seed starter data
 ```
 
+## SUPABASE & DATABASE
+
+### Env Var Naming (March 2026)
+
+| Env Var | Purpose | Format |
+|---------|---------|--------|
+| `SUPABASE_URL` | Project API URL | `https://xxx.supabase.co` |
+| `SUPABASE_PUBLISHABLE_KEY` | Public client key (was `ANON_KEY`) | `sb_publishable_...` |
+| `SUPABASE_SECRET_KEY` | Server-only key (was `SERVICE_ROLE_KEY`) | `sb_secret_...` |
+| `DATABASE_URL` | RLS client connection (pooled) | Transaction pooler `:6543` |
+| `SUPABASE_DB_URL_SERVICE_ROLE` | Admin client + migrations | Session pooler `:5432` |
+| `REDIS_URL` | BullMQ job queue | `redis://localhost:6380` (dev) |
+
+### Connection Gotchas
+
+- **Direct DB host (`db.xxx.supabase.co`) is IPv6-only** — unreachable from macOS/CI
+- **Use Supavisor pooler** (`aws-{N}-[region].pooler.supabase.com`) for IPv4
+- **Pooler prefix is NOT always `aws-0`** — our project uses `aws-1-eu-central-1`. Copy exact hostname from Dashboard → Connect → Session Pooler ([GitHub #30107](https://github.com/orgs/supabase/discussions/30107))
+- **Transaction mode (port 6543):** Requires `prepare: false` — used by `DATABASE_URL` (RLS client)
+- **Session mode (port 5432):** Supports prepared statements — used by `SUPABASE_DB_URL_SERVICE_ROLE` (admin client, Drizzle migrations)
+- **Drizzle migrations:** Use `supabase db push --linked` (routes via Management API, IPv4) since `drizzle-kit migrate` needs direct DB access
+
+### Redis Connection
+
+`connection.ts` supports dual mode via `REDIS_URL`:
+- **Local dev:** `REDIS_URL=redis://localhost:6380` (Docker, parsed by `buildRedisConnection()`)
+- **Production:** `UPSTASH_REDIS_HOST` + `UPSTASH_REDIS_PASSWORD` (TLS, fallback when `REDIS_URL` is unset)
+
 ## NOTES
 
 - `filings` table is GLOBAL (no firm_id, no RLS) — events bridge filings to firms
