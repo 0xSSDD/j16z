@@ -25,7 +25,7 @@ export enum SeverityLevel {
 
 interface EventContext {
   type: EventType;
-  subtype?: string; // e.g., "FTC_COMPLAINT", "FTC_SECOND_REQUEST", "INJUNCTION_GRANTED"
+  subType?: string; // e.g., "FTC_COMPLAINT", "FTC_SECOND_REQUEST", "INJUNCTION_GRANTED"
   daysToOutsideDate?: number;
   pClose?: number;
   litigationCount?: number;
@@ -33,7 +33,7 @@ interface EventContext {
   analystFeedback?: 'critical' | 'not_critical';
 }
 
-// Base scores by event type and subtype
+// Base scores by event type and subType
 const BASE_SCORES: Record<string, number> = {
   // AGENCY events
   'AGENCY:FTC_COMPLAINT': 95,
@@ -73,7 +73,7 @@ const BASE_SCORES: Record<string, number> = {
  * Get base score for an event
  */
 function getBaseScore(context: EventContext): number {
-  const { type, subtype, spreadMoveBps } = context;
+  const { type, subType, spreadMoveBps } = context;
 
   // Handle spread movement special case
   if (type === EventType.SPREAD_MOVE && spreadMoveBps !== undefined) {
@@ -84,9 +84,9 @@ function getBaseScore(context: EventContext): number {
     return BASE_SCORES['SPREAD_MOVE:DEFAULT'];
   }
 
-  // Try specific subtype first
-  if (subtype) {
-    const key = `${type}:${subtype}`;
+  // Try specific subType first
+  if (subType) {
+    const key = `${type}:${subType}`;
     if (BASE_SCORES[key] !== undefined) {
       return BASE_SCORES[key];
     }

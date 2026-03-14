@@ -62,8 +62,8 @@ export function DealCard({ dealId }: DealCardProps) {
       .then((data) => {
         setDeal(data);
         if (data) {
-          setPCloseBase(data.p_close_base);
-          setSpreadThreshold(data.spread_entry_threshold);
+          setPCloseBase(data.pCloseBase);
+          setSpreadThreshold(data.spreadEntryThreshold);
         }
         setLoading(false);
       })
@@ -121,13 +121,13 @@ export function DealCard({ dealId }: DealCardProps) {
     if (!deal) return;
     const headers = ['Field', 'Value'];
     const rows = [
-      ['Deal', `${deal.acquirerSymbol} / ${deal.symbol}`],
+      ['Deal', `${deal.symbol} / ${deal.symbol}`],
       ['Status', deal.status],
-      ['Spread', `${deal.currentSpread.toFixed(1)}%`],
-      ['p_close', `${deal.p_close_base}%`],
-      ['EV', `${deal.ev.toFixed(2)}%`],
-      ['Deal Value', `$${(deal.reportedEquityTakeoverValue / 1e9).toFixed(1)}B`],
-      ['Announced', deal.announcementDate],
+      ['Spread', `${deal.grossSpread.toFixed(1)}%`],
+      ['p_close', `${deal.pCloseBase}%`],
+      ['EV', `${deal.annualizedReturn.toFixed(2)}%`],
+      ['Deal Value', `$${(deal.dealValue / 1e9).toFixed(1)}B`],
+      ['Announced', deal.announcedDate],
       ['Outside Date', deal.outsideDate],
     ];
     const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
@@ -135,7 +135,7 @@ export function DealCard({ dealId }: DealCardProps) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `j16z-deal-${deal.acquirerSymbol}-${deal.symbol}-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `j16z-deal-${deal.symbol}-${deal.symbol}-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     setIsExportOpen(false);
   };
@@ -147,7 +147,7 @@ export function DealCard({ dealId }: DealCardProps) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `j16z-deal-${deal.acquirerSymbol}-${deal.symbol}-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `j16z-deal-${deal.symbol}-${deal.symbol}-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     setIsExportOpen(false);
   };

@@ -46,15 +46,15 @@ export function WatchlistDetail({ watchlistId }: WatchlistDetailProps) {
 
   const columns: ColumnDef<Deal>[] = [
     {
-      accessorKey: 'companyName',
+      accessorKey: 'target',
       header: 'Deal',
       cell: ({ row }) => (
         <div className="flex flex-col gap-1">
           <div className="font-medium text-text-main">
-            {row.original.acquirerSymbol} → {row.original.symbol}
+            {row.original.symbol} → {row.original.symbol}
           </div>
           <div className="text-xs text-text-muted">
-            {row.original.acquirerName} / {row.original.companyName}
+            {row.original.acquirer} / {row.original.target}
           </div>
         </div>
       ),
@@ -65,19 +65,19 @@ export function WatchlistDetail({ watchlistId }: WatchlistDetailProps) {
       cell: ({ row }) => <StatusBadge status={row.original.status} />,
     },
     {
-      accessorKey: 'currentSpread',
+      accessorKey: 'grossSpread',
       header: 'Spread',
-      cell: ({ row }) => <div className="font-medium text-primary-500">{row.original.currentSpread.toFixed(1)}%</div>,
+      cell: ({ row }) => <div className="font-medium text-primary-500">{row.original.grossSpread.toFixed(1)}%</div>,
     },
     {
-      accessorKey: 'p_close_base',
+      accessorKey: 'pCloseBase',
       header: 'p_close',
-      cell: ({ row }) => <div className="font-medium text-text-main">{row.original.p_close_base}%</div>,
+      cell: ({ row }) => <div className="font-medium text-text-main">{row.original.pCloseBase}%</div>,
     },
     {
-      accessorKey: 'ev',
+      accessorKey: 'annualizedReturn',
       header: 'EV',
-      cell: ({ row }) => <div className="font-medium text-text-main">{row.original.ev.toFixed(2)}%</div>,
+      cell: ({ row }) => <div className="font-medium text-text-main">{row.original.annualizedReturn.toFixed(2)}%</div>,
     },
     {
       id: 'actions',

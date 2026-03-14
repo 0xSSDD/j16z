@@ -3,7 +3,7 @@ import { zValidator } from '@hono/zod-validator';
 import { and, eq, isNull } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { adminDb } from '../db/index.js';
+import { withRLS } from '../db/rls.js';
 import * as schema from '../db/schema.js';
 import type { AuthEnv } from '../middleware/auth.js';
 
@@ -38,6 +38,7 @@ export const alertRulesRoutes = new Hono<AuthEnv>()
   // GET / — list alert rules for firm, optional dealId filter
   .get('/', async (c) => {
     const firmId = c.get('firmId');
+    const userId = c.get('userId');
     const dealId = c.req.query('dealId');
 
     const conditions = [eq(schema.alertRules.firmId, firmId), isNull(schema.alertRules.deletedAt)];
@@ -46,22 +47,24 @@ export const alertRulesRoutes = new Hono<AuthEnv>()
       conditions.push(eq(schema.alertRules.dealId, dealId));
     }
 
-    const rows = await adminDb
-      .select({
-        id: schema.alertRules.id,
-        firmId: schema.alertRules.firmId,
-        dealId: schema.alertRules.dealId,
-        userId: schema.alertRules.userId,
-        name: schema.alertRules.name,
-        threshold: schema.alertRules.threshold,
-        channels: schema.alertRules.channels,
-        webhookUrl: schema.alertRules.webhookUrl,
-        isActive: schema.alertRules.isActive,
-        createdAt: schema.alertRules.createdAt,
-        updatedAt: schema.alertRules.updatedAt,
-      })
-      .from(schema.alertRules)
-      .where(and(...conditions));
+    const rows = await withRLS(firmId, userId, (tx) =>
+      tx
+        .select({
+          id: schema.alertRules.id,
+          firmId: schema.alertRules.firmId,
+          dealId: schema.alertRules.dealId,
+          userId: schema.alertRules.userId,
+          name: schema.alertRules.name,
+          threshold: schema.alertRules.threshold,
+          channels: schema.alertRules.channels,
+          webhookUrl: schema.alertRules.webhookUrl,
+          isActive: schema.alertRules.isActive,
+          createdAt: schema.alertRules.createdAt,
+          updatedAt: schema.alertRules.updatedAt,
+        })
+        .from(schema.alertRules)
+        .where(and(...conditions)),
+    );
 
     return c.json(rows);
   })
@@ -69,26 +72,29 @@ export const alertRulesRoutes = new Hono<AuthEnv>()
   // GET /:id — get single rule by ID, scoped to firm
   .get('/:id', async (c) => {
     const firmId = c.get('firmId');
+    const userId = c.get('userId');
     const id = c.req.param('id');
 
-    const [row] = await adminDb
-      .select({
-        id: schema.alertRules.id,
-        firmId: schema.alertRules.firmId,
-        dealId: schema.alertRules.dealId,
-        userId: schema.alertRules.userId,
-        name: schema.alertRules.name,
-        threshold: schema.alertRules.threshold,
-        channels: schema.alertRules.channels,
-        webhookUrl: schema.alertRules.webhookUrl,
-        isActive: schema.alertRules.isActive,
-        createdAt: schema.alertRules.createdAt,
-        updatedAt: schema.alertRules.updatedAt,
-      })
-      .from(schema.alertRules)
-      .where(
-        and(eq(schema.alertRules.id, id), eq(schema.alertRules.firmId, firmId), isNull(schema.alertRules.deletedAt)),
-      );
+    const [row] = await withRLS(firmId, userId, (tx) =>
+      tx
+        .select({
+          id: schema.alertRules.id,
+          firmId: schema.alertRules.firmId,
+          dealId: schema.alertRules.dealId,
+          userId: schema.alertRules.userId,
+          name: schema.alertRules.name,
+          threshold: schema.alertRules.threshold,
+          channels: schema.alertRules.channels,
+          webhookUrl: schema.alertRules.webhookUrl,
+          isActive: schema.alertRules.isActive,
+          createdAt: schema.alertRules.createdAt,
+          updatedAt: schema.alertRules.updatedAt,
+        })
+        .from(schema.alertRules)
+        .where(
+          and(eq(schema.alertRules.id, id), eq(schema.alertRules.firmId, firmId), isNull(schema.alertRules.deletedAt)),
+        ),
+    );
 
     if (!row) {
       return c.json({ error: 'Alert rule not found' }, 404);
@@ -108,20 +114,22 @@ export const alertRulesRoutes = new Hono<AuthEnv>()
       webhookSecret = crypto.randomBytes(32).toString('hex');
     }
 
-    const [created] = await adminDb
-      .insert(schema.alertRules)
-      .values({
-        firmId,
-        userId,
-        name: body.name,
-        threshold: body.threshold,
-        channels: body.channels,
-        dealId: body.dealId ?? null,
-        webhookUrl: body.webhookUrl ?? null,
-        webhookSecret,
-        isActive: body.isActive,
-      })
-      .returning();
+    const [created] = await withRLS(firmId, userId, (tx) =>
+      tx
+        .insert(schema.alertRules)
+        .values({
+          firmId,
+          userId,
+          name: body.name,
+          threshold: body.threshold,
+          channels: body.channels,
+          dealId: body.dealId ?? null,
+          webhookUrl: body.webhookUrl ?? null,
+          webhookSecret,
+          isActive: body.isActive,
+        })
+        .returning(),
+    );
 
     // Return with webhookSecret — only time it's exposed
     return c.json(
@@ -146,16 +154,19 @@ export const alertRulesRoutes = new Hono<AuthEnv>()
   // PATCH /:id — update rule (webhookSecret NOT updatable)
   .patch('/:id', zValidator('json', patchAlertRuleSchema), async (c) => {
     const firmId = c.get('firmId');
+    const userId = c.get('userId');
     const id = c.req.param('id');
     const body = c.req.valid('json');
 
     // Verify ownership
-    const [existing] = await adminDb
-      .select({ id: schema.alertRules.id })
-      .from(schema.alertRules)
-      .where(
-        and(eq(schema.alertRules.id, id), eq(schema.alertRules.firmId, firmId), isNull(schema.alertRules.deletedAt)),
-      );
+    const [existing] = await withRLS(firmId, userId, (tx) =>
+      tx
+        .select({ id: schema.alertRules.id })
+        .from(schema.alertRules)
+        .where(
+          and(eq(schema.alertRules.id, id), eq(schema.alertRules.firmId, firmId), isNull(schema.alertRules.deletedAt)),
+        ),
+    );
 
     if (!existing) {
       return c.json({ error: 'Alert rule not found' }, 404);
@@ -169,11 +180,9 @@ export const alertRulesRoutes = new Hono<AuthEnv>()
     if (body.webhookUrl !== undefined) updateData.webhookUrl = body.webhookUrl;
     if (body.isActive !== undefined) updateData.isActive = body.isActive;
 
-    const [updated] = await adminDb
-      .update(schema.alertRules)
-      .set(updateData)
-      .where(eq(schema.alertRules.id, id))
-      .returning();
+    const [updated] = await withRLS(firmId, userId, (tx) =>
+      tx.update(schema.alertRules).set(updateData).where(eq(schema.alertRules.id, id)).returning(),
+    );
 
     return c.json({
       id: updated.id,
@@ -193,23 +202,28 @@ export const alertRulesRoutes = new Hono<AuthEnv>()
   // DELETE /:id — soft delete
   .delete('/:id', async (c) => {
     const firmId = c.get('firmId');
+    const userId = c.get('userId');
     const id = c.req.param('id');
 
-    const [existing] = await adminDb
-      .select({ id: schema.alertRules.id })
-      .from(schema.alertRules)
-      .where(
-        and(eq(schema.alertRules.id, id), eq(schema.alertRules.firmId, firmId), isNull(schema.alertRules.deletedAt)),
-      );
+    const [existing] = await withRLS(firmId, userId, (tx) =>
+      tx
+        .select({ id: schema.alertRules.id })
+        .from(schema.alertRules)
+        .where(
+          and(eq(schema.alertRules.id, id), eq(schema.alertRules.firmId, firmId), isNull(schema.alertRules.deletedAt)),
+        ),
+    );
 
     if (!existing) {
       return c.json({ error: 'Alert rule not found' }, 404);
     }
 
-    await adminDb
-      .update(schema.alertRules)
-      .set({ deletedAt: new Date(), updatedAt: new Date() })
-      .where(eq(schema.alertRules.id, id));
+    await withRLS(firmId, userId, (tx) =>
+      tx
+        .update(schema.alertRules)
+        .set({ deletedAt: new Date(), updatedAt: new Date() })
+        .where(eq(schema.alertRules.id, id)),
+    );
 
     return c.json({ success: true });
   })
@@ -217,14 +231,17 @@ export const alertRulesRoutes = new Hono<AuthEnv>()
   // POST /:id/test — test delivery
   .post('/:id/test', async (c) => {
     const firmId = c.get('firmId');
+    const userId = c.get('userId');
     const id = c.req.param('id');
 
-    const [rule] = await adminDb
-      .select()
-      .from(schema.alertRules)
-      .where(
-        and(eq(schema.alertRules.id, id), eq(schema.alertRules.firmId, firmId), isNull(schema.alertRules.deletedAt)),
-      );
+    const [rule] = await withRLS(firmId, userId, (tx) =>
+      tx
+        .select()
+        .from(schema.alertRules)
+        .where(
+          and(eq(schema.alertRules.id, id), eq(schema.alertRules.firmId, firmId), isNull(schema.alertRules.deletedAt)),
+        ),
+    );
 
     if (!rule) {
       return c.json({ error: 'Alert rule not found' }, 404);

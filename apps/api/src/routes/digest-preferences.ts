@@ -4,13 +4,13 @@
  * GET  /api/digest-preferences — returns current user's preferences (or defaults)
  * PUT  /api/digest-preferences — upserts preferences for current user
  *
- * Uses adminDb with explicit firmId WHERE (defense-in-depth pattern).
+ * Uses withRLS + explicit firmId WHERE (defense-in-depth pattern).
  */
 import { zValidator } from '@hono/zod-validator';
 import { and, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { adminDb } from '../db/index.js';
+import { withRLS } from '../db/rls.js';
 import * as schema from '../db/schema.js';
 import type { AuthEnv } from '../middleware/auth.js';
 
@@ -27,14 +27,16 @@ export const digestPreferencesRoutes = new Hono<AuthEnv>()
     const firmId = c.get('firmId');
     const userId = c.get('userId');
 
-    const [pref] = await adminDb
-      .select({
-        dailyEnabled: schema.digestPreferences.dailyEnabled,
-        weeklyEnabled: schema.digestPreferences.weeklyEnabled,
-        suppressWeekend: schema.digestPreferences.suppressWeekend,
-      })
-      .from(schema.digestPreferences)
-      .where(and(eq(schema.digestPreferences.firmId, firmId), eq(schema.digestPreferences.userId, userId)));
+    const [pref] = await withRLS(firmId, userId, (tx) =>
+      tx
+        .select({
+          dailyEnabled: schema.digestPreferences.dailyEnabled,
+          weeklyEnabled: schema.digestPreferences.weeklyEnabled,
+          suppressWeekend: schema.digestPreferences.suppressWeekend,
+        })
+        .from(schema.digestPreferences)
+        .where(and(eq(schema.digestPreferences.firmId, firmId), eq(schema.digestPreferences.userId, userId))),
+    );
 
     // Return defaults if no row exists
     return c.json(
@@ -52,31 +54,34 @@ export const digestPreferencesRoutes = new Hono<AuthEnv>()
     const userId = c.get('userId');
     const body = c.req.valid('json');
 
-    // Check if row exists
-    const [existing] = await adminDb
-      .select({ id: schema.digestPreferences.id })
-      .from(schema.digestPreferences)
-      .where(and(eq(schema.digestPreferences.firmId, firmId), eq(schema.digestPreferences.userId, userId)));
-
-    if (existing) {
-      await adminDb
-        .update(schema.digestPreferences)
-        .set({
-          dailyEnabled: body.dailyEnabled,
-          weeklyEnabled: body.weeklyEnabled,
-          suppressWeekend: body.suppressWeekend,
-          updatedAt: new Date(),
-        })
+    await withRLS(firmId, userId, async (tx) => {
+      // Check if row exists
+      const [existing] = await tx
+        .select({ id: schema.digestPreferences.id })
+        .from(schema.digestPreferences)
         .where(and(eq(schema.digestPreferences.firmId, firmId), eq(schema.digestPreferences.userId, userId)));
-    } else {
-      await adminDb.insert(schema.digestPreferences).values({
+
+      if (existing) {
+        await tx
+          .update(schema.digestPreferences)
+          .set({
+            dailyEnabled: body.dailyEnabled,
+            weeklyEnabled: body.weeklyEnabled,
+            suppressWeekend: body.suppressWeekend,
+            updatedAt: new Date(),
+          })
+          .where(and(eq(schema.digestPreferences.firmId, firmId), eq(schema.digestPreferences.userId, userId)));
+        return;
+      }
+
+      await tx.insert(schema.digestPreferences).values({
         firmId,
         userId,
         dailyEnabled: body.dailyEnabled,
         weeklyEnabled: body.weeklyEnabled,
         suppressWeekend: body.suppressWeekend,
       });
-    }
+    });
 
     return c.json({
       dailyEnabled: body.dailyEnabled,

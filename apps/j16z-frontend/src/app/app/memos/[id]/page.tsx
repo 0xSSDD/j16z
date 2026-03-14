@@ -12,18 +12,6 @@ import type { Deal, Event, Memo } from '@/lib/types';
 // Helpers
 // ---------------------------------------------------------------------------
 
-const FALLBACK_CONTENT: Record<string, unknown> = {
-  type: 'doc',
-  content: [
-    {
-      type: 'heading',
-      attrs: { level: 1 },
-      content: [{ type: 'text', text: 'Deal Memo' }],
-    },
-    { type: 'paragraph' },
-  ],
-};
-
 function formatCurrency(value: number): string {
   if (value >= 1e9) return `$${(value / 1e9).toFixed(1)}B`;
   if (value >= 1e6) return `$${(value / 1e6).toFixed(0)}M`;
@@ -90,11 +78,11 @@ function DealContextPanel({ deal, events, onCollapse }: { deal: Deal; events: Ev
         <section className="bg-surfaceHighlight border border-border rounded-lg p-4 space-y-2.5">
           <h3 className="text-[10px] font-mono text-text-dim uppercase tracking-widest">Deal Terms</h3>
           <dl className="space-y-2">
-            <TermRow label="Acquirer" value={deal.acquirerName} />
-            <TermRow label="Target" value={deal.companyName} />
-            <TermRow label="Value" value={formatCurrency(deal.reportedEquityTakeoverValue)} accent />
+            <TermRow label="Acquirer" value={deal.acquirer} />
+            <TermRow label="Target" value={deal.target} />
+            <TermRow label="Value" value={formatCurrency(deal.dealValue)} accent />
             <TermRow label="Type" value={deal.considerationType} />
-            <TermRow label="P(Close)" value={`${deal.p_close_base}%`} />
+            <TermRow label="P(Close)" value={`${deal.pCloseBase}%`} />
             <TermRow label="Status" value={STATUS_LABEL[deal.status] ?? deal.status} />
           </dl>
         </section>
@@ -106,9 +94,9 @@ function DealContextPanel({ deal, events, onCollapse }: { deal: Deal; events: Ev
             Key Dates
           </h3>
           <dl className="space-y-2">
-            <TermRow label="Announced" value={formatDate(deal.announcementDate)} />
+            <TermRow label="Announced" value={formatDate(deal.announcedDate)} />
             <TermRow label="Outside Date" value={formatDate(deal.outsideDate)} />
-            <TermRow label="Expected Close" value={formatDate(deal.acquisitionDate)} />
+            <TermRow label="Expected Close" value={formatDate(deal.expectedCloseDate)} />
           </dl>
         </section>
 
@@ -322,7 +310,7 @@ export default function MemoPage({ params }: { params: Promise<{ id: string }> }
             <>
               <ChevronRight className="h-3 w-3 text-text-dim flex-shrink-0" />
               <span className="text-xs font-mono text-text-main truncate">
-                {deal.acquirerName} / {deal.companyName}
+                {deal.acquirer} / {deal.target}
               </span>
             </>
           )}

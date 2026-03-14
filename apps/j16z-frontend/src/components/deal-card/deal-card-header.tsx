@@ -50,11 +50,11 @@ export function DealCardHeader({
             ← Back to Deals
           </button>
           <h1 className="text-xl font-mono font-bold text-text-main leading-tight md:text-2xl">
-            {deal.acquirerName} → {deal.companyName}
+            {deal.acquirer} → {deal.target}
           </h1>
           <div className="flex items-center gap-3 flex-wrap mt-1">
             <StatusBadge status={deal.status} />
-            <span className="text-sm text-text-muted font-mono">Announced: {formatDate(deal.announcementDate)}</span>
+            <span className="text-sm text-text-muted font-mono">Announced: {formatDate(deal.announcedDate)}</span>
             <span className="text-sm text-primary-500 font-mono">
               Outside: {daysUntilOutside > 0 ? `${daysUntilOutside}d` : 'CLOSED'}
             </span>
@@ -104,11 +104,11 @@ export function DealCardHeader({
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5 md:gap-4">
         <div>
           <div className="text-xs text-text-muted font-mono uppercase mb-1">Spread</div>
-          <div className="text-xl font-mono font-bold text-primary-500">{deal.currentSpread.toFixed(1)}%</div>
+          <div className="text-xl font-mono font-bold text-primary-500">{deal.grossSpread.toFixed(1)}%</div>
           <div className="text-xs text-text-muted font-mono">↑ 0.3% (24h)</div>
         </div>
         <div className="group relative">
-          <div className="text-xs text-text-muted font-mono uppercase mb-1 flex items-center gap-1">p_close_base</div>
+          <div className="text-xs text-text-muted font-mono uppercase mb-1 flex items-center gap-1">pCloseBase</div>
           <div className="flex items-baseline">
             <input
               type="number"
@@ -122,13 +122,13 @@ export function DealCardHeader({
         <div>
           <div className="text-xs text-text-muted font-mono uppercase mb-1">EV</div>
           <div className="text-xl font-mono font-bold text-primary-500">
-            {((deal.currentSpread * pCloseBase) / 100).toFixed(2)}%
+            {((deal.grossSpread * pCloseBase) / 100).toFixed(2)}%
           </div>
         </div>
         <div>
           <div className="text-xs text-text-muted font-mono uppercase mb-1">Deal Value</div>
           <div className="text-xl font-mono font-bold text-text-main">
-            ${(deal.reportedEquityTakeoverValue / 1e9).toFixed(1)}B
+            ${(deal.dealValue / 1e9).toFixed(1)}B
           </div>
         </div>
         <div className="group relative">

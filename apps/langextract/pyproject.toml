@@ -1,10 +1,10 @@
 [project]
 name = "j16z-langextract"
 version = "0.1.0"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.13"
 dependencies = [
     "langextract==1.1.1",
-    "bullmq>=2.19.5",
+    "bullmq==2.19.6",
     "redis>=5.0.0",
     "psycopg[binary]>=3.1.0",
     "psycopg-pool>=3.1.0",

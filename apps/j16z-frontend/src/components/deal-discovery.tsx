@@ -43,9 +43,9 @@ export function DealDiscovery() {
     const filtered = allDeals.filter(
       (deal) =>
         deal.symbol.toLowerCase().includes(ticker.toLowerCase()) ||
-        deal.acquirerSymbol.toLowerCase().includes(ticker.toLowerCase()) ||
-        deal.companyName.toLowerCase().includes(ticker.toLowerCase()) ||
-        deal.acquirerName.toLowerCase().includes(ticker.toLowerCase()),
+        deal.symbol.toLowerCase().includes(ticker.toLowerCase()) ||
+        deal.target.toLowerCase().includes(ticker.toLowerCase()) ||
+        deal.acquirer.toLowerCase().includes(ticker.toLowerCase()),
     );
     setResults(filtered);
     setIsSearching(false);
@@ -93,13 +93,13 @@ export function DealDiscovery() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="font-mono text-sm font-medium text-text-main">
-                    {deal.acquirerSymbol} → {deal.symbol}
+                    {deal.symbol} → {deal.symbol}
                   </div>
                   <div className="text-xs text-text-muted font-mono mt-1">
-                    {deal.acquirerName} / {deal.companyName}
+                    {deal.acquirer} / {deal.target}
                   </div>
                   <div className="text-xs text-text-dim font-mono mt-2">
-                    Status: {deal.status} • Spread: {deal.currentSpread.toFixed(1)}%
+                    Status: {deal.status} • Spread: {deal.grossSpread.toFixed(1)}%
                   </div>
                 </div>
                 <div className="text-primary-500 font-mono text-sm">→</div>

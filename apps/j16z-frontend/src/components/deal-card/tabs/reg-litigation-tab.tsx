@@ -49,10 +49,10 @@ export function RegLitigationTab({ events, deal }: RegLitigationTabProps) {
                     {format(new Date(event.timestamp), 'MMM d, yyyy')}
                   </span>
                 </div>
-                {event.summary && <p className="text-xs text-text-muted">{event.summary}</p>}
-                {event.subtype && (
+                {event.description && <p className="text-xs text-text-muted">{event.description}</p>}
+                {event.subType && (
                   <span className="inline-block mt-1 text-xs font-mono text-primary-500 bg-primary-500/10 px-2 py-0.5 rounded-full border border-primary-500/20">
-                    {event.subtype}
+                    {event.subType}
                   </span>
                 )}
               </div>
@@ -87,10 +87,10 @@ export function RegLitigationTab({ events, deal }: RegLitigationTabProps) {
                     {format(new Date(event.timestamp), 'MMM d, yyyy')}
                   </span>
                 </div>
-                {event.summary && <p className="text-xs text-text-muted">{event.summary}</p>}
-                {event.subtype && (
+                {event.description && <p className="text-xs text-text-muted">{event.description}</p>}
+                {event.subType && (
                   <span className="inline-block mt-1 text-xs font-mono text-text-muted bg-surface px-2 py-0.5 rounded-full border border-border">
-                    {event.subtype}
+                    {event.subType}
                   </span>
                 )}
               </div>

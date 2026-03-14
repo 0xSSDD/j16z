@@ -75,7 +75,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
     })),
     ...deals.map((deal) => ({
       id: `deal:${deal.id}`,
-      name: `${deal.acquirerSymbol} / ${deal.symbol}`,
+      name: `${deal.symbol} / ${deal.symbol}`,
       category: 'deal' as const,
       icon: TrendingUp,
       action: () => {
@@ -173,14 +173,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
   if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-100 flex items-start justify-center bg-black/50 pt-[15vh] backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-lg animate-in fade-in slide-in-from-top-4 overflow-hidden rounded-xl border border-border bg-surface shadow-2xl duration-200"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 z-100 flex items-start justify-center bg-black/50 pt-[15vh] backdrop-blur-sm">
+      <button type="button" aria-label="Close command palette" className="absolute inset-0" onClick={onClose} />
+      <div className="relative w-full max-w-lg animate-in fade-in slide-in-from-top-4 overflow-hidden rounded-xl border border-border bg-surface shadow-2xl duration-200">
         <div className="flex items-center border-b border-border bg-background/50 px-4 py-3">
           <Search className="mr-3 h-5 w-5 text-text-muted" />
           <input
@@ -207,7 +202,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
                 <>
                   <div className="px-3 py-2 text-[10px] font-mono text-text-dim uppercase tracking-wide">Recent</div>
                   {recentItems.map((command, idx) => (
-                    <div
+                    <button
+                      type="button"
                       key={command.id}
                       className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                         idx === selectedIndex
@@ -226,7 +222,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
                         <span className="text-[10px] font-mono opacity-60">Action</span>
                       )}
                       {idx === selectedIndex && <div className="ml-2 font-mono text-[10px] opacity-80">⏎</div>}
-                    </div>
+                    </button>
                   ))}
 
                   {/* Separator */}
@@ -239,7 +235,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
               {displayItems.map((command, idx) => {
                 const actualIndex = recentItems.length > 0 ? idx + recentItems.length : idx;
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={command.id}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                       actualIndex === selectedIndex
@@ -256,14 +253,15 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
                     {command.category === 'deal' && <span className="text-[10px] font-mono opacity-60">Deal</span>}
                     {command.category === 'action' && <span className="text-[10px] font-mono opacity-60">Action</span>}
                     {actualIndex === selectedIndex && <div className="ml-2 font-mono text-[10px] opacity-80">⏎</div>}
-                  </div>
+                  </button>
                 );
               })}
             </>
           ) : (
             /* Search Results - No Sections */
             displayItems.map((command, idx) => (
-              <div
+              <button
+                type="button"
                 key={command.id}
                 className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                   idx === selectedIndex
@@ -278,7 +276,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
                 {command.category === 'deal' && <span className="text-[10px] font-mono opacity-60">Deal</span>}
                 {command.category === 'action' && <span className="text-[10px] font-mono opacity-60">Action</span>}
                 {idx === selectedIndex && <div className="ml-2 font-mono text-[10px] opacity-80">⏎</div>}
-              </div>
+              </button>
             ))
           )}
         </div>

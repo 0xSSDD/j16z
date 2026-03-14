@@ -56,7 +56,7 @@ export async function handleEdgarPoll(job: Job): Promise<void> {
       // and create firm-scoped events. This is critical — per CONTEXT.md
       // locked decision, high-signal filings (S-4, DEFM14A) MUST auto-create
       // a deal record as ANNOUNCED.
-      const matchResult = await matchFilingToDeal(filing);
+      const matchResult = await matchFilingToDeal(filing, filing.origin === 'cik_scan');
 
       // Link filing to the matched/created deal
       if (matchResult.dealId) {
@@ -139,6 +139,7 @@ async function pollTrackedCiks(since: Date): Promise<FilingMetadata[]> {
           filedDate,
           primaryDocument,
           filerCik: cik,
+          origin: 'cik_scan',
         };
         if (filerName) filingEntry.filerName = filerName;
         allFilings.push(filingEntry);
@@ -189,6 +190,7 @@ async function broadScanForNewDeals(since: Date): Promise<FilingMetadata[]> {
         filedDate: hit._source.file_date,
         primaryDocument: '',
         filerCik: hit._source.ciks?.[0] ?? '',
+        origin: 'efts_broad',
       };
       const displayName = hit._source.display_names?.[0];
       if (displayName)

@@ -109,7 +109,7 @@ export function InboxTimeline({
           // Fallback: compute client-side for pre-extraction events
           const { score, level, badge } = calculateSeverityWithLevel({
             type: event.type as EventType,
-            subtype: event.subtype,
+            subType: event.subType,
             daysToOutsideDate: 45, // TODO: Calculate from deal data
             spreadMoveBps: 0, // TODO: Get from event data if SPREAD_MOVE
           });
@@ -170,7 +170,7 @@ export function InboxTimeline({
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       const matchesTitle = event.title.toLowerCase().includes(query);
-      const matchesSummary = event.summary?.toLowerCase().includes(query);
+      const matchesSummary = event.description?.toLowerCase().includes(query);
       const matchesType = event.type.toLowerCase().includes(query);
       if (!matchesTitle && !matchesSummary && !matchesType) {
         return false;
@@ -309,11 +309,11 @@ export function InboxTimeline({
                       >
                         {EVENT_TYPE_CONFIG[event.type]?.label ?? event.type}
                       </span>
-                      {event.subtype && (
+                      {event.subType && (
                         <>
                           <span className="text-xs text-text-dim">·</span>
                           <span className="text-xs text-text-dim font-mono">
-                            {SUBTYPE_LABELS[event.subtype] ?? event.subtype}
+                            {SUBTYPE_LABELS[event.subType] ?? event.subType}
                           </span>
                         </>
                       )}
@@ -322,7 +322,7 @@ export function InboxTimeline({
                       </span>
                     </div>
                     <h3 className="font-medium text-sm text-text-main mb-1 truncate">{event.title}</h3>
-                    <p className="text-xs text-text-muted line-clamp-2">{event.summary || 'No summary available'}</p>
+                    <p className="text-xs text-text-muted line-clamp-2">{event.description || 'No summary available'}</p>
                   </div>
                 </div>
               </button>

@@ -53,7 +53,7 @@ export default function MemosPage() {
       const content = generateMemoContent(deal, clauses, events);
       const memo = await createMemo({
         dealId: deal.id,
-        title: `${deal.acquirerName} / ${deal.companyName} — Deal Memo`,
+        title: `${deal.acquirer} / ${deal.target} — Deal Memo`,
         content: content as Record<string, unknown>,
       });
       router.push(`/app/memos/${memo.id}`);
@@ -130,10 +130,10 @@ export default function MemosPage() {
                         className="flex w-full flex-col gap-0.5 px-3 py-2.5 text-left hover:bg-surfaceHighlight transition-colors disabled:opacity-50 border-b border-border last:border-b-0"
                       >
                         <span className="text-sm text-text-main font-medium">
-                          {deal.acquirerName} / {deal.companyName}
+                          {deal.acquirer} / {deal.target}
                         </span>
                         <span className="text-xs text-text-dim font-mono">
-                          {deal.acquirerSymbol} → {deal.symbol}
+                          {deal.symbol} → {deal.symbol}
                         </span>
                       </button>
                     ))

@@ -166,17 +166,17 @@ export function InboxSidePanel({ eventId, onClose }: InboxSidePanelProps) {
                 );
               })()}
             </div>
-            {event.subtype && (
+            {event.subType && (
               <div className="flex items-center gap-2 text-xs text-text-muted">
                 <span>Subtype:</span>
                 <span className="inline-flex items-center rounded-full bg-primary-500/10 px-2 py-0.5 text-xs font-medium text-primary-400 border border-primary-500/20">
-                  {SUBTYPE_LABELS[event.subtype] ?? event.subtype}
+                  {SUBTYPE_LABELS[event.subType] ?? event.subType}
                 </span>
               </div>
             )}
             <div className="flex items-center gap-2 text-xs text-text-muted">
               <span>Source:</span>
-              <span className="text-text-main">{SOURCE_LABELS[event.sourceType] ?? event.sourceType}</span>
+              <span className="text-text-main">{SOURCE_LABELS[event.source] ?? event.source}</span>
             </div>
             {event.dealId && (
               <div className="flex items-center gap-2 text-xs text-text-muted">
@@ -188,7 +188,7 @@ export function InboxSidePanel({ eventId, onClose }: InboxSidePanelProps) {
 
           <div className="border-t border-border pt-4">
             <h3 className="text-sm font-bold text-text-main mb-2">SUMMARY</h3>
-            <p className="text-sm text-text-muted leading-relaxed">{event.summary || 'No summary available'}</p>
+            <p className="text-sm text-text-muted leading-relaxed">{event.description || 'No summary available'}</p>
           </div>
 
           {event.content && (

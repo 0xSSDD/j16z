@@ -30,7 +30,7 @@ interface MatchResult {
  * Returns the matched/created deal ID and all firm IDs that track it.
  * Returns null dealId if filing doesn't match any deal and isn't high-signal.
  */
-export async function matchFilingToDeal(filing: FilingMetadata): Promise<MatchResult> {
+export async function matchFilingToDeal(filing: FilingMetadata, allowAutoCreate = false): Promise<MatchResult> {
   // Step 1: Try to match by CIK — check if any deal has this CIK as acquirer or target
   if (filing.filerCik) {
     const matchedDeals = await adminDb
@@ -54,9 +54,7 @@ export async function matchFilingToDeal(filing: FilingMetadata): Promise<MatchRe
     }
   }
 
-  // Step 2: No CIK match — for high-signal filings, auto-create a deal record
-  // Per CONTEXT.md locked decision: S-4, DEFM14A auto-create deal as ANNOUNCED
-  if (HIGH_SIGNAL_TYPES.has(filing.filingType) && filing.filerName) {
+  if (allowAutoCreate && HIGH_SIGNAL_TYPES.has(filing.filingType) && filing.filerName && filing.filerCik) {
     // Check if an auto-created deal already exists for this CIK (avoid duplicates)
     if (filing.filerCik) {
       const existingAutoDeals = await adminDb

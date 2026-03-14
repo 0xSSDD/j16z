@@ -43,11 +43,11 @@ function bulletList(items: string[]): JSONContent {
 
 function dealTermsTable(deal: Deal): JSONContent {
   const rows: [string, string][] = [
-    ['Acquirer', deal.acquirerName ?? '—'],
-    ['Target', deal.companyName ?? '—'],
+    ['Acquirer', deal.acquirer ?? '—'],
+    ['Target', deal.target ?? '—'],
     ['Consideration', deal.considerationType ?? '—'],
-    ['Value', deal.reportedEquityTakeoverValue ? `$${(deal.reportedEquityTakeoverValue / 1e9).toFixed(1)}B` : '—'],
-    ['Premium', deal.p_close_base ? `${deal.p_close_base}%` : '—'],
+    ['Value', deal.dealValue ? `$${(deal.dealValue / 1e9).toFixed(1)}B` : '—'],
+    ['Premium', deal.pCloseBase ? `${deal.pCloseBase}%` : '—'],
     ['Outside Date', deal.outsideDate ?? '—'],
     ['Status', deal.status ?? '—'],
   ];
@@ -102,7 +102,7 @@ async function buildSectionNodes(sectionTitle: RefreshableSection, dealId: strin
       const agency = events.filter((e) => e.type === 'AGENCY');
       const body =
         agency.length > 0
-          ? bulletList(agency.map((e) => `[${new Date(e.timestamp).toLocaleDateString()}] ${e.title}: ${e.summary}`))
+          ? bulletList(agency.map((e) => `[${new Date(e.timestamp).toLocaleDateString()}] ${e.title}: ${e.description}`))
           : paragraph('No regulatory events recorded.');
       return [heading, body];
     }
@@ -111,7 +111,7 @@ async function buildSectionNodes(sectionTitle: RefreshableSection, dealId: strin
       const court = events.filter((e) => e.type === 'COURT');
       const body =
         court.length > 0
-          ? bulletList(court.map((e) => `[${new Date(e.timestamp).toLocaleDateString()}] ${e.title}: ${e.summary}`))
+          ? bulletList(court.map((e) => `[${new Date(e.timestamp).toLocaleDateString()}] ${e.title}: ${e.description}`))
           : paragraph('No litigation events recorded.');
       return [heading, body];
     }

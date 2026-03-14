@@ -13,13 +13,13 @@ const mockEvent: Event = {
   dealId: 'deal-1',
   timestamp: '2026-03-14T00:00:00Z',
   type: 'AGENCY',
-  subtype: 'FTC Filing',
+  subType: 'FTC Filing',
   severity: 'CRITICAL',
   title: 'FTC Issues Second Request',
-  summary: 'FTC has issued a Second Request for additional information.',
+  description: 'FTC has issued a Second Request for additional information.',
   content: '',
   sourceUrl: 'https://ftc.gov',
-  sourceType: 'FTC_GOV',
+  source: 'FTC_GOV',
   materialityScore: 0.9,
 };
 
@@ -110,7 +110,7 @@ describe('memo-sections', () => {
 
   it('truncates summary over 300 chars when formatting for insertion', () => {
     const longSummary = 'x'.repeat(400);
-    const formatted = formatEventForInsertion(createEvent({ id: 'evt-long', summary: longSummary }));
+    const formatted = formatEventForInsertion(createEvent({ id: 'evt-long', description: longSummary }));
 
     const block = formatted[0];
     if (!block || !Array.isArray(block.content)) {

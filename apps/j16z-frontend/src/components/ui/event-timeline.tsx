@@ -66,11 +66,11 @@ export function EventTimeline({ events }: EventTimelineProps) {
                     {event.severity}
                   </span>
                   <span className="px-2 py-0.5 rounded text-xs font-mono bg-surface text-text-muted">
-                    {SUBTYPE_LABELS[event.subtype] ?? event.subtype}
+                    {SUBTYPE_LABELS[event.subType] ?? event.subType}
                   </span>
                 </div>
                 <h4 className="font-mono text-sm font-medium text-text-main mb-2">{event.title}</h4>
-                <p className="text-sm text-text-muted leading-relaxed">{event.summary}</p>
+                <p className="text-sm text-text-muted leading-relaxed">{event.description}</p>
                 {event.sourceUrl && (
                   <a
                     href={event.sourceUrl}

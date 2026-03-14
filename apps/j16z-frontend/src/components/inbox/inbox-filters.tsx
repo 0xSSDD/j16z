@@ -17,6 +17,11 @@ interface InboxFiltersProps {
   onSearchChange: (query: string) => void;
 }
 
+interface StoredWatchlist {
+  id: string;
+  name: string;
+}
+
 export function InboxFilters({ filters, onFiltersChange, searchQuery, onSearchChange }: InboxFiltersProps) {
   const [deals, setDeals] = useState<Array<{ id: string; name: string }>>([]);
   const [watchlists, setWatchlists] = useState<Array<{ id: string; name: string }>>([]);
@@ -36,7 +41,7 @@ export function InboxFilters({ filters, onFiltersChange, searchQuery, onSearchCh
       try {
         const { getDeals } = await import('@/lib/api');
         const dealsData = await getDeals();
-        setDeals(dealsData.map((d) => ({ id: d.id, name: d.companyName })));
+        setDeals(dealsData.map((d) => ({ id: d.id, name: d.target })));
       } catch (error) {
         console.error('Failed to load deals:', error);
       }
@@ -47,8 +52,8 @@ export function InboxFilters({ filters, onFiltersChange, searchQuery, onSearchCh
       const stored = localStorage.getItem('watchlists');
       if (stored) {
         try {
-          const parsed = JSON.parse(stored);
-          setWatchlists(parsed.map((w: any) => ({ id: w.id, name: w.name })));
+          const parsed = JSON.parse(stored) as StoredWatchlist[];
+          setWatchlists(parsed.map((w) => ({ id: w.id, name: w.name })));
         } catch (error) {
           console.error('Failed to load watchlists:', error);
         }
@@ -181,6 +186,7 @@ export function InboxFilters({ filters, onFiltersChange, searchQuery, onSearchCh
 
         {hasActiveFilters && (
           <button
+            type="button"
             onClick={clearAllFilters}
             className="flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-text-main"
           >

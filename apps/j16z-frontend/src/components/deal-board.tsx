@@ -132,15 +132,15 @@ export function DealBoard() {
 
   const columns: ColumnDef<Deal>[] = [
     {
-      accessorKey: 'companyName',
+      accessorKey: 'target',
       header: 'Deal',
       cell: ({ row }) => (
         <div className="flex flex-col gap-1">
           <div className="font-medium text-text-main">
-            {row.original.acquirerSymbol} → {row.original.symbol}
+            {row.original.symbol} → {row.original.symbol}
           </div>
           <div className="text-xs text-text-muted">
-            {row.original.acquirerName} / {row.original.companyName}
+            {row.original.acquirer} / {row.original.target}
           </div>
         </div>
       ),
@@ -167,7 +167,7 @@ export function DealBoard() {
       },
     },
     {
-      accessorKey: 'currentSpread',
+      accessorKey: 'grossSpread',
       header: () => (
         <Tooltip content="The difference between the deal price and current trading price. Higher spreads indicate greater uncertainty or risk.">
           <span className="cursor-help border-b border-dotted border-text-muted">Spread</span>
@@ -175,7 +175,7 @@ export function DealBoard() {
       ),
       cell: ({ row }) => {
         const snapshot = marketSnapshots[row.original.id];
-        const spreadValue = snapshot ? Number(snapshot.spread) : row.original.currentSpread;
+        const spreadValue = snapshot ? Number(snapshot.spread) : row.original.grossSpread;
         return (
           <div className="flex flex-col gap-0.5">
             <div className="flex items-center gap-1.5">
@@ -194,22 +194,22 @@ export function DealBoard() {
       },
     },
     {
-      accessorKey: 'p_close_base',
+      accessorKey: 'pCloseBase',
       header: () => (
         <Tooltip content="Probability of close: The estimated likelihood that the deal will successfully complete based on regulatory, financial, and market factors.">
           <span className="cursor-help border-b border-dotted border-text-muted">p_close</span>
         </Tooltip>
       ),
-      cell: ({ row }) => <span className="font-medium">{row.original.p_close_base}%</span>,
+      cell: ({ row }) => <span className="font-medium">{row.original.pCloseBase}%</span>,
     },
     {
-      accessorKey: 'ev',
+      accessorKey: 'annualizedReturn',
       header: () => (
         <Tooltip content="Expected Value: The risk-adjusted return calculated as (Spread × p_close) - (Downside × (1 - p_close)). Represents the average expected return.">
           <span className="cursor-help border-b border-dotted border-text-muted">EV</span>
         </Tooltip>
       ),
-      cell: ({ row }) => <span className="font-medium text-primary-500">{row.original.ev.toFixed(2)}%</span>,
+      cell: ({ row }) => <span className="font-medium text-primary-500">{row.original.annualizedReturn.toFixed(2)}%</span>,
     },
     {
       accessorKey: 'regulatoryFlags',
@@ -289,22 +289,22 @@ export function DealBoard() {
 
       // Spread filter - if any spread filter is selected, deal must meet at least one
       if (spreadFilter.length > 0) {
-        const meetsSpread = spreadFilter.some((threshold) => deal.currentSpread >= Number.parseFloat(threshold));
+        const meetsSpread = spreadFilter.some((threshold) => deal.grossSpread >= Number.parseFloat(threshold));
         if (!meetsSpread) return false;
       }
 
       // p_close filter - if any p_close filter is selected, deal must meet at least one
       if (pCloseFilter.length > 0) {
-        const meetsPClose = pCloseFilter.some((threshold) => deal.p_close_base >= Number.parseFloat(threshold));
+        const meetsPClose = pCloseFilter.some((threshold) => deal.pCloseBase >= Number.parseFloat(threshold));
         if (!meetsPClose) return false;
       }
 
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         const matchesSymbol = deal.symbol.toLowerCase().includes(query);
-        const matchesAcquirer = deal.acquirerSymbol.toLowerCase().includes(query);
-        const matchesCompany = deal.companyName.toLowerCase().includes(query);
-        const matchesAcquirerName = deal.acquirerName.toLowerCase().includes(query);
+        const matchesAcquirer = deal.symbol.toLowerCase().includes(query);
+        const matchesCompany = deal.target.toLowerCase().includes(query);
+        const matchesAcquirerName = deal.acquirer.toLowerCase().includes(query);
         if (!matchesSymbol && !matchesAcquirer && !matchesCompany && !matchesAcquirerName) {
           return false;
         }
@@ -350,18 +350,18 @@ export function DealBoard() {
   const exportDealBoardCSV = () => {
     const data = filteredDeals.map((deal) => {
       const snapshot = marketSnapshots[deal.id];
-      const spreadPct = snapshot ? Number(snapshot.spread) : deal.currentSpread;
+      const spreadPct = snapshot ? Number(snapshot.spread) : deal.grossSpread;
       const currentPx = snapshot ? Number(snapshot.targetPrice) : null;
       return {
-        deal_name: `${deal.acquirerName} / ${deal.companyName}`,
-        acquirer: deal.acquirerName,
-        target: deal.companyName,
-        offer_price: deal.reportedEquityTakeoverValue ?? '',
+        deal_name: `${deal.acquirer} / ${deal.target}`,
+        acquirer: deal.acquirer,
+        target: deal.target,
+        offer_price: deal.dealValue ?? '',
         current_price: currentPx != null ? Number(currentPx).toFixed(2) : '',
         spread_pct: spreadPct != null ? Number(spreadPct).toFixed(2) : '',
-        p_close: deal.p_close_base ?? '',
+        p_close: deal.pCloseBase ?? '',
         status: deal.status,
-        announced_date: deal.announcementDate ?? '',
+        announced_date: deal.announcedDate ?? '',
         outside_date: deal.outsideDate ?? '',
         filing_count: filingCounts[deal.id] ?? 0,
         litigation_count: deal.litigationCount ?? 0,

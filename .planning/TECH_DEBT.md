@@ -1,51 +1,58 @@
 # Tech Debt
 
-Captured during end-to-end UAT session, March 2026.
+Captured during end-to-end UAT session, March 2026. Updated with resolutions.
 
-## Critical — Fix Soon
+## ✅ Resolved
 
 ### 1. Zod schemas written without testing against real APIs
-The EDGAR EFTS and Submissions API Zod schemas used wrong field names (`entity_name` vs `display_names`, `accession_no` vs `_id`, `form_type` vs `root_forms`, `cik` as number vs string). Blocked the entire ingestion pipeline. Schemas should be validated against real API responses before shipping.
+**Fixed.** EFTS schema now uses real field names (`display_names`, `root_forms`, `ciks`, `_id`). Submissions schema accepts `cik` as string or number. Accession number extracted from `_id` regex. EFTS URL no longer requests nonexistent `_source` fields.
 
-### 2. Custom Access Token Hook requires manual Dashboard activation
-The auth flow depends on a Supabase Dashboard toggle being enabled. Without it: no `firm_id` in JWT → 403 on all data routes → infinite onboarding loop. Three separate fallback mechanisms were needed (DB lookup in admin middleware, client-side firm check in app-layout, 409 handler in onboarding form). Consider replacing with a simple `/api/auth/me` DB check instead of JWT claim dependency.
+### 2. Custom Access Token Hook — single point of failure
+**Fixed.** `firmContextMiddleware` now queries `firm_members` directly by `userId` (DB-first). No dependency on JWT `app_metadata.firm_id`. The hook can still enrich JWTs for optimization, but it's no longer on the critical path. Three fallback mechanisms removed — one authoritative path.
 
 ### 3. Frontend types ≠ backend types
-`acquirerName` vs `acquirer`, `companyName` vs `target`, `currentSpread` vs `grossSpread`, `p_close_base` vs `pCloseBase`. Required a full mapping layer in `api.ts` (`mapBackendDeal`, `mapBackendEvent`). The frontend Deal/Event types were designed for mock data. Should be aligned to match the DB schema directly.
+**Fixed.** Frontend `Deal` and `Event` types now match the backend schema exactly (`acquirer` not `acquirerName`, `target` not `companyName`, `grossSpread` not `currentSpread`, `description` not `summary`). The `mapBackendDeal()` and `mapBackendEvent()` mapping layer deleted. All 15+ component files updated.
 
-### 4. Components imported MOCK_* directly instead of through api.ts
-10 components bypassed the `api.ts` abstraction and imported `MOCK_DEALS`, `MOCK_EVENTS` directly from constants. Even with `USE_MOCK_DATA=false`, they never called the API. The mock gate should only exist in `api.ts` — components should never import from constants.
-
-## Medium — Address in Next Sprint
+### 4. Components imported MOCK_* directly
+**Fixed.** All 10 components rewired through `api.ts`. Components never import from constants.
 
 ### 5. EFTS broad scan auto-creates noise deals
-The broad scan found 27 filings and auto-created 12 unclaimed deals for random companies nobody asked for (Community West Bancshares, Pelican Holdco, GigCapital7). For a platform tracking 7-9 specific deals, CIK-based polling is sufficient. The broad scan should either be disabled or restricted to only create events (not deals) for unmatched filings.
+**Fixed.** Added `origin` field to `FilingMetadata` (`cik_scan` | `efts_broad`). `matchFilingToDeal` now takes `allowAutoCreate` param — only CIK-scanned filings can auto-create deals. EFTS broad scan results only match existing deals.
 
 ### 6. RLS declared but not used
-The "3-layer security model" includes Postgres RLS policies, but every route handler uses `adminDb` (service-role, bypasses RLS). Layer 4 is documentation theater. Either switch routes to use `db` (RLS client) and remove manual WHERE clauses, or drop the RLS policies to avoid false confidence.
+**Fixed.** Created `withRLS()` helper in `db/rls.ts` — wraps queries in a transaction that sets `request.jwt.claims` via `set_config()` and switches to `authenticated` role. All 9 tenant-scoped route files migrated from `adminDb` to `withRLS`. RLS is now REAL enforcement. WHERE clauses kept as defense-in-depth.
 
-### 7. 10 cron schedules for 3 working features
-`ftc_poll`, `courtlistener_poll`, `market_data_poll`, `doj_antitrust_rss`, `doj_civil_rss`, `ftc_competition_rss`, `rss_poll`, `digest_daily`, `digest_weekly` are registered and running but their handlers are stubs or the polled sources don't produce actionable data. They generate noise in the admin panel and eat Redis memory.
+### 7. 10 cron schedules — NOT stubs
+**No change needed.** Investigation showed all 10 handlers are real implementations (99–355 lines each): FTC poller, DOJ RSS, CourtListener, market data, RSS feeds, digest handlers. The schedules are legitimate.
 
 ### 8. Dual-worker architecture fragility
-Node.js + Python workers subscribe to the same BullMQ queue, filtering by job type. The Python `bullmq` package broke on Python 3.14 (`asyncio.wait` rejects empty sets — required monkey-patching the installed package). Consider: single Node.js worker calling Gemini REST API directly, or a subprocess model.
+**Mitigated.** Pinned `bullmq==2.19.6` (exact version) and `requires-python>=3.10,<3.13` in both `pyproject.toml` and `requirements.txt`. Python 3.14's `asyncio.wait` breaking change is blocked by the version cap.
 
 ### 9. CIK leading zeros in SEC Archive URLs
-SEC Archives paths use CIKs WITHOUT leading zeros (`/data/1038074/`), but the submissions API and EFTS return them WITH leading zeros (`0001038074`). `buildFilingUrl` and `buildIndexUrl` must strip them. This caused 404s on filing downloads.
-
-## Low — Cleanup When Convenient
+**Fixed.** `buildFilingUrl` and `buildIndexUrl` now strip leading zeros from CIK before constructing URLs.
 
 ### 10. Materiality scoring in two languages
-Python (authoritative) and TypeScript (frontend fallback) implementations must stay in sync, with cross-language parity tests. Pick one. The Python worker is the authority — the frontend should display what the backend computed.
+**Fixed.** Deleted dead `materiality-scoring.ts` from frontend (0 imports). Python is the authoritative scorer.
 
 ### 11. 1381-line mock constants file
-`apps/j16z-frontend/src/lib/constants.ts` is 1381 lines of hand-crafted mock data. Now that all components use `api.ts`, this file is only used by `landing-hero.tsx` (marketing page). Consider extracting the landing page mock to a small local constant and deleting the rest.
+**Fixed.** Deleted `constants.ts` (0 imports). All components use `api.ts`.
 
 ### 12. Deal board row click off-by-one
-The `onClickCapture` handler assumed header rows were in the same parent as data rows (checking `index > 0`). DataTable separates them into `thead`/`tbody`, so `index 0` is the first data row. Fixed to `index >= 0`, but the click delegation pattern via `onClickCapture` on the table body is fragile — consider using per-row onClick handlers instead.
+**Fixed.** Changed `index > 0` to `index >= 0` and `paginatedDeals[index - 1]` to `paginatedDeals[index]`.
 
-### 13. Signup "check email" message with autoconfirm
-When Supabase has autoconfirm enabled, `signUp()` returns a session immediately but the frontend showed "Check your email to confirm." Fixed to detect `data.session` and auto-redirect, but the original code didn't account for autoconfirm at all.
+### 13. Signup "check email" with autoconfirm
+**Fixed.** Login form now checks `data.session` after `signUp()` — auto-redirects to onboarding if session exists.
 
 ### 14. Hardcoded sidebar firm name
-`app-layout.tsx` had `David's Analyst` hardcoded in the sidebar instead of fetching from API. Fixed to use `/api/auth/me`, but this was a placeholder that should have been dynamic from the start.
+**Fixed.** Sidebar fetches firm name from `/api/auth/me` dynamically.
+
+## Remaining — Not Addressed
+
+### Python worker monkey-patch on Python 3.14
+The installed `bullmq` package site-packages was monkey-patched to handle `asyncio.wait` empty set. This is a local dev workaround only — the version pin (`<3.13`) prevents this in deployment. If the project needs Python 3.13+, migrate to option C (Node.js spawns Python subprocess per extraction) per Oracle recommendation.
+
+### Gemini API rate limiting (free tier)
+LLM extraction pipeline hits 5 req/min quota on free tier. Upgrade API key to paid plan, or add per-model rate limiting in extraction pipelines.
+
+### Old test firm data in Supabase
+Multiple orphaned firms from UAT iterations (Arpans rich firm, UAT Test Firm, old UAT Capital). Should be cleaned up via admin tooling or direct DB cleanup.

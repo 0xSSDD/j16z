@@ -22,7 +22,7 @@ export interface AlertPayload {
   materialityTier: MaterialityTier;
   dealId: string;
   dealName?: string;
-  currentSpread?: number;
+  grossSpread?: number;
   pClose?: number;
   daysToOutside?: number;
   timestamp: string;
@@ -117,7 +117,7 @@ export function formatAlertPayload(payload: AlertPayload): {
   body: string;
   slackMessage: string;
 } {
-  const { eventTitle, materialityTier, materialityScore, dealName, currentSpread, timestamp } = payload;
+  const { eventTitle, materialityTier, materialityScore, dealName, grossSpread, timestamp } = payload;
 
   const badge =
     materialityTier === MaterialityTier.HIGH ? '🔴' : materialityTier === MaterialityTier.MEDIUM ? '🟠' : '🟡';
@@ -130,7 +130,7 @@ New ${materialityTier} materiality event detected:
 Event: ${eventTitle}
 Score: ${materialityScore}/100
 Deal: ${dealName || payload.dealId}
-${currentSpread ? `Current Spread: ${currentSpread}%` : ''}
+${grossSpread ? `Current Spread: ${grossSpread}%` : ''}
 Time: ${new Date(timestamp).toLocaleString()}
 
 View in Inbox: ${payload.inboxLink}
@@ -141,7 +141,7 @@ ${badge} *${materialityTier} Alert*
 
 *${eventTitle}*
 Score: ${materialityScore}/100 | Deal: ${dealName || payload.dealId}
-${currentSpread ? `Spread: ${currentSpread}%` : ''}
+${grossSpread ? `Spread: ${grossSpread}%` : ''}
 
 <${payload.inboxLink}|View in Inbox>
   `.trim();

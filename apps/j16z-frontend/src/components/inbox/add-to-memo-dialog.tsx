@@ -81,7 +81,7 @@ export function AddToMemoDialog({ event, open, onOpenChange }: AddToMemoDialogPr
       const content = generateMemoContent(deal, clauses, events);
       const memo = await createMemo({
         dealId: event.dealId,
-        title: `${deal.acquirerName} / ${deal.companyName} Memo`,
+        title: `${deal.acquirer} / ${deal.target} Memo`,
         content: content as Record<string, unknown>,
       });
 
@@ -166,7 +166,7 @@ export function AddToMemoDialog({ event, open, onOpenChange }: AddToMemoDialogPr
             <p className="text-sm text-text-main">
               Deal:{' '}
               <span className="text-text-muted">
-                {deal ? `${deal.acquirerName} / ${deal.companyName}` : event.dealId}
+                {deal ? `${deal.acquirer} / ${deal.target}` : event.dealId}
               </span>
             </p>
 
@@ -239,8 +239,8 @@ export function AddToMemoDialog({ event, open, onOpenChange }: AddToMemoDialogPr
                 <p className="text-sm font-medium text-text-main">
                   [{formatEventDate(event.timestamp)}] {event.title}
                 </p>
-                <p className="text-sm text-text-muted">{event.summary}</p>
-                <p className="text-xs text-text-muted">- Source: {event.sourceType}</p>
+                <p className="text-sm text-text-muted">{event.description}</p>
+                <p className="text-xs text-text-muted">- Source: {event.source}</p>
               </blockquote>
             </div>
           </div>

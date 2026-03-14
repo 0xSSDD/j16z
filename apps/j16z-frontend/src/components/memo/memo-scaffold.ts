@@ -53,11 +53,11 @@ function blockquote(text: string, citation?: string): JSONContent {
 
 function dealTermsTable(deal: Deal): JSONContent {
   const rows = [
-    ['Acquirer', deal.acquirerName ?? '—'],
-    ['Target', deal.companyName ?? '—'],
+    ['Acquirer', deal.acquirer ?? '—'],
+    ['Target', deal.target ?? '—'],
     ['Consideration', deal.considerationType ?? '—'],
-    ['Value', deal.reportedEquityTakeoverValue ? `$${(deal.reportedEquityTakeoverValue / 1e9).toFixed(1)}B` : '—'],
-    ['Premium', deal.p_close_base ? `${deal.p_close_base}%` : '—'],
+    ['Value', deal.dealValue ? `$${(deal.dealValue / 1e9).toFixed(1)}B` : '—'],
+    ['Premium', deal.pCloseBase ? `${deal.pCloseBase}%` : '—'],
     ['Outside Date', deal.outsideDate ?? '—'],
     ['Status', deal.status ?? '—'],
   ];
@@ -104,17 +104,15 @@ export function generateMemoContent(deal: Deal, clauses: Clause[], events: Event
   const courtEvents = events.filter((e) => e.type === 'COURT');
 
   // Executive Summary narrative
-  const announcedDate = deal.announcementDate
-    ? new Date(deal.announcementDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  const announcedDate = deal.announcedDate
+    ? new Date(deal.announcedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
     : 'unknown date';
-  const dealValueStr = deal.reportedEquityTakeoverValue
-    ? `$${(deal.reportedEquityTakeoverValue / 1e9).toFixed(1)}B`
-    : 'undisclosed consideration';
-  const summaryText = `${deal.acquirerName} announced its acquisition of ${deal.companyName} on ${announcedDate} in a ${deal.considerationType.toLowerCase()} transaction valued at ${dealValueStr}. The deal is currently ${deal.status.toLowerCase().replace(/_/g, ' ')} with an outside date of ${deal.outsideDate ?? 'TBD'}.`;
+  const dealValueStr = deal.dealValue ? `$${(deal.dealValue / 1e9).toFixed(1)}B` : 'undisclosed consideration';
+  const summaryText = `${deal.acquirer} announced its acquisition of ${deal.target} on ${announcedDate} in a ${deal.considerationType.toLowerCase()} transaction valued at ${dealValueStr}. The deal is currently ${deal.status.toLowerCase().replace(/_/g, ' ')} with an outside date of ${deal.outsideDate ?? 'TBD'}.`;
 
   const docContent: JSONContent[] = [
     // Title
-    heading(1, `${deal.acquirerName} / ${deal.companyName} -- Deal Memo`),
+    heading(1, `${deal.acquirer} / ${deal.target} -- Deal Memo`),
 
     // Executive Summary
     heading(2, 'Executive Summary'),
@@ -127,13 +125,17 @@ export function generateMemoContent(deal: Deal, clauses: Clause[], events: Event
     // Regulatory Status
     heading(2, 'Regulatory Status'),
     agencyEvents.length > 0
-      ? bulletList(agencyEvents.map((e) => `[${new Date(e.timestamp).toLocaleDateString()}] ${e.title}: ${e.summary}`))
+      ? bulletList(
+          agencyEvents.map((e) => `[${new Date(e.timestamp).toLocaleDateString()}] ${e.title}: ${e.description}`),
+        )
       : paragraph('No regulatory events recorded.'),
 
     // Litigation
     heading(2, 'Litigation'),
     courtEvents.length > 0
-      ? bulletList(courtEvents.map((e) => `[${new Date(e.timestamp).toLocaleDateString()}] ${e.title}: ${e.summary}`))
+      ? bulletList(
+          courtEvents.map((e) => `[${new Date(e.timestamp).toLocaleDateString()}] ${e.title}: ${e.description}`),
+        )
       : paragraph('No litigation events recorded.'),
 
     // Key Clauses

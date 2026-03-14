@@ -102,7 +102,7 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
   const exportMarkdown = () => {
     exportTextFile(
       content,
-      `${deal.acquirerSymbol}-${deal.symbol}-memo-${formatDateForFilename()}.md`,
+      `${deal.symbol}-${deal.symbol}-memo-${formatDateForFilename()}.md`,
       'text/markdown',
     );
   };
@@ -142,7 +142,7 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${deal.acquirerSymbol}-${deal.symbol}-memo-${formatDateForFilename()}.docx`;
+    a.download = `${deal.symbol}-${deal.symbol}-memo-${formatDateForFilename()}.docx`;
     a.click();
   };
 
@@ -159,7 +159,7 @@ export function ResearchDraft({ dealId }: ResearchDraftProps) {
             ← Back to Deal
           </button>
           <h1 className="text-lg font-mono font-bold text-text-main">
-            Research Draft: {deal.acquirerSymbol} / {deal.symbol}
+            Research Draft: {deal.symbol} / {deal.symbol}
           </h1>
           <span className="text-xs text-text-muted font-mono">
             {events.length} event{events.length !== 1 ? 's' : ''} • {clauses.length} clause
@@ -209,16 +209,16 @@ function generateDraft(deal: Deal, events: Event[], clauses: Clause[]): string {
   const regulatoryEvents = events.filter((e) => e.type === 'AGENCY');
   const litigationEvents = events.filter((e) => e.type === 'COURT');
 
-  return `# ${deal.acquirerName} / ${deal.companyName} - M&A Analysis
+  return `# ${deal.acquirer} / ${deal.target} - M&A Analysis
 
 **Date:** ${formatDate(new Date())}
 **Status:** ${deal.status}
-**Deal Value:** $${(deal.reportedEquityTakeoverValue / 1e9).toFixed(1)}B
+**Deal Value:** $${(deal.dealValue / 1e9).toFixed(1)}B
 **Consideration:** ${deal.considerationType}
 
 ## Executive Summary
 
-${deal.acquirerName} announced its acquisition of ${deal.companyName} on ${formatDate(deal.announcementDate)} for approximately $${(deal.reportedEquityTakeoverValue / 1e9).toFixed(1)} billion in ${deal.considerationType.toLowerCase()} consideration. The current deal spread is ${deal.currentSpread.toFixed(1)}%, with an estimated probability of close at ${deal.p_close_base}%, yielding an expected value of ${deal.ev.toFixed(2)}%.
+${deal.acquirer} announced its acquisition of ${deal.target} on ${formatDate(deal.announcedDate)} for approximately $${(deal.dealValue / 1e9).toFixed(1)} billion in ${deal.considerationType.toLowerCase()} consideration. The current deal spread is ${deal.grossSpread.toFixed(1)}%, with an estimated probability of close at ${deal.pCloseBase}%, yielding an expected value of ${deal.annualizedReturn.toFixed(2)}%.
 
 ## Deal Terms
 
@@ -230,7 +230,7 @@ ${
   regulatoryEvents.length > 0
     ? `The transaction is subject to regulatory review by multiple jurisdictions. Key developments include:
 
-${regulatoryEvents.map((e) => `- **${formatDate(e.timestamp)}:** ${e.title} - ${e.summary}`).join('\n')}`
+${regulatoryEvents.map((e) => `- **${formatDate(e.timestamp)}:** ${e.title} - ${e.description}`).join('\n')}`
     : 'No significant regulatory issues identified.'
 }
 
@@ -242,7 +242,7 @@ ${
   litigationEvents.length > 0
     ? `The transaction faces litigation challenges:
 
-${litigationEvents.map((e) => `- **${formatDate(e.timestamp)}:** ${e.title} - ${e.summary}`).join('\n')}`
+${litigationEvents.map((e) => `- **${formatDate(e.timestamp)}:** ${e.title} - ${e.description}`).join('\n')}`
     : 'No active litigation.'
 }
 
@@ -251,24 +251,24 @@ ${litigationEvents.map((e) => `- **${formatDate(e.timestamp)}:** ${e.title} - ${
 **Key Risks:**
 ${deal.regulatoryFlags.length > 0 ? `- Regulatory approval uncertainty (${deal.regulatoryFlags.length} active review${deal.regulatoryFlags.length > 1 ? 's' : ''})` : ''}
 ${deal.litigationCount > 0 ? `- Litigation risk (${deal.litigationCount} active case${deal.litigationCount > 1 ? 's' : ''})` : ''}
-- Market risk (current spread: ${deal.currentSpread.toFixed(1)}%)
+- Market risk (current spread: ${deal.grossSpread.toFixed(1)}%)
 - Timing risk (outside date: ${formatDate(deal.outsideDate)})
 
 ## Scenario Analysis
 
-**Base Case (${deal.p_close_base}% probability):**
+**Base Case (${deal.pCloseBase}% probability):**
 - Deal closes successfully
-- Return: ${deal.currentSpread.toFixed(1)}%
+- Return: ${deal.grossSpread.toFixed(1)}%
 
-**Downside Case (${100 - deal.p_close_base}% probability):**
+**Downside Case (${100 - deal.pCloseBase}% probability):**
 - Deal terminates
-- Estimated loss: -${(deal.currentSpread * 0.5).toFixed(1)}%
+- Estimated loss: -${(deal.grossSpread * 0.5).toFixed(1)}%
 
-**Expected Value:** ${deal.ev.toFixed(2)}%
+**Expected Value:** ${deal.annualizedReturn.toFixed(2)}%
 
 ## Recommendation
 
-${deal.ev > 2 ? '**BUY** - Attractive risk/reward profile with expected value above 2%.' : deal.ev > 1 ? '**HOLD** - Moderate risk/reward profile.' : '**PASS** - Insufficient expected value given risks.'}
+${deal.annualizedReturn > 2 ? '**BUY** - Attractive risk/reward profile with expected value above 2%.' : deal.annualizedReturn > 1 ? '**HOLD** - Moderate risk/reward profile.' : '**PASS** - Insufficient expected value given risks.'}
 
 ---
 

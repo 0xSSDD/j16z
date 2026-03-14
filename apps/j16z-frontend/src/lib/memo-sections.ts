@@ -52,7 +52,7 @@ export function formatEventForInsertion(event: Event): JSONContent[] {
     month: 'short',
     day: 'numeric',
   });
-  const summary = event.summary.length > 300 ? `${event.summary.slice(0, 297)}...` : event.summary;
+  const summary = event.description.length > 300 ? `${event.description.slice(0, 297)}...` : event.description;
 
   return [
     {
@@ -69,7 +69,7 @@ export function formatEventForInsertion(event: Event): JSONContent[] {
             {
               type: 'text',
               marks: [{ type: 'italic' }],
-              text: `— Source: ${event.sourceType} | Added from inbox`,
+              text: `— Source: ${event.source} | Added from inbox`,
             },
           ],
         },

@@ -57,18 +57,17 @@ export type RegulatoryFlag = 'FTC_SECOND_REQUEST' | 'DOJ_INVESTIGATION' | 'EU_RE
 export interface Deal {
   id: string;
   symbol: string;
-  acquirerSymbol: string;
-  companyName: string;
-  acquirerName: string;
-  announcementDate: string;
-  acquisitionDate: string;
+  acquirer: string;
+  target: string;
+  announcedDate: string;
+  expectedCloseDate: string;
   outsideDate: string;
-  reportedEquityTakeoverValue: number;
+  dealValue: number;
   considerationType: ConsiderationType;
-  p_close_base: number;
-  spread_entry_threshold: number;
-  currentSpread: number;
-  ev: number;
+  pCloseBase: number;
+  spreadEntryThreshold: number;
+  grossSpread: number;
+  annualizedReturn: number;
   status: DealStatus;
   regulatoryFlags: RegulatoryFlag[];
   litigationCount: number;
@@ -83,13 +82,13 @@ export interface Event {
   dealId: string;
   timestamp: string;
   type: EventType;
-  subtype: string;
+  subType: string;
   severity: Severity;
   title: string;
-  summary: string;
+  description: string;
   content?: string;
   sourceUrl: string;
-  sourceType: SourceType;
+  source: SourceType;
   // DB-stored materiality score from Python extraction pipeline (EXTRACT-07)
   // 0 = not set (pre-extraction events); falls back to client-side calculation
   materialityScore?: number;

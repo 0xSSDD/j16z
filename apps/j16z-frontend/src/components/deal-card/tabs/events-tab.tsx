@@ -89,10 +89,10 @@ export function EventsTab({ events, focusedIndex, selectedEventId, onSelect, onF
                   {format(new Date(event.timestamp), 'MMM d, yyyy')}
                 </span>
               </div>
-              {event.summary && <p className="text-xs text-text-muted mt-0.5 line-clamp-2">{event.summary}</p>}
+              {event.description && <p className="text-xs text-text-muted mt-0.5 line-clamp-2">{event.description}</p>}
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-xs font-mono text-text-dim">{event.type}</span>
-                {event.subtype && <span className="text-xs font-mono text-text-dim opacity-70">· {event.subtype}</span>}
+                {event.subType && <span className="text-xs font-mono text-text-dim opacity-70">· {event.subType}</span>}
               </div>
             </div>
           </button>

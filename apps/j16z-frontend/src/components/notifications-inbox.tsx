@@ -154,7 +154,7 @@ export function NotificationsInbox() {
                   <h3 className={`font-mono text-sm mb-2 ${isRead ? 'text-text-muted' : 'text-text-main font-medium'}`}>
                     {event.title}
                   </h3>
-                  <p className="text-sm text-text-muted leading-relaxed">{event.summary}</p>
+                  <p className="text-sm text-text-muted leading-relaxed">{event.description}</p>
                   <div className="flex gap-3 mt-3">
                     <button
                       type="button"

@@ -34,12 +34,13 @@ export const HIGH_SIGNAL_TYPES = new Set(['S-4', 'S-4/A', 'DEFM14A', 'PREM14A'])
 
 // Filing metadata extracted from EDGAR APIs (before download)
 export interface FilingMetadata {
-  accessionNumber: string; // formatted with hyphens: 0000320193-24-000058
+  accessionNumber: string;
   filingType: string;
-  filedDate: string; // ISO date: 2026-02-28
-  primaryDocument: string; // filename: d123456ds4.htm
+  filedDate: string;
+  primaryDocument: string;
   filerCik: string;
   filerName?: string;
+  origin?: 'cik_scan' | 'efts_broad';
 }
 
 // Submissions API response shape (columnar arrays)

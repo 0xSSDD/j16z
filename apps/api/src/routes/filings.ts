@@ -1,6 +1,7 @@
 import { and, desc, eq, inArray, isNull } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { adminDb } from '../db/index.js';
+import { withRLS } from '../db/rls.js';
 import * as schema from '../db/schema.js';
 import type { AuthEnv } from '../middleware/auth.js';
 
@@ -19,12 +20,15 @@ export const filingsRoutes = new Hono<AuthEnv>()
   // GET /api/filings — all filings for deals belonging to this firm
   .get('/', async (c) => {
     const firmId = c.get('firmId');
+    const userId = c.get('userId');
 
     // Step 1: Get all deal IDs for this firm
-    const firmDeals = await adminDb
-      .select({ id: schema.deals.id })
-      .from(schema.deals)
-      .where(and(eq(schema.deals.firmId, firmId), isNull(schema.deals.deletedAt)));
+    const firmDeals = await withRLS(firmId, userId, (tx) =>
+      tx
+        .select({ id: schema.deals.id })
+        .from(schema.deals)
+        .where(and(eq(schema.deals.firmId, firmId), isNull(schema.deals.deletedAt))),
+    );
 
     const dealIds = firmDeals.map((d) => d.id);
 
@@ -46,13 +50,16 @@ export const filingsRoutes = new Hono<AuthEnv>()
   .get('/deal/:dealId', async (c) => {
     const dealId = c.req.param('dealId');
     const firmId = c.get('firmId');
+    const userId = c.get('userId');
 
     // Verify the deal belongs to this firm
-    const [deal] = await adminDb
-      .select({ id: schema.deals.id })
-      .from(schema.deals)
-      .where(and(eq(schema.deals.id, dealId), eq(schema.deals.firmId, firmId)))
-      .limit(1);
+    const [deal] = await withRLS(firmId, userId, (tx) =>
+      tx
+        .select({ id: schema.deals.id })
+        .from(schema.deals)
+        .where(and(eq(schema.deals.id, dealId), eq(schema.deals.firmId, firmId)))
+        .limit(1),
+    );
 
     if (!deal) {
       return c.json({ error: 'Deal not found' }, 404);
