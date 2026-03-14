@@ -36,6 +36,9 @@ logger = logging.getLogger('langextract.worker')
 # Job processor
 # ---------------------------------------------------------------------------
 
+_extraction_semaphore = asyncio.Semaphore(1)
+_GEMINI_COOLDOWN_SECONDS = float(os.environ.get('GEMINI_COOLDOWN_SECONDS', '15'))
+
 async def process(job, job_token):  # noqa: ANN001
     """
     BullMQ job processor for the ingestion queue.
@@ -60,7 +63,12 @@ async def process(job, job_token):  # noqa: ANN001
         f'filing_type={filing_type} deal_id={deal_id} firm_count={len(firm_ids)}'
     )
 
-    # Fetch rawContent from DB (not from job payload — Pitfall 1: payload too large)
+    async with _extraction_semaphore:
+        await _run_extraction(filing_id, filing_type, deal_id, firm_ids)
+        await asyncio.sleep(_GEMINI_COOLDOWN_SECONDS)
+
+
+async def _run_extraction(filing_id: str, filing_type: str, deal_id: str | None, firm_ids: list[str]) -> None:
     from db import fetch_filing_content
     raw_content, resolved_filing_type = await fetch_filing_content(filing_id)
 
@@ -68,10 +76,8 @@ async def process(job, job_token):  # noqa: ANN001
         logger.warning(f'[worker] rawContent is None for filing {filing_id} — skipping extraction')
         return
 
-    # Use resolved filing_type from DB as source of truth (more reliable than job payload)
     effective_filing_type = resolved_filing_type or filing_type
 
-    # Route to per-filing-type pipeline
     if effective_filing_type in ('S-4', 'S-4/A', 'DEFM14A', 'PREM14A'):
         from pipelines.s4_defm14a import run_s4_pipeline
         await run_s4_pipeline(
@@ -101,8 +107,6 @@ async def process(job, job_token):  # noqa: ANN001
             f'[worker] No pipeline for filing_type={effective_filing_type} '
             f'(filing_id={filing_id}) — skipping'
         )
-
-    logger.info(f'[worker] Completed llm_extract for filing {filing_id}')
 
 
 # ---------------------------------------------------------------------------

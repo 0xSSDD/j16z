@@ -1,40 +1,40 @@
 'use client';
 
-import { Clock, Edit2, Mail, Plus, Shield, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { Loader2, Plus, Shield, Trash2 } from 'lucide-react';
+import type { FormEvent } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { getFirmMembers, inviteFirmMember, removeMember, updateMemberRole } from '@/lib/api';
 
-type UserRole = 'admin' | 'analyst' | 'pm';
+type MemberRole = 'admin' | 'member';
 
-interface TeamMember {
+interface FirmMember {
   id: string;
-  name: string;
+  userId: string;
   email: string;
-  role: UserRole;
-  joinedDate: string;
-  lastActive: string;
-  status: 'active' | 'pending';
+  role: MemberRole;
+  joinedAt: string;
 }
 
 interface InviteModalProps {
   isOpen: boolean;
+  isSubmitting: boolean;
   onClose: () => void;
-  onInvite: (email: string, role: UserRole) => void;
+  onInvite: (email: string, role: MemberRole) => Promise<void>;
 }
 
-function InviteModal({ isOpen, onClose, onInvite }: InviteModalProps) {
+function InviteModal({ isOpen, isSubmitting, onClose, onInvite }: InviteModalProps) {
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState<UserRole>('analyst');
+  const [role, setRole] = useState<MemberRole>('member');
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) {
-      onInvite(email, role);
-      setEmail('');
-      setRole('analyst');
-      onClose();
-    }
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!email) return;
+    await onInvite(email, role);
+    setEmail('');
+    setRole('member');
+    onClose();
   };
 
   return (
@@ -44,11 +44,14 @@ function InviteModal({ isOpen, onClose, onInvite }: InviteModalProps) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-2 block text-sm font-medium text-text-main">Email Address</label>
+            <label htmlFor="invite-email" className="mb-2 block text-sm font-medium text-text-main">
+              Email Address
+            </label>
             <input
+              id="invite-email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(event) => setEmail(event.target.value)}
               placeholder="colleague@company.com"
               className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-text-main placeholder-text-dim focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
               required
@@ -56,15 +59,17 @@ function InviteModal({ isOpen, onClose, onInvite }: InviteModalProps) {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-text-main">Role</label>
+            <label htmlFor="invite-role" className="mb-2 block text-sm font-medium text-text-main">
+              Role
+            </label>
             <select
+              id="invite-role"
               value={role}
-              onChange={(e) => setRole(e.target.value as UserRole)}
+              onChange={(event) => setRole(event.target.value as MemberRole)}
               className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-text-main focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
             >
-              <option value="analyst">Analyst - View and analyze deals</option>
-              <option value="pm">Portfolio Manager - Manage positions</option>
-              <option value="admin">Admin - Full access</option>
+              <option value="member">Member</option>
+              <option value="admin">Admin</option>
             </select>
           </div>
 
@@ -72,14 +77,17 @@ function InviteModal({ isOpen, onClose, onInvite }: InviteModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-text-main transition-colors hover:bg-surfaceHighlight"
+              disabled={isSubmitting}
+              className="flex-1 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-text-main transition-colors hover:bg-surfaceHighlight disabled:cursor-not-allowed disabled:opacity-60"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary-600"
+              disabled={isSubmitting}
+              className="flex flex-1 items-center justify-center gap-2 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               Send Invitation
             </button>
           </div>
@@ -89,317 +97,242 @@ function InviteModal({ isOpen, onClose, onInvite }: InviteModalProps) {
   );
 }
 
-interface EditMemberModalProps {
-  isOpen: boolean;
-  member: TeamMember | null;
-  onClose: () => void;
-  onUpdate: (memberId: string, role: UserRole) => void;
+function formatJoinedAt(isoDate: string): string {
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) return '-';
+  return date.toLocaleDateString();
 }
 
-function EditMemberModal({ isOpen, member, onClose, onUpdate }: EditMemberModalProps) {
-  const [role, setRole] = useState<UserRole>(member?.role || 'analyst');
-
-  if (!isOpen || !member) return null;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onUpdate(member.id, role);
-    onClose();
-  };
+function getRoleBadge(role: MemberRole) {
+  if (role === 'admin') {
+    return (
+      <span className="rounded-full border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-xs text-red-500">
+        Admin
+      </span>
+    );
+  }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-md rounded-lg border border-border bg-surface p-6">
-        <h3 className="mb-4 text-lg font-semibold text-text-main">Edit Member Permissions</h3>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="mb-2 block text-sm font-medium text-text-main">Member</label>
-            <div className="rounded-md border border-border bg-background px-3 py-2">
-              <p className="text-sm font-medium text-text-main">{member.name}</p>
-              <p className="text-xs text-text-muted">{member.email}</p>
-            </div>
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium text-text-main">Role</label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value as UserRole)}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-text-main focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-            >
-              <option value="analyst">Analyst - View and analyze deals</option>
-              <option value="pm">Portfolio Manager - Manage positions</option>
-              <option value="admin">Admin - Full access</option>
-            </select>
-          </div>
-
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-text-main transition-colors hover:bg-surfaceHighlight"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 rounded-md bg-primary-500 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary-600"
-            >
-              Update Permissions
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <span className="rounded-full border border-primary-500/30 bg-primary-500/10 px-2 py-0.5 text-xs text-primary-500">
+      Member
+    </span>
   );
 }
 
 export function TeamTab() {
+  const [members, setMembers] = useState<FirmMember[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMutating, setIsMutating] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
-  const [members, setMembers] = useState<TeamMember[]>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('team_members');
-      if (stored) {
-        try {
-          return JSON.parse(stored);
-        } catch {
-          // Ignore parse errors
-        }
-      }
+  const [error, setError] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  const loadMembers = useCallback(async () => {
+    setError(null);
+
+    try {
+      const { createClient } = await import('@/lib/supabase/client');
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const signedInUserId = session?.user?.id ?? null;
+      setCurrentUserId(signedInUserId);
+
+      const rows = await getFirmMembers();
+      const normalizedMembers: FirmMember[] = rows.map((member) => ({
+        id: member.id,
+        userId: member.userId,
+        email: member.email,
+        role: member.role === 'admin' ? 'admin' : 'member',
+        joinedAt: member.joinedAt,
+      }));
+
+      const currentMember = normalizedMembers.find((member) => member.userId === signedInUserId);
+      setIsAdmin(currentMember?.role === 'admin');
+      setMembers(normalizedMembers);
+    } catch (loadError) {
+      const message = loadError instanceof Error ? loadError.message : 'Failed to load team members';
+      setError(message);
+    } finally {
+      setIsLoading(false);
     }
-    return [
-      {
-        id: '1',
-        name: "David's Analyst",
-        email: 'analyst@j16z.com',
-        role: 'admin',
-        joinedDate: '2023-01-15',
-        lastActive: '2 minutes ago',
-        status: 'active',
-      },
-      {
-        id: '2',
-        name: 'Sarah Chen',
-        email: 'sarah.chen@company.com',
-        role: 'analyst',
-        joinedDate: '2023-06-20',
-        lastActive: '1 hour ago',
-        status: 'active',
-      },
-      {
-        id: '3',
-        name: 'Michael Torres',
-        email: 'm.torres@company.com',
-        role: 'pm',
-        joinedDate: '2023-08-10',
-        lastActive: '3 hours ago',
-        status: 'active',
-      },
-      {
-        id: '4',
-        name: 'jessica.wong@company.com',
-        email: 'jessica.wong@company.com',
-        role: 'analyst',
-        joinedDate: '2023-12-18',
-        lastActive: 'Pending',
-        status: 'pending',
-      },
-    ];
-  });
+  }, []);
 
-  const handleInvite = (email: string, role: UserRole) => {
-    const newMember: TeamMember = {
-      id: Date.now().toString(),
-      name: email,
-      email,
-      role,
-      joinedDate: new Date().toISOString().split('T')[0],
-      lastActive: 'Pending',
-      status: 'pending',
-    };
-    const updated = [...members, newMember];
-    setMembers(updated);
-    localStorage.setItem('team_members', JSON.stringify(updated));
-  };
+  useEffect(() => {
+    void loadMembers();
+  }, [loadMembers]);
 
-  const handleUpdateRole = (memberId: string, role: UserRole) => {
-    const updated = members.map((m) => (m.id === memberId ? { ...m, role } : m));
-    setMembers(updated);
-    localStorage.setItem('team_members', JSON.stringify(updated));
-  };
-
-  const handleRemoveMember = (memberId: string) => {
-    if (confirm('Are you sure you want to remove this team member? This action cannot be undone.')) {
-      const updated = members.filter((m) => m.id !== memberId);
-      setMembers(updated);
-      localStorage.setItem('team_members', JSON.stringify(updated));
+  const handleInvite = async (email: string, role: MemberRole) => {
+    setIsMutating(true);
+    setError(null);
+    try {
+      await inviteFirmMember(email, role);
+      await loadMembers();
+    } catch (inviteError) {
+      const message = inviteError instanceof Error ? inviteError.message : 'Failed to send invitation';
+      setError(message);
+      throw inviteError;
+    } finally {
+      setIsMutating(false);
     }
   };
 
-  const getRoleBadge = (role: UserRole) => {
-    const styles = {
-      admin: 'bg-red-500/10 text-red-500 border-red-500/30',
-      pm: 'bg-primary-500/10 text-primary-500 border-primary-500/30',
-      analyst: 'bg-primary-500/10 text-primary-500 border-primary-500/30',
-    };
-    const labels = {
-      admin: 'Admin',
-      pm: 'Portfolio Manager',
-      analyst: 'Analyst',
-    };
-    return (
-      <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${styles[role]}`}>{labels[role]}</span>
-    );
+  const handleRoleChange = async (memberId: string, role: MemberRole) => {
+    setIsMutating(true);
+    setError(null);
+    try {
+      await updateMemberRole(memberId, role);
+      await loadMembers();
+    } catch (updateError) {
+      const message = updateError instanceof Error ? updateError.message : 'Failed to update member role';
+      setError(message);
+    } finally {
+      setIsMutating(false);
+    }
   };
 
-  const activeMembers = members.filter((m) => m.status === 'active');
-  const pendingInvitations = members.filter((m) => m.status === 'pending');
+  const handleRemoveMember = async (memberId: string) => {
+    const confirmed = window.confirm('Are you sure you want to remove this team member?');
+    if (!confirmed) return;
+
+    setIsMutating(true);
+    setError(null);
+    try {
+      await removeMember(memberId);
+      await loadMembers();
+    } catch (removeError) {
+      const message = removeError instanceof Error ? removeError.message : 'Failed to remove member';
+      setError(message);
+    } finally {
+      setIsMutating(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
-      <InviteModal isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} onInvite={handleInvite} />
-
-      <EditMemberModal
-        isOpen={showEditModal}
-        member={selectedMember}
-        onClose={() => {
-          setShowEditModal(false);
-          setSelectedMember(null);
-        }}
-        onUpdate={handleUpdateRole}
+      <InviteModal
+        isOpen={showInviteModal}
+        isSubmitting={isMutating}
+        onClose={() => setShowInviteModal(false)}
+        onInvite={handleInvite}
       />
 
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold text-text-main">Team Members</h2>
           <p className="text-sm text-text-muted">Manage team access and permissions</p>
         </div>
-        <button
-          onClick={() => setShowInviteModal(true)}
-          className="flex items-center gap-2 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary-600"
-        >
-          <Plus className="h-4 w-4" />
-          Invite Member
-        </button>
+        {isAdmin ? (
+          <button
+            type="button"
+            onClick={() => setShowInviteModal(true)}
+            disabled={isMutating}
+            className="flex items-center gap-2 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-primary-600 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Plus className="h-4 w-4" />
+            Invite Member
+          </button>
+        ) : null}
       </div>
 
-      {/* Active Members */}
-      <section>
-        <h3 className="mb-3 text-sm font-semibold text-text-main">Active Members ({activeMembers.length})</h3>
-        <div className="space-y-2">
-          {activeMembers.map((member) => (
-            <div
-              key={member.id}
-              className="flex items-center justify-between rounded-lg border border-border bg-surface p-4"
-            >
-              <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-primary-500 to-primary-600 text-sm font-bold text-background">
-                  {member.name
-                    .split(' ')
-                    .map((n) => n[0])
-                    .join('')
-                    .toUpperCase()
-                    .slice(0, 2)}
-                </div>
-                <div>
-                  <p className="font-medium text-text-main">{member.name}</p>
-                  <p className="text-xs text-text-muted">{member.email}</p>
-                </div>
-              </div>
+      {error ? (
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500">{error}</div>
+      ) : null}
 
-              <div className="flex items-center gap-4">
-                {getRoleBadge(member.role)}
-                <div className="flex items-center gap-1 text-xs text-text-dim">
-                  <Clock className="h-3 w-3" />
-                  {member.lastActive}
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      setSelectedMember(member);
-                      setShowEditModal(true);
-                    }}
-                    className="rounded-md p-2 text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-text-main"
-                    title="Edit permissions"
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => handleRemoveMember(member.id)}
-                    className="rounded-md p-2 text-text-muted transition-colors hover:bg-red-500/10 hover:text-red-500"
-                    title="Remove member"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      <div className="overflow-x-auto rounded-lg border border-border">
+        <table className="min-w-full divide-y divide-border">
+          <thead className="bg-background">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-text-muted">
+                Email
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-text-muted">
+                Role
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-text-muted">
+                Joined
+              </th>
+              {isAdmin ? (
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-text-muted">
+                  Actions
+                </th>
+              ) : null}
+            </tr>
+          </thead>
 
-      {/* Pending Invitations */}
-      {pendingInvitations.length > 0 && (
-        <section>
-          <h3 className="mb-3 text-sm font-semibold text-text-main">
-            Pending Invitations ({pendingInvitations.length})
-          </h3>
-          <div className="space-y-2">
-            {pendingInvitations.map((member) => (
-              <div
-                key={member.id}
-                className="flex items-center justify-between rounded-lg border border-border bg-surface p-4 opacity-60"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-dashed border-border">
-                    <Mail className="h-4 w-4 text-text-dim" />
+          <tbody className="divide-y divide-border bg-surface">
+            {isLoading ? (
+              <tr>
+                <td colSpan={isAdmin ? 4 : 3} className="px-4 py-10 text-center text-sm text-text-muted">
+                  <div className="inline-flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading members...
                   </div>
-                  <div>
-                    <p className="font-medium text-text-main">{member.email}</p>
-                    <p className="text-xs text-text-muted">Invitation sent on {member.joinedDate}</p>
-                  </div>
-                </div>
+                </td>
+              </tr>
+            ) : members.length === 0 ? (
+              <tr>
+                <td colSpan={isAdmin ? 4 : 3} className="px-4 py-10 text-center text-sm text-text-muted">
+                  No team members found.
+                </td>
+              </tr>
+            ) : (
+              members.map((member) => (
+                <tr key={member.id}>
+                  <td className="px-4 py-3 text-sm text-text-main">{member.email}</td>
+                  <td className="px-4 py-3 text-sm">{getRoleBadge(member.role)}</td>
+                  <td className="px-4 py-3 text-sm text-text-main">{formatJoinedAt(member.joinedAt)}</td>
+                  {isAdmin ? (
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-2">
+                        <select
+                          value={member.role}
+                          onChange={(event) => {
+                            const nextRole = event.target.value === 'admin' ? 'admin' : 'member';
+                            void handleRoleChange(member.id, nextRole);
+                          }}
+                          disabled={isMutating || member.userId === currentUserId}
+                          className="rounded-md border border-border bg-background px-2 py-1 text-xs text-text-main focus:border-primary-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          <option value="member">Member</option>
+                          <option value="admin">Admin</option>
+                        </select>
 
-                <div className="flex items-center gap-4">
-                  {getRoleBadge(member.role)}
-                  <span className="rounded-full bg-primary-500/10 px-2 py-0.5 text-xs font-medium text-primary-500">
-                    Pending
-                  </span>
-                  <button
-                    onClick={() => handleRemoveMember(member.id)}
-                    className="rounded-md p-2 text-text-muted transition-colors hover:bg-red-500/10 hover:text-red-500"
-                    title="Cancel invitation"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+                        <button
+                          type="button"
+                          onClick={() => void handleRemoveMember(member.id)}
+                          disabled={isMutating || member.userId === currentUserId}
+                          className="rounded-md p-2 text-text-muted transition-colors hover:bg-red-500/10 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+                          title="Remove member"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  ) : null}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Permissions Info */}
       <section className="rounded-lg border border-border bg-surface p-4">
         <h3 className="mb-3 text-sm font-semibold text-text-main">
-          <Shield className="mb-1 inline h-4 w-4" /> Role Permissions
+          <Shield className="mb-1 mr-1 inline h-4 w-4" />
+          Role Permissions
         </h3>
         <div className="space-y-2 text-xs text-text-muted">
           <div className="flex gap-2">
             <span className="font-medium text-red-500">Admin:</span>
-            <span>Full access to all features, team management, and settings</span>
+            <span>Can invite/remove members and manage role assignments.</span>
           </div>
           <div className="flex gap-2">
-            <span className="font-medium text-primary-500">Portfolio Manager:</span>
-            <span>Manage positions, view all deals, configure alerts</span>
-          </div>
-          <div className="flex gap-2">
-            <span className="font-medium text-primary-500">Analyst:</span>
-            <span>View and analyze deals, create watchlists, receive alerts</span>
+            <span className="font-medium text-primary-500">Member:</span>
+            <span>Can access product workflows based on firm defaults.</span>
           </div>
         </div>
       </section>

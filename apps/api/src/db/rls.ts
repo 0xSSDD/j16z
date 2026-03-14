@@ -16,20 +16,16 @@ export async function withRLS<T>(
       app_metadata: { firm_id: firmId },
     });
 
-    await tx.execute(sql`
-      select set_config('request.jwt.claims', ${claims}, true);
-      select set_config('request.jwt.claim.sub', ${userId}, true);
-      set local role 'authenticated';
-    `);
+    await tx.execute(sql`select set_config('request.jwt.claims', ${claims}, true)`);
+    await tx.execute(sql`select set_config('request.jwt.claim.sub', ${userId}, true)`);
+    await tx.execute(sql`set local role authenticated`);
 
     try {
       return await callback(tx);
     } finally {
-      await tx.execute(sql`
-        select set_config('request.jwt.claims', '', true);
-        select set_config('request.jwt.claim.sub', '', true);
-        reset role;
-      `);
+      await tx.execute(sql`select set_config('request.jwt.claims', '', true)`);
+      await tx.execute(sql`select set_config('request.jwt.claim.sub', '', true)`);
+      await tx.execute(sql`reset role`);
     }
   });
 }

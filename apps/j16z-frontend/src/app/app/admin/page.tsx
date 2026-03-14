@@ -6,12 +6,15 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import {
   type AdminPipeline,
   type AdminQueueData,
+  type AdminRecentFiling,
   type AdminScheduleData,
   type AdminSystemHealth,
   getAdminPipeline,
   getAdminQueues,
+  getAdminRecentFilings,
   getAdminSchedules,
   getAdminSystemHealth,
+  triggerEdgarPoll,
 } from '@/lib/api';
 
 function Shimmer({ className = '' }: { className?: string }) {
@@ -64,6 +67,21 @@ function FreshnessDot({ level }: { level: 'fresh' | 'aging' | 'stale' }) {
   return <span className={`inline-block h-2 w-2 rounded-full ${color[level]}`} />;
 }
 
+function getPipelineStatus(filing: AdminRecentFiling): {
+  label: 'Extracted' | 'Downloaded' | 'Pending download';
+  dotClass: string;
+} {
+  if (!filing.hasContent) {
+    return { label: 'Pending download', dotClass: 'bg-red-400' };
+  }
+
+  if (filing.extracted) {
+    return { label: 'Extracted', dotClass: 'bg-emerald-400' };
+  }
+
+  return { label: 'Downloaded', dotClass: 'bg-amber-400' };
+}
+
 function ZoneError({ message }: { message: string }) {
   return (
     <div className="flex items-center gap-2 rounded-lg border border-red-500/20 bg-red-950/20 px-4 py-3 text-xs text-red-400">
@@ -90,12 +108,31 @@ export default function AdminPage() {
   const [schedulesLoading, setSchedulesLoading] = useState(true);
   const [schedulesError, setSchedulesError] = useState<string | null>(null);
 
+  const [recentFilings, setRecentFilings] = useState<AdminRecentFiling[]>([]);
+  const [recentFilingsLoading, setRecentFilingsLoading] = useState(true);
+  const [recentFilingsError, setRecentFilingsError] = useState<string | null>(null);
+  const [pollTriggerError, setPollTriggerError] = useState<string | null>(null);
+  const [triggeringPoll, setTriggeringPoll] = useState(false);
+
   const [elapsed, setElapsed] = useState(0);
   const [tick, setTick] = useState(0);
   const lastFetchRef = useRef(Date.now());
 
   function triggerRefresh() {
     setTick((n) => n + 1);
+  }
+
+  async function handleTriggerPoll() {
+    setTriggeringPoll(true);
+    setPollTriggerError(null);
+    try {
+      await triggerEdgarPoll();
+      triggerRefresh();
+    } catch {
+      setPollTriggerError('Failed to trigger EDGAR poll');
+    } finally {
+      setTriggeringPoll(false);
+    }
   }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: tick is the manual refresh trigger
@@ -138,6 +175,15 @@ export default function AdminPage() {
       })
       .catch(() => setSchedulesError('Failed to load schedules'))
       .finally(() => setSchedulesLoading(false));
+
+    setRecentFilingsLoading(true);
+    getAdminRecentFilings()
+      .then((d) => {
+        setRecentFilings(d);
+        setRecentFilingsError(null);
+      })
+      .catch(() => setRecentFilingsError('Failed to load recent filings'))
+      .finally(() => setRecentFilingsLoading(false));
   }, [tick]);
 
   useEffect(() => {
@@ -292,6 +338,80 @@ export default function AdminPage() {
                         </td>
                       </tr>
                     ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          <div className="overflow-hidden rounded-lg border border-border bg-surface">
+            <div className="flex items-center justify-between border-b border-border px-4 py-2">
+              <span className="text-xs font-medium text-text-main">Recent Pipeline Activity</span>
+              <button
+                type="button"
+                onClick={handleTriggerPoll}
+                disabled={triggeringPoll}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] font-medium text-text-muted transition-colors hover:bg-surfaceHighlight hover:text-text-main disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${triggeringPoll ? 'animate-spin' : ''}`} />
+                Trigger EDGAR Poll
+              </button>
+            </div>
+
+            {pollTriggerError && (
+              <div className="border-b border-border px-4 py-1.5 text-[11px] text-red-400">{pollTriggerError}</div>
+            )}
+
+            {recentFilingsLoading ? (
+              <div className="space-y-2 p-4">
+                <Shimmer className="h-6 w-full" />
+                <Shimmer className="h-6 w-full" />
+                <Shimmer className="h-6 w-full" />
+              </div>
+            ) : recentFilingsError ? (
+              <div className="p-4 text-xs text-red-400">{recentFilingsError}</div>
+            ) : recentFilings.length === 0 ? (
+              <div className="px-4 py-5 text-center text-xs text-text-dim">No recent filings</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-border text-text-dim">
+                      <th className="px-4 py-2 text-left font-medium">Filing Type</th>
+                      <th className="px-4 py-2 text-left font-medium">Filer</th>
+                      <th className="px-4 py-2 text-left font-medium">Filed Date</th>
+                      <th className="px-4 py-2 text-left font-medium">Status</th>
+                      <th className="px-4 py-2 text-left font-medium">Deal linked?</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentFilings.map((filing) => {
+                      const pipelineStatus = getPipelineStatus(filing);
+                      return (
+                        <tr
+                          key={filing.id}
+                          className="border-b border-border/40 last:border-0 hover:bg-surfaceHighlight/30"
+                        >
+                          <td className="px-4 py-1.5 font-mono text-text-main">{filing.filingType}</td>
+                          <td className="px-4 py-1.5 text-text-muted">
+                            {filing.filerName ?? 'Unknown filer'}
+                            <span className="ml-1.5 font-mono text-[11px] text-text-dim">{filing.filerCik}</span>
+                          </td>
+                          <td className="px-4 py-1.5 font-mono text-text-muted">{filing.filedDate}</td>
+                          <td className="px-4 py-1.5">
+                            <span className="inline-flex items-center gap-1.5 font-mono text-text-muted">
+                              <span className={`h-1.5 w-1.5 rounded-full ${pipelineStatus.dotClass}`} />
+                              {pipelineStatus.label}
+                            </span>
+                          </td>
+                          <td className="px-4 py-1.5">
+                            <span className={`font-mono ${filing.dealId ? 'text-emerald-400' : 'text-text-dim'}`}>
+                              {filing.dealId ? 'Yes' : 'No'}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

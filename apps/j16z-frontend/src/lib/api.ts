@@ -1117,7 +1117,53 @@ export interface AdminPipeline {
   failureGroups: Array<{ count: number; lastError: string; lastTime: number }>;
 }
 
+export interface AdminRecentFiling {
+  id: string;
+  accessionNumber: string;
+  filingType: string;
+  filerName: string | null;
+  filerCik: string;
+  filedDate: string;
+  dealId: string | null;
+  status: string;
+  hasContent: boolean;
+  extracted: boolean;
+}
+
 export async function getAdminPipeline(): Promise<AdminPipeline> {
   const response = await authFetch('/api/admin/pipeline');
   return response.json();
+}
+
+export async function getFirmMembers(): Promise<
+  Array<{ id: string; userId: string; email: string; role: string; joinedAt: string }>
+> {
+  const response = await authFetch('/api/auth/members');
+  return response.json();
+}
+
+export async function inviteFirmMember(email: string, role: 'admin' | 'member'): Promise<void> {
+  await authFetch('/api/auth/invite', {
+    method: 'POST',
+    body: JSON.stringify({ email, role }),
+  });
+}
+
+export async function updateMemberRole(memberId: string, role: 'admin' | 'member'): Promise<void> {
+  await authFetch(`/api/auth/members/${memberId}`, { method: 'PATCH', body: JSON.stringify({ role }) });
+}
+
+export async function removeMember(memberId: string): Promise<void> {
+  await authFetch(`/api/auth/members/${memberId}`, { method: 'DELETE' });
+}
+
+export async function getAdminRecentFilings(): Promise<AdminRecentFiling[]> {
+  const response = await authFetch('/api/admin/recent-filings');
+  return response.json();
+}
+
+export async function triggerEdgarPoll(): Promise<void> {
+  await authFetch('/api/admin/trigger-poll', {
+    method: 'POST',
+  });
 }

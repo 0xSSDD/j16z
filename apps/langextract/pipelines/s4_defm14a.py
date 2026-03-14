@@ -61,9 +61,8 @@ For each extraction, include these attributes:
 # Model: Gemini 2.5 Pro for S-4/DEFM14A (complex legal language) — PINNED
 MODEL_ID = "gemini-2.5-pro"
 
-# Chunking config for legal documents (DataCamp recommendation)
-EXTRACTION_PASSES = 5
-MAX_WORKERS = 10
+EXTRACTION_PASSES = 3
+MAX_WORKERS = 1
 MAX_CHAR_BUFFER = 800
 
 # Valid clause types accepted by this pipeline

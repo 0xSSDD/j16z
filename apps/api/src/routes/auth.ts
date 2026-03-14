@@ -1,6 +1,6 @@
 import { zValidator } from '@hono/zod-validator';
 import { createClient } from '@supabase/supabase-js';
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { adminDb } from '../db/index.js';
@@ -22,7 +22,10 @@ export const authRoutes = new Hono<AuthEnv>();
 // ---------------------------------------------------------------------------
 authRoutes.get('/me', async (c) => {
   const payload = c.get('jwtPayload');
-  const userId = payload.sub!;
+  const userId = payload.sub;
+  if (!userId) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
   const userEmail = (payload as { email?: string }).email ?? null;
 
   // Look up firm membership using userId
@@ -76,7 +79,10 @@ const onboardSchema = z.object({
 
 authRoutes.post('/onboard', zValidator('json', onboardSchema), async (c) => {
   const payload = c.get('jwtPayload');
-  const userId = payload.sub!;
+  const userId = payload.sub;
+  if (!userId) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
   const { firmName } = c.req.valid('json');
 
   // Guard: check if user already has a firm (idempotency)
@@ -135,9 +141,160 @@ const inviteSchema = z.object({
   role: z.enum(['admin', 'member']).default('member'),
 });
 
+const updateMemberRoleSchema = z.object({
+  role: z.enum(['admin', 'member']),
+});
+
+async function getAdminMembership(userId: string) {
+  const [membership] = await adminDb
+    .select({
+      id: firmMembers.id,
+      firmId: firmMembers.firmId,
+      userId: firmMembers.userId,
+      role: firmMembers.role,
+    })
+    .from(firmMembers)
+    .where(and(eq(firmMembers.userId, userId), isNull(firmMembers.deletedAt)))
+    .limit(1);
+
+  return membership;
+}
+
+authRoutes.get('/members', async (c) => {
+  const payload = c.get('jwtPayload');
+  const userId = payload.sub;
+  if (!userId) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+
+  const membership = await getAdminMembership(userId);
+
+  if (!membership) {
+    return c.json({ error: 'No firm associated with your account' }, 403);
+  }
+
+  if (membership.role !== 'admin') {
+    return c.json({ error: 'Only firm admins can view team members' }, 403);
+  }
+
+  const membersResult = await adminDb.execute<{
+    id: string;
+    userId: string;
+    email: string | null;
+    role: string;
+    joinedAt: string;
+  }>(sql`
+    SELECT
+      fm.id,
+      fm.user_id AS "userId",
+      u.email,
+      fm.role,
+      fm.created_at AS "joinedAt"
+    FROM firm_members fm
+    LEFT JOIN auth.users u ON u.id = fm.user_id
+    WHERE fm.firm_id = ${membership.firmId}
+      AND fm.deleted_at IS NULL
+    ORDER BY fm.created_at ASC
+  `);
+
+  return c.json(
+    Array.from(membersResult).map((member) => ({
+      id: member.id,
+      userId: member.userId,
+      email: member.email ?? '',
+      role: member.role,
+      joinedAt: member.joinedAt,
+    })),
+  );
+});
+
+authRoutes.patch('/members/:id', zValidator('json', updateMemberRoleSchema), async (c) => {
+  const payload = c.get('jwtPayload');
+  const userId = payload.sub;
+  if (!userId) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  const memberId = c.req.param('id');
+  const { role } = c.req.valid('json');
+
+  const membership = await getAdminMembership(userId);
+
+  if (!membership) {
+    return c.json({ error: 'No firm associated with your account' }, 403);
+  }
+
+  if (membership.role !== 'admin') {
+    return c.json({ error: 'Only firm admins can update team member roles' }, 403);
+  }
+
+  const [targetMember] = await adminDb
+    .select({ id: firmMembers.id, userId: firmMembers.userId, role: firmMembers.role })
+    .from(firmMembers)
+    .where(and(eq(firmMembers.id, memberId), eq(firmMembers.firmId, membership.firmId), isNull(firmMembers.deletedAt)))
+    .limit(1);
+
+  if (!targetMember) {
+    return c.json({ error: 'Team member not found' }, 404);
+  }
+
+  if (targetMember.userId === userId && role !== 'admin') {
+    return c.json({ error: 'You cannot demote yourself' }, 400);
+  }
+
+  await adminDb
+    .update(firmMembers)
+    .set({ role, updatedAt: new Date() })
+    .where(and(eq(firmMembers.id, memberId), eq(firmMembers.firmId, membership.firmId), isNull(firmMembers.deletedAt)));
+
+  return c.json({ message: 'Member role updated' });
+});
+
+authRoutes.delete('/members/:id', async (c) => {
+  const payload = c.get('jwtPayload');
+  const userId = payload.sub;
+  if (!userId) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  const memberId = c.req.param('id');
+
+  const membership = await getAdminMembership(userId);
+
+  if (!membership) {
+    return c.json({ error: 'No firm associated with your account' }, 403);
+  }
+
+  if (membership.role !== 'admin') {
+    return c.json({ error: 'Only firm admins can remove team members' }, 403);
+  }
+
+  const [targetMember] = await adminDb
+    .select({ id: firmMembers.id, userId: firmMembers.userId })
+    .from(firmMembers)
+    .where(and(eq(firmMembers.id, memberId), eq(firmMembers.firmId, membership.firmId), isNull(firmMembers.deletedAt)))
+    .limit(1);
+
+  if (!targetMember) {
+    return c.json({ error: 'Team member not found' }, 404);
+  }
+
+  if (targetMember.userId === userId) {
+    return c.json({ error: 'You cannot remove yourself from the firm' }, 400);
+  }
+
+  await adminDb
+    .update(firmMembers)
+    .set({ deletedAt: new Date(), updatedAt: new Date() })
+    .where(and(eq(firmMembers.id, memberId), eq(firmMembers.firmId, membership.firmId), isNull(firmMembers.deletedAt)));
+
+  return c.json({ message: 'Member removed' });
+});
+
 authRoutes.post('/invite', zValidator('json', inviteSchema), async (c) => {
   const payload = c.get('jwtPayload');
-  const userId = payload.sub!;
+  const userId = payload.sub;
+  if (!userId) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
   const { email, role } = c.req.valid('json');
 
   // Verify caller has admin role in their firm
@@ -158,7 +315,13 @@ authRoutes.post('/invite', zValidator('json', inviteSchema), async (c) => {
   const firmId = membership.firmId;
 
   // Use Supabase admin client to send invitation email
-  const supabaseAdmin = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY;
+  if (!supabaseUrl || !supabaseSecretKey) {
+    return c.json({ error: 'Supabase admin configuration is missing' }, 500);
+  }
+
+  const supabaseAdmin = createClient(supabaseUrl, supabaseSecretKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 

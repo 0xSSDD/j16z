@@ -593,6 +593,61 @@ const STARTER_CLAUSES: StarterClause[] = [
     confidenceScore: 0.86,
   },
   {
+    dealSymbol: 'SLAB',
+    type: 'TERMINATION_FEE',
+    title: 'Silicon Labs Termination Fee',
+    summary:
+      'Silicon Labs pays $290 million termination fee if board withdraws recommendation or enters into competing transaction.',
+    verbatimText:
+      'In the event of termination pursuant to Section 8.1(d) or Section 8.1(f), the Company shall pay to Parent a termination fee equal to $290,000,000.',
+    sourceLocation: 'Merger Agreement Section 8.3(a)',
+    confidenceScore: 0.92,
+  },
+  {
+    dealSymbol: 'SLAB',
+    type: 'REGULATORY_CONDITION',
+    title: 'HSR and EU Regulatory Closing Condition',
+    summary:
+      'Closing conditioned on HSR Act clearance, EU Merger Regulation approval, and expiration of applicable waiting periods.',
+    verbatimText:
+      'The obligations of the parties to consummate the Merger shall be subject to the condition that applicable waiting periods under the HSR Act and the EU Merger Regulation shall have expired or been terminated.',
+    sourceLocation: 'Merger Agreement Section 7.1(b)',
+    confidenceScore: 0.88,
+  },
+  {
+    dealSymbol: 'CTRA',
+    type: 'CLOSING_CONDITIONS',
+    title: 'Shareholder and HSR Closing Conditions',
+    summary:
+      'Merger subject to Devon and Coterra shareholder approval and HSR Act clearance. Exchange ratio of 0.3861 Devon shares per Coterra share.',
+    verbatimText:
+      'At the Effective Time, each share of Coterra Common Stock shall be converted into the right to receive 0.3861 of a share of Devon Common Stock, subject to adjustment.',
+    sourceLocation: 'Merger Agreement Section 2.1(a)',
+    confidenceScore: 0.94,
+  },
+  {
+    dealSymbol: 'CTRA',
+    type: 'TERMINATION_FEE',
+    title: 'Mutual Termination Fee Structure',
+    summary:
+      'Coterra pays $825 million termination fee; Devon pays $1.65 billion reverse termination fee for regulatory failure.',
+    verbatimText:
+      'If this Agreement is terminated under specified circumstances, the Company Termination Fee shall be $825,000,000, and the Parent Termination Fee shall be $1,650,000,000.',
+    sourceLocation: 'Merger Agreement Section 8.3',
+    confidenceScore: 0.91,
+  },
+  {
+    dealSymbol: 'CTRA',
+    type: 'MAE',
+    title: 'Energy-Sector MAE Carveouts',
+    summary:
+      'MAE excludes changes in oil and gas commodity prices, general industry conditions, and force majeure events.',
+    verbatimText:
+      'Material Adverse Effect shall not include any change or effect arising from changes in oil, natural gas, or NGL commodity prices, conditions generally affecting the oil and gas exploration and production industry, or force majeure events.',
+    sourceLocation: 'Merger Agreement Section 1.1 (Definitions)',
+    confidenceScore: 0.87,
+  },
+  {
     dealSymbol: 'ATVI',
     type: 'TERMINATION_FEE',
     title: 'Microsoft Reverse Termination Fee',

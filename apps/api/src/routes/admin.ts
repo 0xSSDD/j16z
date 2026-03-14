@@ -145,6 +145,32 @@ adminRoutes.get('/overview', async (c) => {
   });
 });
 
+adminRoutes.get('/recent-filings', async (c) => {
+  const filings = await adminDb
+    .select({
+      id: schema.filings.id,
+      accessionNumber: schema.filings.accessionNumber,
+      filingType: schema.filings.filingType,
+      filerName: schema.filings.filerName,
+      filerCik: schema.filings.filerCik,
+      filedDate: schema.filings.filedDate,
+      dealId: schema.filings.dealId,
+      status: schema.filings.status,
+      hasContent: sql<boolean>`${schema.filings.rawContent} IS NOT NULL`,
+      extracted: schema.filings.extracted,
+    })
+    .from(schema.filings)
+    .orderBy(sql`${schema.filings.filedDate} DESC`)
+    .limit(20);
+
+  return c.json(filings);
+});
+
+adminRoutes.post('/trigger-poll', async (c) => {
+  await ingestionQueue.add('edgar_poll', { triggeredBy: 'admin_manual' });
+  return c.json({ ok: true });
+});
+
 adminRoutes.get('/pipeline', async (c) => {
   const payload = c.get('jwtPayload');
   const userId = payload.sub!;

@@ -51,8 +51,8 @@ For each extraction, include these attributes:
 MODEL_ID = "gemini-2.5-flash"
 
 # Chunking config — less aggressive than S-4
-EXTRACTION_PASSES = 3
-MAX_WORKERS = 20
+EXTRACTION_PASSES = 2
+MAX_WORKERS = 1
 MAX_CHAR_BUFFER = 1000
 
 # 8-K-specific extraction classes mapped to DB clause types
