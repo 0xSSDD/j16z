@@ -34,11 +34,12 @@ export async function edgarFetch(url: string): Promise<Response> {
 // Build URL to the actual filing document on sec.gov
 export function buildFilingUrl(cik: string, accessionNumber: string, primaryDocument: string): string {
   const accNoPlain = accessionNumber.replace(/-/g, '');
-  return `https://www.sec.gov/Archives/edgar/data/${cik}/${accNoPlain}/${primaryDocument}`;
+  const cikStripped = cik.replace(/^0+/, '');
+  return `https://www.sec.gov/Archives/edgar/data/${cikStripped}/${accNoPlain}/${primaryDocument}`;
 }
 
-// Build URL to the filing index JSON (for discovering primaryDocument)
 export function buildIndexUrl(cik: string, accessionNumber: string): string {
   const accNoPlain = accessionNumber.replace(/-/g, '');
-  return `https://www.sec.gov/Archives/edgar/data/${cik}/${accNoPlain}/${accessionNumber}-index.json`;
+  const cikStripped = cik.replace(/^0+/, '');
+  return `https://www.sec.gov/Archives/edgar/data/${cikStripped}/${accNoPlain}/${accessionNumber}-index.json`;
 }

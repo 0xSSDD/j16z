@@ -55,7 +55,7 @@ export const submissionsRecentSchema = z
 
 export const submissionsResponseSchema = z
   .object({
-    cik: z.number(),
+    cik: z.union([z.number(), z.string()]),
     entityType: z.string().optional(),
     name: z.string().optional(),
     filings: z.object({
@@ -64,17 +64,17 @@ export const submissionsResponseSchema = z
   })
   .passthrough();
 
-// EFTS broad scan response shape (Elasticsearch-style)
 export const eftsHitSchema = z
   .object({
+    _id: z.string(),
     _source: z
       .object({
-        entity_name: z.string().optional(),
-        accession_no: z.string(),
-        form_type: z.string(),
+        ciks: z.array(z.string()).optional(),
+        display_names: z.array(z.string()).optional(),
+        root_forms: z.array(z.string()).optional(),
         file_date: z.string(),
-        period_of_report: z.string().optional(),
-        file_num: z.string().optional(),
+        file_num: z.union([z.string(), z.array(z.string())]).optional(),
+        period_ending: z.string().nullable().optional(),
       })
       .passthrough(),
   })
@@ -84,7 +84,7 @@ export const eftsResponseSchema = z
   .object({
     hits: z.object({
       hits: z.array(eftsHitSchema),
-      total: z.object({ value: z.number() }).optional(),
+      total: z.object({ value: z.number(), relation: z.string().optional() }).optional(),
     }),
   })
   .passthrough();

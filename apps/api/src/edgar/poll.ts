@@ -160,12 +160,10 @@ async function broadScanForNewDeals(since: Date): Promise<FilingMetadata[]> {
   const startdt = since.toISOString().split('T')[0];
   const enddt = new Date().toISOString().split('T')[0];
 
-  // Search for high-signal M&A filing types — EFTS requires both startdt and enddt (Pitfall 6)
   const url =
     'https://efts.sec.gov/LATEST/search-index?' +
     'q=%22merger+agreement%22&forms=S-4,S-4%2FA,DEFM14A,PREM14A' +
-    `&dateRange=custom&startdt=${startdt}&enddt=${enddt}` +
-    '&hits.hits._source=period_of_report,entity_name,file_num,form_type,file_date,accession_no';
+    `&dateRange=custom&startdt=${startdt}&enddt=${enddt}`;
 
   console.log(`[edgar_poll] EFTS broad scan URL: ${url}`);
 
@@ -180,16 +178,25 @@ async function broadScanForNewDeals(since: Date): Promise<FilingMetadata[]> {
       return [];
     }
 
-    return parsed.data.hits.hits.map((hit): FilingMetadata => {
+    return parsed.data.hits.hits.flatMap((hit): FilingMetadata[] => {
+      const accessionMatch = hit._id.match(/^(\d{10}-\d{2}-\d{6})/);
+      if (!accessionMatch) return [];
+      const formType = hit._source.root_forms?.[0];
+      if (!formType) return [];
       const entry: FilingMetadata = {
-        accessionNumber: hit._source.accession_no,
-        filingType: hit._source.form_type,
+        accessionNumber: accessionMatch[1],
+        filingType: formType,
         filedDate: hit._source.file_date,
-        primaryDocument: '', // Will be resolved via index endpoint during download
-        filerCik: '', // Not always in EFTS; resolved during download
+        primaryDocument: '',
+        filerCik: hit._source.ciks?.[0] ?? '',
       };
-      if (hit._source.entity_name) entry.filerName = hit._source.entity_name;
-      return entry;
+      const displayName = hit._source.display_names?.[0];
+      if (displayName)
+        entry.filerName = displayName
+          .replace(/\s*\(CIK.*$/, '')
+          .replace(/\s*\(.*?\)\s*$/, '')
+          .trim();
+      return [entry];
     });
   } catch (err) {
     console.error('[edgar_poll] EFTS broad scan failed:', err);

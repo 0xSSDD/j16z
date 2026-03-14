@@ -158,6 +158,42 @@ const STARTER_DEALS: StarterDeal[] = [
     regulatoryFlags: ['FTC', 'DOJ'],
     litigationCount: 1,
   },
+  {
+    symbol: 'SLAB',
+    acquirer: 'Texas Instruments Incorporated',
+    target: 'Silicon Laboratories Inc.',
+    status: 'REGULATORY_REVIEW',
+    considerationType: 'CASH',
+    dealValue: '5800000000',
+    sizeBucket: 'LARGE',
+    announcedDate: '2025-12-16',
+    outsideDate: '2026-06-30',
+    pCloseBase: '78',
+    pBreakRegulatory: '15',
+    grossSpread: '2.4',
+    acquirerCik: '0000097476',
+    targetCik: '0001038074',
+    regulatoryFlags: ['DOJ', 'EU Commission'],
+    litigationCount: 0,
+  },
+  {
+    symbol: 'CTRA',
+    acquirer: 'Devon Energy Corporation',
+    target: 'Coterra Energy Inc.',
+    status: 'REGULATORY_REVIEW',
+    considerationType: 'STOCK',
+    dealValue: '27400000000',
+    sizeBucket: 'MEGA',
+    announcedDate: '2026-01-07',
+    outsideDate: '2026-09-30',
+    pCloseBase: '85',
+    pBreakRegulatory: '10',
+    grossSpread: '1.2',
+    acquirerCik: '0001090012',
+    targetCik: '0000858470',
+    regulatoryFlags: ['FTC'],
+    litigationCount: 0,
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -358,6 +394,59 @@ const STARTER_EVENTS: StarterEvent[] = [
     sourceUrl: 'https://www.courtlistener.com/',
     offsetDays: 15,
     materialityScore: 90,
+    severity: 'CRITICAL',
+  },
+  {
+    dealSymbol: 'SLAB',
+    type: 'FILING',
+    subType: 'prem14a',
+    title: 'Silicon Labs Files Preliminary Proxy for Texas Instruments Acquisition',
+    description:
+      'Silicon Laboratories filed a PREM14A preliminary proxy statement with the SEC disclosing merger terms, shareholder vote details, and board recommendation for the TXN acquisition.',
+    source: 'SEC',
+    sourceUrl:
+      'https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001038074&type=PREM14A&dateb=&owner=include&count=10',
+    offsetDays: 1,
+    materialityScore: 70,
+    severity: 'WARNING',
+  },
+  {
+    dealSymbol: 'SLAB',
+    type: 'AGENCY',
+    subType: 'hsr_clearance',
+    title: 'HSR Waiting Period Expires for TXN / SLAB Deal',
+    description:
+      'The Hart-Scott-Rodino premerger notification waiting period has expired without a Second Request from the DOJ or FTC, clearing a key regulatory milestone.',
+    source: 'FTC',
+    sourceUrl: 'https://www.ftc.gov/legal-library/browse/cases-proceedings?search_api_fulltext=silicon+laboratories',
+    offsetDays: 5,
+    materialityScore: 65,
+    severity: 'INFO',
+  },
+  {
+    dealSymbol: 'CTRA',
+    type: 'FILING',
+    subType: 's4_registration',
+    title: 'Devon Energy Files S-4 Registration Statement for Coterra Merger',
+    description:
+      'Devon Energy filed an S-4 registration statement with the SEC for the stock-for-stock merger with Coterra Energy, including exchange ratio details and pro-forma financials.',
+    source: 'SEC',
+    sourceUrl: 'https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001090012&type=S-4',
+    offsetDays: 2,
+    materialityScore: 75,
+    severity: 'WARNING',
+  },
+  {
+    dealSymbol: 'CTRA',
+    type: 'AGENCY',
+    subType: 'ftc_review',
+    title: 'FTC Opens Review of Devon Energy / Coterra Energy Combination',
+    description:
+      'The Federal Trade Commission has opened an antitrust review of the proposed Devon-Coterra merger, focusing on competition in the Permian Basin and natural gas markets.',
+    source: 'FTC',
+    sourceUrl: 'https://www.ftc.gov/enforcement/premerger-notification-program',
+    offsetDays: 8,
+    materialityScore: 80,
     severity: 'CRITICAL',
   },
 ];
@@ -642,6 +731,30 @@ export async function seedFirm(firmId: string, userId: string): Promise<void> {
       })),
     );
     console.log(`[seed] Linked ${activeDeals.length} deals to "Top Active Deals" watchlist`);
+  }
+
+  const liveDeals = insertedDeals.filter((d) => ['SLAB', 'CTRA'].includes(d.symbol));
+  if (liveDeals.length > 0) {
+    const [aiWatchlist] = await adminDb
+      .insert(schema.watchlists)
+      .values({
+        firmId,
+        name: 'AI Picks — Live Deals',
+        description: 'Auto-generated watchlist of deals with active SEC filing activity. Updated by EDGAR pipeline.',
+        createdBy: userId,
+      })
+      .returning();
+
+    if (aiWatchlist) {
+      await adminDb.insert(schema.watchlistDeals).values(
+        liveDeals.map((d) => ({
+          watchlistId: aiWatchlist.id,
+          dealId: d.id,
+          addedBy: userId,
+        })),
+      );
+      console.log(`[seed] Created "AI Picks" watchlist with ${liveDeals.length} live deals`);
+    }
   }
 
   // 5. Audit log entries for seeded entities
