@@ -62,10 +62,9 @@ const SidebarItem = ({
 };
 
 const Logo = () => (
-  <div className="flex items-center">
+  <Link href="/app/inbox" className="flex items-center">
     <span className="font-sans text-base font-bold tracking-tight text-text-main">J16Z</span>
-    <span className="ml-2 font-mono text-[9px] uppercase tracking-widest text-text-dim">Terminal</span>
-  </div>
+  </Link>
 );
 
 export const AppLayout: React.FC<LayoutProps> = ({ children }) => {
