@@ -15,6 +15,7 @@
     "check": "tsc -b tsconfig.json",
     "infra:up": "docker compose -f docker-compose.test.yml up -d",
     "infra:down": "docker compose -f docker-compose.test.yml down",
+    "stop": "pkill -f 'tsx.*worker' 2>/dev/null; pkill -f 'python3 worker.py' 2>/dev/null; pkill -f 'next dev' 2>/dev/null; pkill -f 'tsx.*index.ts' 2>/dev/null; docker compose -f docker-compose.test.yml down 2>/dev/null; echo 'All services stopped'",
     "db:migrate": "pnpm --filter @j16z/api run db:migrate",
     "db:generate": "pnpm --filter @j16z/api run db:generate"
   },
